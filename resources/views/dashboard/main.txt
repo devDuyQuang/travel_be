@@ -1,0 +1,313 @@
+@extends('index')
+@section('title', 'Bảng Điều Khiển')
+
+@section('content')
+<div class="container-xxl flex-grow-1 container-p-y">
+  @php
+    $max = max($maxPostsPerMonth, 1);
+  @endphp
+
+  {{-- Header + tabs giống layout mẫu --}}
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div class="mb-2">
+      <h4 class="mb-1">Dashboard</h4>
+      <small class="text-body-secondary">Tổng quan hoạt động nội dung trong hệ thống.</small>
+    </div>
+  </div>
+
+  <ul class="nav nav-pills mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active px-3 py-1" id="tab-overview" data-bs-toggle="tab" data-bs-target="#tab-pane-overview" type="button" role="tab" aria-controls="tab-pane-overview" aria-selected="true">
+        Tổng quan
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link px-3 py-1 text-body-secondary" id="tab-analytics" data-bs-toggle="tab" data-bs-target="#tab-pane-analytics" type="button" role="tab" aria-controls="tab-pane-analytics" aria-selected="false">
+        Phân tích
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link px-3 py-1 text-body-secondary" id="tab-reports" data-bs-toggle="tab" data-bs-target="#tab-pane-reports" type="button" role="tab" aria-controls="tab-pane-reports" aria-selected="false">
+        Báo cáo
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link px-3 py-1 text-body-secondary" id="tab-notifications" data-bs-toggle="tab" data-bs-target="#tab-pane-notifications" type="button" role="tab" aria-controls="tab-pane-notifications" aria-selected="false">
+        Thông báo
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    {{-- TAB TỔNG QUAN --}}
+    <div class="tab-pane fade show active" id="tab-pane-overview" role="tabpanel" aria-labelledby="tab-overview">
+      {{-- Hàng card nhỏ phía trên --}}
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <small class="text-body-secondary d-block mb-1">Tổng bài viết</small>
+              <div class="d-flex justify-content-between align-items-end">
+                <h3 class="mb-0">{{ $totalPosts }}</h3>
+                <span class="badge bg-label-primary rounded-pill">100%</span>
+              </div>
+              <small class="text-body-secondary">Tất cả bài viết đã tạo.</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <small class="text-body-secondary d-block mb-1">Đang hiển thị</small>
+              <div class="d-flex justify-content-between align-items-end">
+                <h3 class="mb-0 text-success">{{ $activePosts }}</h3>
+                <small class="text-body-secondary">
+                  @if($totalPosts > 0)
+                    {{ round(($activePosts / $totalPosts) * 100) }}%
+                  @else
+                    0%
+                  @endif
+                </small>
+              </div>
+              <small class="text-body-secondary">Bài viết đang public trên website.</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <small class="text-body-secondary d-block mb-1">Nháp / Ẩn</small>
+              <div class="d-flex justify-content-between align-items-end">
+                <h3 class="mb-0 text-warning">{{ $inactivePosts }}</h3>
+                <small class="text-body-secondary">
+                  @if($totalPosts > 0)
+                    {{ round(($inactivePosts / $totalPosts) * 100) }}%
+                  @else
+                    0%
+                  @endif
+                </small>
+              </div>
+              <small class="text-body-secondary">Bài viết chưa xuất bản hoặc đã ẩn.</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <small class="text-body-secondary d-block mb-1">Bài viết tháng này</small>
+              <div class="d-flex justify-content-between align-items-end">
+                <h3 class="mb-0">{{ $postsThisMonth }}</h3>
+                <small class="text-body-secondary">Bài viết mới trong tháng.</small>
+              </div>
+              <small class="text-body-secondary">Theo dõi sản lượng nội dung theo tháng.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Hàng dưới: biểu đồ + danh sách --}}
+      <div class="row g-4">
+        <div class="col-12 col-xl-8">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">Biểu đồ bài viết</h5>
+                <small class="text-body-secondary">Số lượng bài viết được tạo trong 6 tháng gần nhất.</small>
+              </div>
+              <span class="badge bg-label-secondary">6 tháng gần nhất</span>
+            </div>
+            <div class="card-body">
+              <div class="mb-3 d-flex justify-content-between text-body-secondary small">
+                <span>Tổng lượt xem: <strong>{{ number_format($totalViews) }}</strong></span>
+                <span>Lượt yêu thích: <strong>{{ number_format($totalFavorites) }}</strong></span>
+              </div>
+
+              @if($chartTotal === 0)
+                <div class="h-100 d-flex align-items-center justify-content-center text-body-secondary small" style="height: 200px;">
+                  Chưa có đủ dữ liệu để hiển thị biểu đồ. Hãy tạo thêm bài viết.
+                </div>
+              @else
+                <div class="position-relative" style="height: 220px;">
+                  {{-- Trục Y giả lập --}}
+                  <div class="position-absolute top-0 bottom-0 start-0 w-100">
+                    <div class="h-100 d-flex flex-column justify-content-between">
+                      @for($i = 4; $i >= 0; $i--)
+                        <div class="w-100" style="border-top: 1px dashed rgba(255,255,255,0.08);"></div>
+                      @endfor
+                    </div>
+                  </div>
+
+                  {{-- Cột --}}
+                  <div class="h-100 d-flex align-items-end justify-content-between position-relative">
+                    @foreach($postsByMonth as $row)
+                      @php
+                        $percent = $row->total > 0 ? max(round($row->total / $max * 100), 10) : 4;
+                        $label = \Illuminate\Support\Str::of($row->month)->after('-');
+                      @endphp
+                      <div class="flex-grow-1 d-flex flex-column justify-content-end align-items-center mx-1">
+                        <div class="w-100 rounded-top" style="height: {{ $percent }}%; background: linear-gradient(180deg, #4c6fff, #3b5bdb);"></div>
+                        <small class="text-body-secondary mt-2">{{ $label }}</small>
+                        <small class="text-body-secondary">{{ $row->total }}</small>
+                      </div>
+                    @endforeach
+                  </div>
+                </div>
+              @endif
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header pb-2 d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">Bài viết mới nhất</h5>
+                <small class="text-body-secondary">Những bài viết vừa được tạo / cập nhật.</small>
+              </div>
+              <a href="{{ panel_route('post.index') }}" class="text-body-secondary small">Xem tất cả</a>
+            </div>
+            <div class="card-body pt-3">
+              @forelse($latestPosts as $post)
+                <div class="mb-3 pb-3 border-bottom">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="me-2">
+                      <h6 class="mb-1 text-truncate" title="{{ $post->name }}">{{ $post->name }}</h6>
+                      <small class="text-body-secondary d-block mb-1">
+                        {{ optional($post->creator)->name ?? 'Hệ thống' }} · {{ $post->created_at?->format('d/m/Y') }}
+                      </small>
+                      <div class="d-flex flex-wrap gap-3 small text-body-secondary">
+                        <span><i class="ti tabler-eye me-1"></i>{{ $post->views }}</span>
+                        <span><i class="ti tabler-heart me-1"></i>{{ $post->favorites }}</span>
+                      </div>
+                    </div>
+                    <span class="badge {{ $post->status ? 'bg-label-success' : 'bg-label-secondary' }}">
+                      {{ $post->status ? 'Hiển thị' : 'Ẩn' }}
+                    </span>
+                  </div>
+                </div>
+              @empty
+                <p class="text-body-secondary small mb-0">Chưa có bài viết nào.</p>
+              @endforelse
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- TAB PHÂN TÍCH --}}
+    <div class="tab-pane fade" id="tab-pane-analytics" role="tabpanel" aria-labelledby="tab-analytics">
+      <div class="row g-4">
+        <div class="col-12 col-xl-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">Top bài viết nhiều lượt xem</h5>
+                <small class="text-body-secondary">5 bài có views cao nhất.</small>
+              </div>
+            </div>
+            <div class="card-body">
+              @if($topViewedPosts->isEmpty())
+                <p class="text-body-secondary small mb-0">Chưa có dữ liệu lượt xem.</p>
+              @else
+                <div class="table-responsive">
+                  <table class="table table-sm table-borderless align-middle mb-0">
+                    <thead>
+                      <tr class="text-body-secondary small">
+                        <th style="width: 40%;">Tiêu đề</th>
+                        <th>Lượt xem</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($topViewedPosts as $post)
+                        <tr>
+                          <td class="text-truncate" title="{{ $post->name }}">{{ $post->name }}</td>
+                          <td><span class="badge bg-label-primary">{{ $post->views }}</span></td>
+                          <td>
+                            <span class="badge {{ $post->status ? 'bg-label-success' : 'bg-label-secondary' }}">
+                              {{ $post->status ? 'Hiển thị' : 'Ẩn' }}
+                            </span>
+                          </td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              @endif
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">Top bài viết được yêu thích</h5>
+                <small class="text-body-secondary">5 bài có favorites cao nhất.</small>
+              </div>
+            </div>
+            <div class="card-body">
+              @if($topFavoritedPosts->isEmpty())
+                <p class="text-body-secondary small mb-0">Chưa có dữ liệu yêu thích.</p>
+              @else
+                <div class="table-responsive">
+                  <table class="table table-sm table-borderless align-middle mb-0">
+                    <thead>
+                      <tr class="text-body-secondary small">
+                        <th style="width: 40%;">Tiêu đề</th>
+                        <th>Yêu thích</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach($topFavoritedPosts as $post)
+                        <tr>
+                          <td class="text-truncate" title="{{ $post->name }}">{{ $post->name }}</td>
+                          <td><span class="badge bg-label-danger">{{ $post->favorites }}</span></td>
+                          <td>
+                            <span class="badge {{ $post->status ? 'bg-label-success' : 'bg-label-secondary' }}">
+                              {{ $post->status ? 'Hiển thị' : 'Ẩn' }}
+                            </span>
+                          </td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              @endif
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- TAB BÁO CÁO --}}
+    <div class="tab-pane fade" id="tab-pane-reports" role="tabpanel" aria-labelledby="tab-reports">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-2">Báo cáo</h5>
+          <p class="text-body-secondary mb-1 small">
+            Khu vực này có thể dùng để build các báo cáo tùy chỉnh (export CSV, lọc theo thời gian, v.v.).
+          </p>
+          <p class="text-body-secondary mb-0 small">
+            Hiện tại chưa có cấu hình thêm. Khi bạn cần loại báo cáo cụ thể, tôi sẽ build tiếp ở đây.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {{-- TAB THÔNG BÁO --}}
+    <div class="tab-pane fade" id="tab-pane-notifications" role="tabpanel" aria-labelledby="tab-notifications">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-2">Thông báo hệ thống</h5>
+          <p class="text-body-secondary mb-0 small">
+            Khu vực dành cho log / thông báo quan trọng (ví dụ: lỗi cron tạo sitemap, lỗi queue gửi email, v.v.).
+            Hiện tại chưa kết nối nguồn dữ liệu, nên tạm thời để trống.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection
