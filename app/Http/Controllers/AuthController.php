@@ -39,7 +39,7 @@ class AuthController extends Controller
                 return response()->json([
                     'success'  => true,
                     'message'  => 'Đăng nhập thành công',
-                    'redirect' => to(panel_route('dashboard.index')) // đổi theo app
+                    'redirect' => panel_route('dashboard.index') // đổi theo app
                 ]);
             }
 

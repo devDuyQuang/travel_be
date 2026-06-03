@@ -1,122 +1,140 @@
-<aside id="layout-menu" class="layout-menu menu-vertical menu">
-   <div class="app-brand demo">
-      <a href="/dashboard" class="app-brand-link">
-         <span class="app-brand-logo demo">
-            <span class="text-primary">
-               {{-- Logo --}}
-            </span>
-         </span>
-         <span class="app-brand-text demo menu-text fw-bold ms-3">Shenlong</span>
-      </a>
+<!--start sidebar-->
+<aside class="sidebar-wrapper" data-simplebar="true">
+  <div class="sidebar-header">
+    <div class="logo-icon">
+      <img src="{{ asset('vertical-menu/assets/images/logo-icon.png') }}" class="logo-img" alt="">
+    </div>
+    <div class="logo-name flex-grow-1">
+      <h5 class="mb-0">Shenlong</h5>
+    </div>
+    <div class="sidebar-close">
+      <span class="material-icons-outlined">close</span>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+      <!--navigation-->
+      <ul class="metismenu" id="sidenav">
+        @php
+        $user = auth()->user();
+        $roleCode = $user?->role?->code;
+        
+        $iconMap = [
+            'tabler-smart-home' => 'home',
+            'tabler-news' => 'article',
+            'tabler-table' => 'table_view',
+            'tabler-category' => 'category',
+            'tabler-brand-feedly' => 'medical_information',
+            'tabler-stethoscope' => 'medical_services',
+            'tabler-award' => 'workspace_premium',
+            'tabler-brand-hipchat' => 'forum',
+            'tabler-message' => 'chat',
+            'tabler-package' => 'inventory_2',
+            'tabler-calendar-time' => 'calendar_month',
+            'tabler-mail' => 'mail',
+            'tabler-id' => 'badge',
+            'tabler-users' => 'group',
+            'tabler-user-check' => 'how_to_reg',
+            'tabler-assembly' => 'settings_suggest',
+            'tabler-settings' => 'settings',
+            'tabler-menu-2' => 'menu',
+            'tabler-file-description' => 'description',
+            'tabler-home' => 'home',
+            'tabler-server-spark' => 'miscellaneous_services',
+            'tabler-user-screen' => 'contact_page',
+        ];
+        @endphp
 
-      <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
-         <i class="icon-base ti menu-toggle-icon d-none d-xl-block"></i>
-         <i class="icon-base ti tabler-x d-block d-xl-none"></i>
-      </a>
-   </div>
+        @foreach($menus as $menu)
+        @php
+        $children = $menu['childrens'] ?? [];
 
-   <div class="menu-inner-shadow"></div>
+        if (isset($menu['roles']) && !in_array($roleCode, $menu['roles'])) {
+            continue;
+        }
 
-   @php
-   $user = auth()->user();
-   $roleCode = $user?->role?->code;
-   @endphp
+        $children = collect($children)
+        ->filter(function ($child) use ($roleCode) {
+            return !isset($child['roles']) || in_array($roleCode, $child['roles']);
+        })
+        ->values()
+        ->all();
 
-   <ul class="menu-inner py-1">
-      @foreach($menus as $menu)
-      @php
-      $children = $menu['childrens'] ?? [];
+        $hasChildren = count($children) > 0;
 
-      if (isset($menu['roles']) && !in_array($roleCode, $menu['roles'])) {
-      continue;
-      }
+        $isParentActive = false;
+        $isChildActive = false;
 
-      $children = collect($children)
-      ->filter(function ($child) use ($roleCode) {
-      return !isset($child['roles']) || in_array($roleCode, $child['roles']);
-      })
-      ->values()
-      ->all();
+        if (!$hasChildren && !empty($menu['route'])) {
+            try {
+                $isParentActive = request()->url() === panel_route($menu['route']);
+            } catch (\Exception $e) {}
+        }
 
-      $hasChildren = count($children) > 0;
+        if (!$isParentActive && !empty($menu['url'])) {
+            $menuSegment = trim($menu['url'], '/');
+            $isParentActive = request()->is($menuSegment) || request()->is($menuSegment . '/*');
+        }
 
-      $isParentActive = false;
-      $isChildActive = false;
+        foreach ($children as $child) {
+            if (!empty($child['route'])) {
+                try {
+                    if (request()->url() === panel_route($child['route'])) {
+                        $isChildActive = true;
+                        break;
+                    }
+                } catch (\Exception $e) {}
+            }
 
-      if (!$hasChildren && !empty($menu['route'])) {
-      $isParentActive = request()->url() === panel_route($menu['route']);
-      }
+            if (!empty($child['url'])) {
+                $childSegment = trim($child['url'], '/');
+                if (request()->is($childSegment) || request()->is($childSegment . '/*')) {
+                    $isChildActive = true;
+                    break;
+                }
+            }
+        }
 
-      if (!$isParentActive && !empty($menu['url'])) {
-      $menuSegment = trim($menu['url'], '/');
-      $isParentActive = request()->is($menuSegment);
-      }
+        $isOpen = $hasChildren && ($isParentActive || $isChildActive);
+        $matIcon = $iconMap[$menu['icon'] ?? ''] ?? 'radio_button_unchecked';
+        @endphp
 
-      foreach ($children as $child) {
-      if (!empty($child['route']) && request()->url() === panel_route($child['route'])) {
-      $isChildActive = true;
-      break;
-      }
-
-      if (!empty($child['url'])) {
-      $childSegment = trim($child['url'], '/');
-
-      if (request()->is($childSegment)) {
-      $isChildActive = true;
-      break;
-      }
-      }
-      }
-
-      $isOpen = $hasChildren && ($isParentActive || $isChildActive);
-      @endphp
-
-      <li class="menu-item {{ $isParentActive || $isChildActive ? 'active' : '' }} {{ $isOpen ? 'open' : '' }}">
-         <a
-            href="{{ $hasChildren ? 'javascript:void(0);' : panel_route($menu['route']) }}"
-            class="menu-link {{ $hasChildren ? 'menu-toggle' : '' }}">
-            <i class="menu-icon icon-base ti {{ $menu['icon'] ?? 'tabler-circle' }}"></i>
-            <div>{{ $menu['label'] ?? '' }}</div>
-         </a>
-
-         @if($hasChildren)
-         <ul class="menu-sub">
+        <li class="{{ $isOpen || $isParentActive || $isChildActive ? 'mm-active' : '' }}">
+          <a href="{{ $hasChildren ? 'javascript:;' : (!empty($menu['route']) ? panel_route($menu['route']) : 'javascript:;') }}" class="{{ $hasChildren ? 'has-arrow' : '' }}">
+            <div class="parent-icon"><i class="material-icons-outlined">{{ $matIcon }}</i>
+            </div>
+            <div class="menu-title">{{ $menu['label'] ?? '' }}</div>
+          </a>
+          
+          @if($hasChildren)
+          <ul class="{{ $isOpen ? 'mm-collapse mm-show' : 'mm-collapse' }}">
             @foreach($children as $child)
             @php
             $childActive = false;
 
             if (!empty($child['route'])) {
-            $childActive = request()->url() === panel_route($child['route']);
+                try {
+                    $childActive = request()->url() === panel_route($child['route']);
+                } catch (\Exception $e) {}
             }
 
             if (!$childActive && !empty($child['url'])) {
-            $childSegment = trim($child['url'], '/');
-            $childActive = request()->is($childSegment);
+                $childSegment = trim($child['url'], '/');
+                $childActive = request()->is($childSegment) || request()->is($childSegment . '/*');
             }
             @endphp
-
-            <li class="menu-item {{ $childActive ? 'active' : '' }}">
-               <a href="{{ panel_route($child['route']) }}" class="menu-link menu-link-none-list">
-                @if(!empty($child['icon']))
-                        <i class="menu-icon icon-base ti {{ is_array($child['icon']) ? ($child['icon'][0] ?? 'tabler-circle-dot') : $child['icon'] }}"></i>
-                        @endif
-
-                  <div>{{ $child['label'] ?? '' }}</div>
-               </a>
+            <li class="{{ $childActive ? 'mm-active' : '' }}">
+                <a href="{{ !empty($child['route']) ? panel_route($child['route']) : 'javascript:;' }}" class="{{ $childActive ? 'active' : '' }}">
+                    <i class="material-icons-outlined">arrow_right</i>{{ $child['label'] ?? '' }}
+                </a>
             </li>
             @endforeach
-         </ul>
-         @endif
-      </li>
-      @endforeach
-   </ul>
-</aside>
-<style>
-    a.menu-link-none-list::before {
-        display: none;
-    }
+          </ul>
+          @endif
+        </li>
+        @endforeach
 
-    .menu-vertical .menu-sub .menu-link-none-list {
-        padding-inline-start: 2.4rem;
-    }
-    </style>
+      </ul>
+      <!--end navigation-->
+  </div>
+</aside>
+<!--end sidebar-->

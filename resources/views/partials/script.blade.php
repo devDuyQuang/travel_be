@@ -1,4 +1,4 @@
-<script src="../../assets/vendor/libs/jquery/jquery.js"></script>
+<!-- <script src="../../assets/vendor/libs/jquery/jquery.js"></script>
 
 <script src="../../assets/vendor/libs/popper/popper.js"></script>
 <script src="../../assets/vendor/js/bootstrap.js"></script>
@@ -12,34 +12,51 @@
 
 <script src="../../assets/vendor/libs/i18n/i18n.js"></script>
 
-<script src="../../assets/vendor/js/menu.js"></script>
+<script src="../../assets/vendor/js/menu.js"></script> -->
 
 <!-- endbuild -->
 
 <!-- Vendors JS -->
-<script src="../../assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+<!-- <script src="../../assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
 <script src="../../assets/vendor/libs/sortablejs/sortable.js"></script>
 <script src="../../assets/vendor/libs/select2/select2.js"></script>
 <script src="../../assets/vendor/libs/tagify/tagify.js"></script>
 <script src="../../assets/vendor/libs/bootstrap-select/bootstrap-select.js"></script>
 <script src="../../assets/vendor/libs/typeahead-js/typeahead.js"></script>
-<script src="../../assets/vendor/libs/bloodhound/bloodhound.js"></script>
+<script src="../../assets/vendor/libs/bloodhound/bloodhound.js"></script> -->
 
 <!-- Flat Picker -->
-<script src="../../assets/vendor/libs/moment/moment.js"></script>
+<!-- <script src="../../assets/vendor/libs/moment/moment.js"></script>
 <script src="../../assets/vendor/libs/flatpickr/flatpickr.js"></script>
-<script src="../../assets/vendor/libs/dropzone/dropzone.js"></script>
+<script src="../../assets/vendor/libs/dropzone/dropzone.js"></script> -->
 
 <!-- Main JS -->
-<script src="../../assets/js/main.js"></script>
+<!-- <script src="../../assets/js/main.js"></script> -->
 
 <!-- Page JS -->
-<script src="../../assets/js/dashboards-analytics.js"></script>
+<!-- <script src="../../assets/js/dashboards-analytics.js"></script>
 <script src="../../assets/js/extended-ui-drag-and-drop.js"></script>
 <script src="../../assets/js/fileinput.js"></script>
-<script src="../../assets/js/forms-selects.js"></script>
+<script src="../../assets/js/forms-selects.js"></script> -->
 <!-- <script src="../../assets/js/forms-tagify.js"></script> -->
 <!-- <script src="../../assets/js/forms-typeahead.js"></script> -->
+
+<!--bootstrap js-->
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+
+<!--plugins-->
+<script src="assets/js/jquery.min.js"></script>
+<!--plugins-->
+<script src="assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+<script src="assets/plugins/metismenu/metisMenu.min.js"></script>
+<script src="assets/plugins/apexchart/apexcharts.min.js"></script>
+<script src="assets/plugins/simplebar/js/simplebar.min.js"></script>
+<script src="assets/plugins/peity/jquery.peity.min.js"></script>
+<script>
+  $(".data-attributes span").peity("donut")
+</script>
+<script src="assets/js/dashboard2.js"></script>
+<script src="assets/js/main.js"></script>
 
 <script>
 $(document).ready(function() {

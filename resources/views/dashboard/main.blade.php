@@ -1,292 +1,853 @@
 @extends('index')
 @section('title', 'Bảng Điều Khiển')
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
-    <h5 class="card-title mb-3 text-md-start text-center pb-md-0 pb-6 d-flex align-items-center gap-2 flex-wrap">
-        <i class="icon-base ti tabler-smart-home"></i>
-    Bảng Điều Khiển
+<!--start main wrapper-->
+<main class="main-wrapper">
+    <div class="main-content">
+      <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">Dashboard</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">eCommerce</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="ms-auto">
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary">Settings</button>
+            <button type="button" class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split"
+              data-bs-toggle="dropdown"> <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"> <a class="dropdown-item"
+                href="javascript:;">Action</a>
+              <a class="dropdown-item" href="javascript:;">Another action</a>
+              <a class="dropdown-item" href="javascript:;">Something else here</a>
+              <div class="dropdown-divider"></div><a class="dropdown-item" href="javascript:;">Separated link</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--end breadcrumb-->
 
-    </h5>
 
-@php
-    $user = auth()->user();
-    // Chuyển toàn bộ thông tin role thành chuỗi để tìm chữ 'admin'
-    $roleData = json_encode($user->role ?? '');
-
-
-    $canPost = str_contains(strtolower($roleData), 'admin');
-    $activeTab = $canPost ? 'posts' : '';
-    $canDoctor = str_contains(strtolower($roleData), 'admin');
-    $canComment = str_contains(strtolower($roleData), 'admin');
-    $canUsers = str_contains(strtolower($roleData), 'admin');
-    $canRoles = str_contains(strtolower($roleData), 'admin');
-@endphp
-
-
-   <div class="nav-align-top mb-6">
-        <div class="nav-tabs-wrapper mb-8 pt-7">
-            <ul class="nav nav-tabs shadow-none border-bottom flex-nowrap" role="tablist" style="overflow-x: auto; overflow-y: hidden;">
-                @if($canPost)
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab === 'posts' ? 'active' : '' }} text-nowrap d-flex align-items-center" role="tab" data-bs-toggle="tab" data-bs-target="#tab-posts">
-                        <i class="ti tabler-news me-1"></i> Quản Lý Bài Viết
-                        <span class="badge rounded-pill bg-label-dark ms-2">{{ $stats['posts']['total'] }}</span>
-                    </button>
-                </li>
-                @endif
-
-                @if($canDoctor)
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab === 'doctors' ? 'active' : '' }} text-nowrap d-flex align-items-center" role="tab" data-bs-toggle="tab" data-bs-target="#tab-doctors">
-                        <i class="ti tabler-stethoscope me-1"></i> Thông Tin Bác Sĩ
-                        <span class="badge rounded-pill bg-label-dark ms-2">{{ $stats['doctors']['total'] }}</span>
-                    </button>
-                </li>
-                @endif
-
-                @if($canComment)
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab === 'comments' ? 'active' : '' }} text-nowrap d-flex align-items-center" role="tab" data-bs-toggle="tab" data-bs-target="#tab-comments">
-                        <i class="ti tabler-messages me-1"></i> Quản Lý Bình Luận
-                        <span class="badge rounded-pill bg-label-dark ms-2">{{ $stats['comments']['total'] }}</span>
-                    </button>
-                </li>
-                @endif
-
-                @if($canUsers)
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab === 'users' ? 'active' : '' }} text-nowrap d-flex align-items-center" role="tab" data-bs-toggle="tab" data-bs-target="#tab-users">
-                        <i class="ti tabler-users me-1"></i> Quản Lý Người Dùng
-                        <span class="badge rounded-pill bg-label-dark ms-2">{{ $stats['users']['total'] }}</span>
-                    </button>
-                </li>
-                @endif
-
-                @if($canRoles)
-                <li class="nav-item">
-                    <button type="button" class="nav-link {{ $activeTab === 'roles' ? 'active' : '' }} text-nowrap d-flex align-items-center" role="tab" data-bs-toggle="tab" data-bs-target="#tab-roles">
-                        <i class="ti tabler-shield me-1"></i> Quản Lý Vai Trò
-                        <span class="badge rounded-pill bg-label-dark ms-2">{{ $stats['roles']['total'] }}</span>
-                    </button>
-                </li>
-                @endif
-
-            </ul>
+      <div class="row">
+        <div class="col-12 col-lg-4 col-xxl-4 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <h5 class="mb-0">Congratulations <span class="fw-600">Jhon</span></h5>
+                  <img src="assets/images/apps/party-popper.png" width="24" height="24" alt="">
+                </div>
+                <p class="mb-4">You are the best seller of this monnth</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="">
+                    <h3 class="mb-0 text-indigo">$168.5K</h3>
+                    <p class="mb-3">58% of sales target</p>
+                    <button class="btn btn-grd btn-grd-primary rounded-5 border-0 px-4">View Details</button>
+                  </div>
+                  <img src="assets/images/apps/gift-box-3.png" width="100" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4 col-xxl-2 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="mb-3 d-flex align-items-center justify-content-between">
+                <div
+                  class="wh-42 d-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10 text-primary">
+                  <span class="material-icons-outlined fs-5">shopping_cart</span>
+                </div>
+                <div>
+                  <span class="text-success d-flex align-items-center">+24%<i
+                      class="material-icons-outlined">expand_less</i></span>
+                </div>
+              </div>
+              <div>
+                <h4 class="mb-0">248k</h4>
+                <p class="mb-3">Total Orders</p>
+                <div id="chart1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4 col-xxl-2 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="mb-3 d-flex align-items-center justify-content-between">
+                <div
+                  class="wh-42 d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 text-success">
+                  <span class="material-icons-outlined fs-5">attach_money</span>
+                </div>
+                <div>
+                  <span class="text-success d-flex align-items-center">+14%<i
+                      class="material-icons-outlined">expand_less</i></span>
+                </div>
+              </div>
+              <div>
+                <h4 class="mb-0">$47.6k</h4>
+                <p class="mb-3">Total Sales</p>
+                <div id="chart2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xxl-2 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="mb-3 d-flex align-items-center justify-content-between">
+                <div
+                  class="wh-42 d-flex align-items-center justify-content-center rounded-circle bg-info bg-opacity-10 text-info">
+                  <span class="material-icons-outlined fs-5">visibility</span>
+                </div>
+                <div>
+                  <span class="text-danger d-flex align-items-center">-35%<i
+                      class="material-icons-outlined">expand_less</i></span>
+                </div>
+              </div>
+              <div>
+                <h4 class="mb-0">189K</h4>
+                <p class="mb-3">Total Visits</p>
+                <div id="chart3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xxl-2 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="mb-3 d-flex align-items-center justify-content-between">
+                <div
+                  class="wh-42 d-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 text-warning">
+                  <span class="material-icons-outlined fs-5">leaderboard</span>
+                </div>
+                <div>
+                  <span class="text-success d-flex align-items-center">+18%<i
+                      class="material-icons-outlined">expand_less</i></span>
+                </div>
+              </div>
+              <div>
+                <h4 class="mb-0">24.6%</h4>
+                <p class="mb-3">Bounce Rate</p>
+                <div id="chart4"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-      <div class="tab-content bg-transparent border-0 shadow-none px-0 py-0">
+      </div><!--end row-->
 
-        @if($canPost)
-            <div class="tab-pane show {{ $activeTab === 'posts' ? 'active' : '' }}" id="tab-posts" role="tabpanel">
-                @include('dashboard.tabs.posts')
+
+      <div class="row">
+        <div class="col-12 col-xl-4">
+          <div class="card w-100 rounded-4">
+            <div class="card-body">
+              <div class="d-flex flex-column gap-3">
+                <div class="d-flex align-items-start justify-content-between">
+                  <div class="">
+                    <h5 class="mb-0">Order Status</h5>
+                  </div>
+                  <div class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                      data-bs-toggle="dropdown">
+                      <span class="material-icons-outlined fs-5">more_vert</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                      <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                      <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="position-relative">
+                  <div class="piechart-legend">
+                    <h2 class="mb-1">68%</h2>
+                    <h6 class="mb-0">Total Sales</h6>
+                  </div>
+                  <div id="chart6"></div>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <p class="mb-0 d-flex align-items-center gap-2 w-25"><span
+                        class="material-icons-outlined fs-6 text-primary">fiber_manual_record</span>Sales</p>
+                    <div class="">
+                      <p class="mb-0">68%</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <p class="mb-0 d-flex align-items-center gap-2 w-25"><span
+                        class="material-icons-outlined fs-6 text-danger">fiber_manual_record</span>Product</p>
+                    <div class="">
+                      <p class="mb-0">25%</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <p class="mb-0 d-flex align-items-center gap-2 w-25"><span
+                        class="material-icons-outlined fs-6 text-success">fiber_manual_record</span>Income</p>
+                    <div class="">
+                      <p class="mb-0">14%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        @endif
-
-        @if($canDoctor)
-            <div class="tab-pane show {{ $activeTab === 'doctors' ? 'active' : '' }}" id="tab-doctors" role="tabpanel">
-                @include('dashboard.tabs.doctors')
+          </div>
+        </div>
+        <div class="col-12 col-xl-8">
+          <div class="card w-100 rounded-4">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">Sales & Views</h5>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div id="chart5"></div>
+              <div
+                class="d-flex flex-column flex-lg-row align-items-start justify-content-around border p-3 rounded-4 mt-3 gap-3">
+                <div class="d-flex align-items-center gap-4">
+                  <div class="">
+                    <p class="mb-0 data-attributes">
+                      <span
+                        data-peity='{ "fill": ["#2196f3", "rgb(255 255 255 / 12%)"], "innerRadius": 32, "radius": 40 }'>5/7</span>
+                    </p>
+                  </div>
+                  <div class="">
+                    <p class="mb-1 fs-6 fw-bold">Monthly</p>
+                    <h2 class="mb-0">65,127</h2>
+                    <p class="mb-0"><span class="text-success me-2 fw-medium">16.5%</span><span>55.21 USD</span></p>
+                  </div>
+                </div>
+                <div class="vr"></div>
+                <div class="d-flex align-items-center gap-4">
+                  <div class="">
+                    <p class="mb-0 data-attributes">
+                      <span
+                        data-peity='{ "fill": ["#ffd200", "rgb(255 255 255 / 12%)"], "innerRadius": 32, "radius": 40 }'>5/7</span>
+                    </p>
+                  </div>
+                  <div class="">
+                    <p class="mb-1 fs-6 fw-bold">Yearly</p>
+                    <h2 class="mb-0">984,246</h2>
+                    <p class="mb-0"><span class="text-success me-2 fw-medium">24.9%</span><span>267.35 USD</span></p>
+                  </div>
+                </div>
+              </div>
             </div>
-        @endif
+          </div>
+        </div>
+      </div><!--end row-->
 
-        @if($canComment)
-            <div class="tab-pane show {{ $activeTab === 'comments' ? 'active' : '' }}" id="tab-comments" role="tabpanel">
-                @include('dashboard.tabs.comments')
+
+      <div class="row">
+        <div class="col-12 col-lg-6 col-xxl-4 d-flex">
+          <div class="card w-100 rounded-4">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">Social Revenue</h5>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="mb-4">
+                <div class="d-flex align-items-center gap-3">
+                  <h3 class="mb-0">48,569</h3>
+                  <p class="mb-0 text-success gap-3">27%<span class="material-icons-outlined fs-6">arrow_upward</span>
+                  </p>
+                </div>
+                <p class="mb-0 font-13">Last 1 Year Income</p>
+              </div>
+              <div class="table-responsive">
+                <div class="d-flex flex-column gap-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="social-icon d-flex align-items-center gap-3 flex-grow-1">
+                      <img src="assets/images/apps/17.png" width="40" alt="">
+                      <div>
+                        <h6 class="mb-0">Facebook</h6>
+                        <p class="mb-0">Social Media</p>
+                      </div>
+                    </div>
+                    <h5 class="mb-0">45,689</h5>
+                    <div class="card-lable bg-success text-success bg-opacity-10">
+                      <p class="text-success mb-0">+28.5%</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="social-icon d-flex align-items-center gap-3 flex-grow-1">
+                      <img src="assets/images/apps/twitter-circle.png" width="40" alt="">
+                      <div>
+                        <h6 class="mb-0">Twitter</h6>
+                        <p class="mb-0">Social Media</p>
+                      </div>
+                    </div>
+                    <h5 class="mb-0">34,248</h5>
+                    <div class="card-lable bg-danger text-danger bg-opacity-10">
+                      <p class="text-red mb-0">-14.5%</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="social-icon d-flex align-items-center gap-3 flex-grow-1">
+                      <img src="assets/images/apps/03.png" width="40" alt="">
+                      <div>
+                        <h6 class="mb-0">Tik Tok</h6>
+                        <p class="mb-0">Entertainment</p>
+                      </div>
+                    </div>
+                    <h5 class="mb-0">45,689</h5>
+                    <div class="card-lable bg-success text-success bg-opacity-10">
+                      <p class="text-green mb-0">+28.5%</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="social-icon d-flex align-items-center gap-3 flex-grow-1">
+                      <img src="assets/images/apps/19.png" width="40" alt="">
+                      <div>
+                        <h6 class="mb-0">Instagram</h6>
+                        <p class="mb-0">Social Media</p>
+                      </div>
+                    </div>
+                    <h5 class="mb-0">67,249</h5>
+                    <div class="card-lable bg-danger text-danger bg-opacity-10">
+                      <p class="text-red mb-0">-43.5%</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="social-icon d-flex align-items-center gap-3 flex-grow-1">
+                      <img src="assets/images/apps/20.png" width="40" alt="">
+                      <div>
+                        <h6 class="mb-0">Snapchat</h6>
+                        <p class="mb-0">Conversation</p>
+                      </div>
+                    </div>
+                    <h5 class="mb-0">89,178</h5>
+                    <div class="card-lable bg-success text-success bg-opacity-10">
+                      <p class="text-green mb-0">+24.7%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        @endif
-
-        @if($canUsers)
-            <div class="tab-pane show {{ $activeTab === 'users' ? 'active' : '' }}" id="tab-users" role="tabpanel">
-                @include('dashboard.tabs.users')
+          </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xxl-4 d-flex">
+          <div class="card w-100 rounded-4">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">Popular Products</h5>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="d-flex flex-column gap-4">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/top-products/01.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Apple Hand Watch</h6>
+                    <p class="mb-0">Sale: 258</p>
+                  </div>
+                  <div class="text-center">
+                    <h6 class="mb-1">$199</h6>
+                    <p class="mb-0 text-success font-13">+12%</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/top-products/02.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Mobile Phone Set</h6>
+                    <p class="mb-0">Sale: 169</p>
+                  </div>
+                  <div class="text-center">
+                    <h6 class="mb-1">$159</h6>
+                    <p class="mb-0 text-success font-13">+14%</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/top-products/04.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Grey Shoes Pair</h6>
+                    <p class="mb-0">Sale: 859</p>
+                  </div>
+                  <div class="">
+                    <div class="text-center">
+                      <h6 class="mb-1">$279</h6>
+                      <p class="mb-0 text-danger font-13">-12%</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/top-products/05.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Blue Yoga Mat</h6>
+                    <p class="mb-0">Sale: 328</p>
+                  </div>
+                  <div class="text-center">
+                    <h6 class="mb-1">$389</h6>
+                    <p class="mb-0 text-success font-13">+25%</p>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/top-products/06.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">White water Bottle</h6>
+                    <p class="mb-0">Sale: 992</p>
+                  </div>
+                  <div class="text-center">
+                    <h6 class="mb-1">$584</h6>
+                    <p class="mb-0 text-danger font-13">-25%</p>
+                  </div>
+                </div>
+              </div>
             </div>
-        @endif
-
-        @if($canRoles)
-            <div class="tab-pane show {{ $activeTab === 'roles' ? 'active' : '' }}" id="tab-roles" role="tabpanel">
-                @include('dashboard.tabs.roles')
+          </div>
+        </div>
+        <div class="col-12 col-lg-12 col-xxl-4 d-flex">
+          <div class="card w-100 rounded-4">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">Top Vendors</h5>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="d-flex flex-column gap-4">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/avatars/01.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Ajay Sidhu</h6>
+                    <p class="mb-0">Sale: 879</p>
+                  </div>
+                  <div class="ratings">
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/avatars/02.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Ajay Sidhu</h6>
+                    <p class="mb-0">Sale: 879</p>
+                  </div>
+                  <div class="ratings">
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/avatars/03.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Ajay Sidhu</h6>
+                    <p class="mb-0">Sale: 879</p>
+                  </div>
+                  <div class="ratings">
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/avatars/04.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Ajay Sidhu</h6>
+                    <p class="mb-0">Sale: 879</p>
+                  </div>
+                  <div class="ratings">
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="assets/images/avatars/08.png" width="55" class="rounded-circle" alt="">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0">Ajay Sidhu</h6>
+                    <p class="mb-0">Sale: 879</p>
+                  </div>
+                  <div class="ratings">
+                    <span class="material-icons-outlined text-warning fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                    <span class="material-icons-outlined fs-5">star</span>
+                  </div>
+                </div>
+              </div>
             </div>
-        @endif
-      </div>
-   </div>
-</div>
-
-<style>
-   .bg-label-primary {
-      background-color: rgba(115, 103, 240, 0.08) !important;
-      color: #7367f0 !important;
-   }
-
-   .bg-label-success {
-      background-color: rgba(40, 199, 111, 0.08) !important;
-      color: #28c76f !important;
-   }
-
-   .bg-label-info {
-      background-color: rgba(0, 207, 221, 0.08) !important;
-      color: #00cfdd !important;
-   }
-
-   .bg-label-warning {
-      background-color: rgba(255, 159, 67, 0.08) !important;
-      color: #ff9f43 !important;
-   }
-
-   .bg-label-danger {
-      background-color: rgba(234, 84, 85, 0.08) !important;
-      color: #ea5455 !important;
-   }
-
-   .btn-white {
-      background: white;
-      border: none;
-      transition: 0.3s;
-   }
-
-   .btn-white:hover {
-      background: #f8f9fa;
-      transform: translateY(-5px);
-   }
-
-   .hover-up:hover {
-      transform: translateY(-5px);
-      transition: 0.3s;
-   }
+          </div>
+        </div>
+      </div><!--end row-->
 
 
+      <div class="row">
+        <div class="col-12 col-xxl-6 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">Transactions</h5>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0 table-striped">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Source Name</th>
+                      <th>Status</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="">
+                          <h6 class="mb-0">10 Sep,2024</h6>
+                          <p class="mb-0">8:20 PM</p>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center flex-row gap-3">
+                          <div class="">
+                            <img src="assets/images/apps/paypal.png" width="35" alt="">
+                          </div>
+                          <div class="">
+                            <h6 class="mb-0">Paypal</h6>
+                            <p class="mb-0">Business Plan</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="card-lable bg-success text-success bg-opacity-10">
+                          <p class="text-success mb-0">Paid</p>
+                        </div>
+                      </td>
+                      <td>
+                        <h5 class="mb-0">$5897</h5>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="">
+                          <h6 class="mb-0">10 Sep,2024</h6>
+                          <p class="mb-0">8:20 PM</p>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center flex-row gap-3">
+                          <div class="">
+                            <img src="assets/images/apps/13.png" width="35" alt="">
+                          </div>
+                          <div class="">
+                            <h6 class="mb-0">Visa</h6>
+                            <p class="mb-0">Business Plan</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="card-lable bg-danger text-danger bg-opacity-10">
+                          <p class="text-danger mb-0">Unpaid</p>
+                        </div>
+                      </td>
+                      <td>
+                        <h5 class="mb-0">$9638</h5>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="">
+                          <h6 class="mb-0">10 Sep,2024</h6>
+                          <p class="mb-0">8:20 PM</p>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center flex-row gap-3">
+                          <div class="">
+                            <img src="assets/images/apps/behance.png" width="35" alt="">
+                          </div>
+                          <div class="">
+                            <h6 class="mb-0">Behance</h6>
+                            <p class="mb-0">Business Plan</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="card-lable bg-success text-success bg-opacity-10">
+                          <p class="text-success mb-0">Paid</p>
+                        </div>
+                      </td>
+                      <td>
+                        <h5 class="mb-0">$9638</h5>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="">
+                          <h6 class="mb-0">10 Sep,2024</h6>
+                          <p class="mb-0">8:20 PM</p>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center flex-row gap-3">
+                          <div class="">
+                            <img src="assets/images/apps/07.png" width="35" alt="">
+                          </div>
+                          <div class="">
+                            <h6 class="mb-0">Spotify</h6>
+                            <p class="mb-0">Business Plan</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="card-lable bg-success text-success bg-opacity-10">
+                          <p class="text-success mb-0">Paid</p>
+                        </div>
+                      </td>
+                      <td>
+                        <h5 class="mb-0">$9638</h5>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="">
+                          <h6 class="mb-0">10 Sep,2024</h6>
+                          <p class="mb-0">8:20 PM</p>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center flex-row gap-3">
+                          <div class="">
+                            <img src="assets/images/apps/05.png" width="35" alt="">
+                          </div>
+                          <div class="">
+                            <h6 class="mb-0">Google</h6>
+                            <p class="mb-0">Business Plan</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="card-lable bg-danger text-danger bg-opacity-10">
+                          <p class="text-danger mb-0">Unpaid</p>
+                        </div>
+                      </td>
+                      <td>
+                        <h5 class="mb-0">$9638</h5>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="">
+                          <h6 class="mb-0">10 Sep,2024</h6>
+                          <p class="mb-0">8:20 PM</p>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center flex-row gap-3">
+                          <div class="">
+                            <img src="assets/images/apps/apple.png" width="35" alt="">
+                          </div>
+                          <div class="">
+                            <h6 class="mb-0">Apple</h6>
+                            <p class="mb-0">Business Plan</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="card-lable bg-success text-success bg-opacity-10">
+                          <p class="text-success mb-0">Paid</p>
+                        </div>
+                      </td>
+                      <td>
+                        <h5 class="mb-0">$9638</h5>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xxl-3 d-flex flex-column">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                  <p class="mb-1">Messages</p>
+                  <h3 class="mb-0">986</h3>
+                </div>
+                <div class="wh-42 d-flex align-items-center justify-content-center rounded-circle bg-grd-danger">
+                  <span class="material-icons-outlined fs-5 text-white">shopping_cart</span>
+                </div>
+              </div>
+              <div class="progress mb-0" style="height:6px;">
+                <div class="progress-bar bg-grd-danger" role="progressbar" style="width: 60%" aria-valuenow="25"
+                  aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="d-flex align-items-center mt-3 gap-2">
+                <div class="card-lable bg-success bg-opacity-10">
+                  <p class="text-success mb-0">+34.7%</p>
+                </div>
+                <p class="mb-0 font-13">from last month</p>
+              </div>
+            </div>
+          </div>
 
-   /* 1. Đảm bảo các tab không xuống hàng và có thể kéo ngang */
-    .nav-tabs {
-        display: flex;
-        flex-wrap: nowrap !important;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch; /* Hỗ trợ vuốt mượt trên iPhone/Android */
-    }
+          <div class="card rounded-4 w-100 d-none">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <div class="">
+                    <p class="mb-2">Total Profit</p>
+                  </div>
+                  <div class="d-flex align-items-center gap-3">
+                    <h4 class="mb-0">$75,365</h4>
+                    <div class="card-lable bg-danger bg-opacity-10">
+                      <p class="text-danger mb-0">-26.9%</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div id="chart7"></div>
+            </div>
+          </div>
 
-    /* 2. Ép các button tab không bị co lại quá hẹp */
-    .nav-tabs .nav-link {
-        flex-shrink: 0;
-    }
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">$15.7K</h5>
+                  <p class="mb-0">Total Profit</p>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="">
+                <div id="chart9"></div>
+              </div>
+              <div class="text-center mt-3">
+                <p class="mb-0"><span class="text-success me-1">12.5%</span> from last month</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6 col-xxl-3 d-flex">
+          <div class="card rounded-4 w-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="">
+                  <h5 class="mb-0">Monthly Budget</h5>
+                </div>
+                <div class="dropdown">
+                  <a href="javascript:;" class="dropdown-toggle-nocaret options dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <span class="material-icons-outlined fs-5">more_vert</span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                    <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="chart-container mb-2">
+                <div id="chart8"></div>
+              </div>
+              <div class="text-center">
+                <h3>$84,256</h3>
+                <p class="mb-3">Vestibulum fermentum nisl id nulla ultricies convallis.</p>
+                <button class="btn btn-grd btn-grd-info rounded-5 px-4">Increase Budget</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!--end row-->
 
-    /* 3. Tùy chọn: Ẩn thanh cuộn xấu xí nhưng vẫn kéo được (nhìn giống mobile app) */
-    .nav-tabs::-webkit-scrollbar {
-        height: 3px; /* Độ cao thanh cuộn nhỏ thôi */
-    }
-    .nav-tabs::-webkit-scrollbar-thumb {
-        background: #5a5a5a; /* Màu thanh cuộn khớp với theme */
-        border-radius: 10px;
-    }
-    .nav-tabs::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .nav-tabs .nav-link .badge {
-    font-size: 0.65rem; /* Nhỏ hơn chữ tiêu đề một chút */
-    padding: 0.25em 0.5em;
-    font-weight: 500;
-    }
-    /* Làm mờ nhẹ badge khi tab không được chọn */
-    .nav-tabs .nav-link:not(.active) .badge {
-        opacity: 0.8;
-    }
-</style>
+    </div>
+  </main>
+  <!--end main wrapper-->
 @endsection
-
-
-@push('scripts')
-<script src="{{ asset('assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Cấu hình màu sắc chung
-    const labelColor = '#a1acb8';
-    const borderColor = '#f1f1f1';
-
-    // 1. Lấy dữ liệu từ Controller
-    const dailyLabels = {!! json_encode($last7DaysLabels) !!};
-    const postData = {!! json_encode($chartData['post_growth'] ?? []) !!};
-    const doctorData = {!! json_encode($chartData['doctor_growth'] ?? []) !!};
-
-    /**
-     * Hàm tạo cấu hình biểu đồ Area chuẩn
-     */
-    function getAreaConfig(name, data, color, categories) {
-        return {
-            chart: {
-                height: 350,
-                type: 'area',
-                toolbar: { show: false },
-                parentHeightOffset: 0
-            },
-            dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 3 },
-            series: [{ name: name, data: data }],
-            xaxis: {
-                categories: categories,
-                axisBorder: { show: false },
-                axisTicks: { show: false },
-                labels: { style: { colors: labelColor, fontSize: '13px' } }
-            },
-            yaxis: {
-                labels: {
-                    style: { colors: labelColor, fontSize: '13px' },
-                    formatter: (val) => Math.floor(val)
-                },
-                tickAmount: 4
-            },
-            colors: [color],
-            grid: {
-                borderColor: borderColor,
-                strokeDashArray: 7,
-                padding: { top: -20, bottom: -10 }
-            },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shadeIntensity: 1, opacityFrom: 0.6, opacityTo: 0.1, stops: [0, 90, 100]
-                }
-            }
-        };
-    }
-
-    // 2. Khởi tạo Chart Bài Viết
-    const postChartEl = document.querySelector('#postGrowthChart');
-    if (postChartEl) {
-        new ApexCharts(postChartEl, getAreaConfig('Bài viết mới', postData, '#7367f0', dailyLabels)).render();
-    }
-    // 3. Khởi tạo Biểu đồ Bác Sĩ (Màu Cyan - Info)
-    const doctorChartEl = document.querySelector('#doctorChart');
-    if (doctorChartEl) {
-        const doctorChart = new ApexCharts(doctorChartEl, getAreaConfig('Bác sĩ mới', doctorData, '#7367f0', dailyLabels));
-        doctorChart.render();
-    }
-
-    // 4. Khởi tạo Chart Bình luận (Màu Đỏ Cam - Danger/Warning)
-    const commentChartEl = document.querySelector('#commentGrowthChart');
-    if (commentChartEl) {
-        const commentChart = new ApexCharts(commentChartEl, getAreaConfig('Bình luận mới', {!! json_encode($chartData['comment_growth'] ?? []) !!}, '#7367f0', dailyLabels));
-        commentChart.render();
-    }
-
-    // Khởi tạo Chart User (Màu Indigo/Tím đậm)
-    const userChartEl = document.querySelector('#userGrowthChart');
-    if (userChartEl) {
-        const userChart = new ApexCharts(userChartEl, getAreaConfig('User mới', {!! json_encode($chartData['user_growth'] ?? []) !!}, '#7367f0', dailyLabels));
-        userChart.render();
-    }
-
-    // Khởi tạo Chart Role (Màu Dark/Grey - thể hiện sự vững chãi)
-    const roleChartEl = document.querySelector('#roleGrowthChart');
-    if (roleChartEl) {
-        const roleChart = new ApexCharts(roleChartEl, getAreaConfig('Vai trò mới', {!! json_encode($chartData['role_growth'] ?? []) !!}, '#7367f0', dailyLabels));
-        roleChart.render();
-    }
-
-
-    // Fix lỗi hiển thị khi chuyển Tab
-    const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
-    tabs.forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function() {
-            window.dispatchEvent(new Event('resize'));
-        });
-    });
-});
-</script>
-@endpush

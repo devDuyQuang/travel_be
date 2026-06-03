@@ -5,47 +5,29 @@
   <title>@yield('title')</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="../../assets/img/favicon/favicon.ico" />
+  <!-- loader-->
+  <link href="assets/css/pace.min.css" rel="stylesheet">
+  <script src="assets/js/pace.min.js"></script>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&ampdisplay=swap" rel="stylesheet" />
+  <!--plugins-->
+  <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="assets/plugins/metismenu/metisMenu.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/plugins/metismenu/mm-vertical.css">
+  <link rel="stylesheet" type="text/css" href="assets/plugins/simplebar/css/simplebar.css">
+  <!--bootstrap css-->
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="assets/css/bootstrap-extended.css" rel="stylesheet">
+  <link href="sass/main.css" rel="stylesheet">
+  <link href="sass/dark-theme.css" rel="stylesheet">
+  <link href="sass/blue-theme.css" rel="stylesheet">
+  <link href="sass/semi-dark.css" rel="stylesheet">
+  <link href="sass/bordered-theme.css" rel="stylesheet">
+  <link href="sass/responsive.css" rel="stylesheet">
 
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
-  <!-- Icons -->
-  <link rel="stylesheet" href="../../assets/vendor/fonts/iconify-icons.css" />
-
-  <!-- Core CSS -->
-  <link rel="stylesheet" href="../../assets/vendor/libs/node-waves/node-waves.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/pickr/pickr-themes.css" />
-  <link rel="stylesheet" href="../../assets/vendor/css/core.css" />
-  <link rel="stylesheet" href="../../assets/css/demo.css" />
-
-  <!-- Vendors CSS -->
-  <link rel="stylesheet" href="../../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/apex-charts/apex-charts.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/swiper/swiper.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-  <link rel="stylesheet" href="../../assets/vendor/fonts/flag-icons.css" />
-  <link rel="stylesheet" href="../../assets/vendor/css/pages/cards-advance.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/dropzone/dropzone.css" />
-  <link rel="stylesheet" href="../../assets/css/fileinput.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/select2/select2.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/tagify/tagify.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/bootstrap-select/bootstrap-select.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/typeahead-js/typeahead.css" />
-
-  <!-- Helpers -->
-  <script src="../../assets/vendor/js/helpers.js"></script>
-  <!-- <script src="../../assets/vendor/js/template-customizer.js"></script> -->
-  <script src="../../assets/js/config.js"></script>
-
-  <style>
+  <!-- <style>
     .cke_contents {
       min-height: 350px;
     }
@@ -111,7 +93,6 @@
       border-color: rgba(255, 255, 255, 0.35);
     }
 
-    /* ── Override thead.table-light: bỏ màu tím, dùng xám trung tính ── */
     thead.table-light>tr>th,
     thead.table-light>tr>td {
       background-color: #4a4f5e !important;
@@ -119,11 +100,10 @@
       border-color: rgba(255, 255, 255, 0.1) !important;
     }
 
-    /* ── Đồng nhất kích thước icon trong btn-xs ── */
     .btn-xs .ti,
     .btn-xs i.ti {
       font-size: 0.85rem !important;
       line-height: 1 !important;
     }
-  </style>
+  </style> -->
 </head>

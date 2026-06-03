@@ -1,108 +1,110 @@
 <!doctype html>
-<html lang="vi" class="layout-wide customizer-hide" dir="ltr" data-skin="default" data-bs-theme="light" data-assets-path="../../assets/" data-template="vertical-menu-template">
-
+<html lang="vi" data-bs-theme="blue-theme">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-  <meta name="robots" content="noindex, nofollow" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Đăng nhập - Shenlong</title>
-  <meta name="description" content="Trang đăng nhập Shenlong" />
-  <link rel="icon" type="image/x-icon" href="../../assets/img/favicon/favicon.ico" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../../assets/vendor/fonts/iconify-icons.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/node-waves/node-waves.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/pickr/pickr-themes.css" />
-  <link rel="stylesheet" href="../../assets/vendor/css/core.css" />
-  <link rel="stylesheet" href="../../assets/css/demo.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/@form-validation/form-validation.css" />
-  <link rel="stylesheet" href="../../assets/vendor/css/pages/page-auth.css" />
-  <script src="../../assets/vendor/js/helpers.js"></script>
-  <script src="../../assets/vendor/js/template-customizer.js"></script>
-  <script src="../../assets/js/config.js"></script>
+  <!--favicon-->
+  <link rel="icon" href="{{ asset('vertical-menu/assets/images/favicon-32x32.png') }}" type="image/png">
+  <!-- loader-->
+  <link href="{{ asset('vertical-menu/assets/css/pace.min.css') }}" rel="stylesheet">
+  <script src="{{ asset('vertical-menu/assets/js/pace.min.js') }}"></script>
+
+  <!--plugins-->
+  <link href="{{ asset('vertical-menu/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{{ asset('vertical-menu/assets/plugins/metismenu/metisMenu.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ asset('vertical-menu/assets/plugins/metismenu/mm-vertical.css') }}">
+  <!--bootstrap css-->
+  <link href="{{ asset('vertical-menu/assets/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <!--main css-->
+  <link href="{{ asset('vertical-menu/assets/css/bootstrap-extended.css') }}" rel="stylesheet">
+  <link href="{{ asset('vertical-menu/sass/main.css') }}" rel="stylesheet">
+  <link href="{{ asset('vertical-menu/sass/dark-theme.css') }}" rel="stylesheet">
+  <link href="{{ asset('vertical-menu/sass/blue-theme.css') }}" rel="stylesheet">
+  <link href="{{ asset('vertical-menu/sass/responsive.css') }}" rel="stylesheet">
 </head>
 
 <body>
-  <div class="authentication-wrapper authentication-cover">
-    <a href="/" class="app-brand auth-cover-brand">
-      <span class="app-brand-logo demo">
-        <span class="text-primary">
-          <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v6.854S-.135 9.012 1.98 10.84L13.69 22h6.09L18.8 9.882 16.495 7.173 9.238 0H0Z" fill="currentColor" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.773 16.357 23.656 0H32v6.884s-.174 2.294-1.341 3.522L19.782 22h-6.09L7.773 16.357Z" fill="currentColor" />
-          </svg>
-        </span>
-      </span>
-      <span class="app-brand-text demo text-heading fw-bold">Shenlong</span>
-    </a>
 
-    <div class="authentication-inner row m-0">
-      <div class="d-none d-xl-flex col-xl-8 p-0">
-        <div class="auth-cover-bg d-flex justify-content-center align-items-center">
-          <img src="../../assets/img/illustrations/auth-login-illustration-light.png" alt="Đăng nhập minh hoạ" class="my-5 auth-illustration" data-app-light-img="illustrations/auth-login-illustration-light.png" data-app-dark-img="illustrations/auth-login-illustration-dark.png" />
-          <img src="../../assets/img/illustrations/bg-shape-image-light.png" alt="Nền đăng nhập" class="platform-bg" data-app-light-img="illustrations/bg-shape-image-light.png" data-app-dark-img="illustrations/bg-shape-image-dark.png" />
-        </div>
-      </div>
+  <!--authentication-->
+  <div class="mx-3 mx-lg-0">
+    <div class="card my-5 col-xl-9 col-xxl-8 mx-auto rounded-4 overflow-hidden p-4">
+      <div class="row g-4">
+        <div class="col-lg-6 d-flex">
+          <div class="card-body">
+            <img src="{{ asset('vertical-menu/assets/images/logo1.png') }}" class="mb-4" width="145" alt="">
+            <h4 class="fw-bold">Bắt đầu ngay</h4>
+            <p class="mb-0">Nhập thông tin đăng nhập để truy cập tài khoản</p>
+            
+            <div class="form-body mt-4">
+              <form id="formAuthentication" class="row g-3" action="{{ panel_route('auth.login') }}" method="POST">
+                @csrf
+                <div class="col-12">
+                  <div id="loginAlert" class="alert d-none" role="alert"></div>
+                </div>
 
-      <div class="d-flex col-12 col-xl-4 align-items-center authentication-bg p-sm-12 p-6">
-        <div class="w-px-400 mx-auto mt-12 pt-5">
-          <h4 class="mb-1">Chào mừng đến với Shenlong! 👋</h4>
-          <p class="mb-6">Vui lòng đăng nhập để bắt đầu trải nghiệm</p>
-
-          <form id="formAuthentication" class="mb-6" action="{{ panel_route('auth.login') }}" method="POST">
-            @csrf
-
-            <div id="loginAlert" class="alert d-none" role="alert"></div>
-
-            <div class="mb-6 form-control-validation">
-              <label for="email" class="form-label">Email</label>
-              <input type="text" class="form-control" id="email" name="email" placeholder="Nhập email" autofocus value="admin@example.com" />
-            </div>
-
-            <div class="mb-6 form-password-toggle form-control-validation">
-              <label class="form-label" for="password">Mật khẩu</label>
-              <div class="input-group input-group-merge">
-                <input type="password" id="password" class="form-control" name="password" placeholder="••••••••••••" aria-describedby="password" value="secret12345" />
-                <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off"></i></span>
-              </div>
-            </div>
-
-            <!-- <div class="my-8">
-                <div class="d-flex justify-content-between">
-                  <div class="form-check mb-0 ms-2">
-                    <input class="form-check-input" type="checkbox" id="remember-me" name="remember" />
-                    <label class="form-check-label" for="remember-me"> Ghi nhớ đăng nhập </label>
+                <div class="col-12">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" value="admin@example.com">
+                </div>
+                <div class="col-12">
+                  <label for="password" class="form-label">Mật khẩu</label>
+                  <div class="input-group" id="show_hide_password">
+                    <input type="password" class="form-control border-end-0" id="password" name="password" value="secret12345" placeholder="Nhập mật khẩu">
+                    <a href="javascript:;" class="input-group-text bg-transparent" id="togglePassword"><i class="bi bi-eye-slash-fill"></i></a>
                   </div>
                 </div>
-              </div> -->
-
-            <button class="btn btn-primary d-grid w-100" type="submit">Đăng nhập</button>
-          </form>
+                <div class="col-md-6">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="remember-me" name="remember" checked>
+                    <label class="form-check-label" for="remember-me">Ghi nhớ đăng nhập</label>
+                  </div>
+                </div>
+                <div class="col-md-6 text-end"> <a href="javascript:;">Quên mật khẩu?</a>
+                </div>
+                <div class="col-12">
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-grd-primary">Đăng nhập</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-      </div>
+        <div class="col-lg-6 d-lg-flex d-none">
+          <div class="p-3 rounded-4 w-100 d-flex align-items-center justify-content-center bg-grd-primary">
+            <img src="{{ asset('vertical-menu/assets/images/auth/login1.png') }}" class="img-fluid" alt="">
+          </div>
+        </div>
+      </div><!--end row-->
     </div>
   </div>
 
-  <script src="../../assets/vendor/libs/jquery/jquery.js"></script>
-  <script src="../../assets/vendor/libs/popper/popper.js"></script>
-  <script src="../../assets/vendor/js/bootstrap.js"></script>
-  <script src="../../assets/vendor/libs/node-waves/node-waves.js"></script>
-  <script src="../../assets/vendor/libs/pickr/pickr.js"></script>
-  <script src="../../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-  <script src="../../assets/vendor/libs/hammer/hammer.js"></script>
-  <script src="../../assets/vendor/libs/i18n/i18n.js"></script>
-  <script src="../../assets/vendor/js/menu.js"></script>
-  <script src="../../assets/vendor/libs/@form-validation/popular.js"></script>
-  <script src="../../assets/vendor/libs/@form-validation/bootstrap5.js"></script>
-  <script src="../../assets/vendor/libs/@form-validation/auto-focus.js"></script>
-  <script src="../../assets/js/main.js"></script>
-  <script src="../../assets/js/pages-auth.js"></script>
+  <!--plugins-->
+  <script src="{{ asset('vertical-menu/assets/js/jquery.min.js') }}"></script>
 
   <script>
     $(function() {
+      // Toggle password
+      $("#show_hide_password a").on('click', function (event) {
+        event.preventDefault();
+        var $passInput = $('#show_hide_password input');
+        var $icon = $('#show_hide_password i');
+        if ($passInput.attr("type") == "text") {
+          $passInput.attr('type', 'password');
+          $icon.addClass("bi-eye-slash-fill").removeClass("bi-eye-fill");
+        } else if ($passInput.attr("type") == "password") {
+          $passInput.attr('type', 'text');
+          $icon.removeClass("bi-eye-slash-fill").addClass("bi-eye-fill");
+        }
+      });
+
+      // Handle Ajax Login
       var $form = $('#formAuthentication');
       if (!$form.length) return;
 
@@ -111,12 +113,6 @@
       var $emailEl = $form.find('#email');
       var $passEl = $form.find('#password');
       var $remember = $form.find('#remember-me');
-
-      $(document).on('click', '#togglePassword', function() {
-        var type = $passEl.attr('type') === 'password' ? 'text' : 'password';
-        $passEl.attr('type', type);
-        $(this).toggleClass('tabler-eye-off tabler-eye');
-      });
 
       function getCsrf() {
         var $meta = $('meta[name="csrf-token"]');
@@ -220,5 +216,4 @@
     });
   </script>
 </body>
-
 </html>
