@@ -119,16 +119,15 @@ class TenantSwitcher
 
         $host = env('TENANT_DB_HOST', env('DB_HOST', '127.0.0.1'));
         $port = env('TENANT_DB_PORT', env('DB_PORT', 3306));
+
+        $db   = env('TENANT_DB_DATABASE', $name);
+        $user = env('TENANT_DB_USERNAME', $name);
         $pass = env('TENANT_DB_PASSWORD', env('DB_PASSWORD'));
 
         \Config::set('database.connections.tenant.host', $host);
         \Config::set('database.connections.tenant.port', $port);
-        \Config::set('database.connections.tenant.database', $name);
-        \Config::set('database.connections.tenant.username', $name);
+        \Config::set('database.connections.tenant.database', $db);
+        \Config::set('database.connections.tenant.username', $user);
         \Config::set('database.connections.tenant.password', $pass);
-
-        \DB::purge('tenant');
-        \DB::reconnect('tenant');
-        \Config::set('database.default', 'tenant');
     }
 }
