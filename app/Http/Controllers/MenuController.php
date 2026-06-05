@@ -242,7 +242,12 @@ class MenuController extends Controller
     {
         $data = $this->validateMenuData($request);
 
-        $resolved = $this->resolveTarget($data['topic'], (int) $data['part_id']);
+        $resolved = $this->resolveTarget(
+            $data['topic'],
+            $data['part_id'] ?? null,
+            $data['custom_path'] ?? null
+        );
+
         $payload = $this->buildMenuPayload($data, $resolved['path']);
 
         if (!isset($data['sort'])) {
@@ -257,7 +262,11 @@ class MenuController extends Controller
         $row = $this->model->create($payload);
 
         return request()->ajax() || request()->wantsJson()
-            ? response()->json(['message' => 'Đã tạo menu.', 'id' => $row->id])
+            ? response()->json([
+                'message' => 'Đã tạo menu.',
+                'id' => $row->id,
+                'redirect_url' => panel_route('menu.index'),
+            ])
             : redirect()->to(panel_route('menu.index'))->with('success', 'Đã tạo menu.');
     }
 
@@ -299,28 +308,36 @@ class MenuController extends Controller
         $data = $this->validateMenuData($request);
 
         if (!empty($data['parent_id']) && (int) $data['parent_id'] === (int) $id) {
-            return back()->withErrors([
-                'parent_id' => 'Không thể chọn chính nó làm cha.',
-            ])->withInput();
+            return request()->ajax() || request()->wantsJson()
+                ? response()->json(['message' => 'Không thể chọn chính nó làm cha.'], 422)
+                : back()->withErrors(['parent_id' => 'Không thể chọn chính nó làm cha.'])->withInput();
         }
 
         if (!empty($data['parent_id'])) {
             $descendantIds = $this->descendantIds($id);
 
             if (in_array((int) $data['parent_id'], $descendantIds, true)) {
-                return back()->withErrors([
-                    'parent_id' => 'Không thể chọn hậu duệ làm cha.',
-                ])->withInput();
+                return request()->ajax() || request()->wantsJson()
+                    ? response()->json(['message' => 'Không thể chọn hậu duệ làm cha.'], 422)
+                    : back()->withErrors(['parent_id' => 'Không thể chọn hậu duệ làm cha.'])->withInput();
             }
         }
 
-        $resolved = $this->resolveTarget($data['topic'], (int) $data['part_id']);
+        $resolved = $this->resolveTarget(
+            $data['topic'],
+            $data['part_id'] ?? null,
+            $data['custom_path'] ?? null
+        );
+
         $payload = $this->buildMenuPayload($data, $resolved['path'], $item);
 
         $item->fill($payload)->save();
 
         return request()->ajax() || request()->wantsJson()
-            ? response()->json(['message' => 'Cập nhật thành công.'])
+            ? response()->json([
+                'message' => 'Cập nhật thành công.',
+                'redirect_url' => panel_route('menu.index'),
+            ])
             : redirect()->to(panel_route('menu.index'))->with('success', 'Cập nhật thành công.');
     }
     public function targets(Request $request, $domain = null)
@@ -333,6 +350,13 @@ class MenuController extends Controller
                 'message' => 'Loại menu không hợp lệ.',
                 'data' => [],
             ], 422);
+        }
+
+        if ($topic === MenuTargetType::CUSTOM->value) {
+            return response()->json([
+                'success' => true,
+                'data' => [],
+            ]);
         }
 
         if ($topic === MenuTargetType::CATEGORY->value) {
@@ -446,25 +470,23 @@ class MenuController extends Controller
 
     public function updateOrder(Request $request)
     {
-        $payload = $request->validate([
+        $data = $request->validate([
             'items' => ['required', 'array'],
-            'items.*.id' => ['required', 'integer', Rule::exists('menu', 'id')],
-            'items.*.parent_id' => ['nullable', 'integer', Rule::exists('menu', 'id')],
-            'items.*.sort' => ['required', 'integer', 'min:0'],
+            'items.*.id' => ['required', 'integer', 'exists:menu,id'],
+            'items.*.sort' => ['required', 'integer', 'min:1'],
         ]);
 
-        DB::transaction(function () use ($payload) {
-            foreach ($payload['items'] as $row) {
-                $this->model->where('id', $row['id'])->update([
-                    'parent_id' => $row['parent_id'] ?? null,
-                    'sort' => (int) $row['sort'],
-                    'updated_by' => Auth::id(),
+        DB::transaction(function () use ($data) {
+            foreach ($data['items'] as $row) {
+                Menu::where('id', $row['id'])->update([
+                    'order_position' => $row['sort'],
+                    'sort' => $row['sort'],
                 ]);
             }
         });
 
         return response()->json([
-            'message' => 'Cập nhật thứ tự thành công.',
+            'message' => 'Cập nhật thứ tự menu thành công.',
         ]);
     }
 
@@ -505,42 +527,107 @@ class MenuController extends Controller
             'parent_id' => filled($request->parent_id) && is_numeric($request->parent_id)
                 ? (int) $request->parent_id
                 : null,
+
+            'part_id' => filled($request->part_id) && is_numeric($request->part_id)
+                ? (int) $request->part_id
+                : null,
+
+            'custom_path' => filled($request->custom_path)
+                ? trim((string) $request->custom_path)
+                : null,
         ]);
 
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'topic' => ['required', Rule::in(array_keys(MenuTargetType::options()))],
-            'part_id' => ['required', 'integer'],
+
+            'topic' => [
+                'required',
+                Rule::in(array_keys(MenuTargetType::options())),
+            ],
+
+            'part_id' => [
+                Rule::requiredIf(fn() => in_array($request->topic, [
+                    MenuTargetType::CATEGORY->value,
+                    MenuTargetType::POST->value,
+                ], true)),
+                'nullable',
+                'integer',
+            ],
+
+            'custom_path' => [
+                Rule::requiredIf(fn() => $request->topic === MenuTargetType::CUSTOM->value),
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
             'parent_id' => ['nullable', 'integer', Rule::exists('menu', 'id')],
             'location' => ['nullable', 'string', 'max:50'],
             'sort' => ['nullable', 'integer', 'min:0'],
+        ], [
+            'name.required' => 'Vui lòng nhập tên menu.',
+            'name.string' => 'Tên menu không hợp lệ.',
+            'name.max' => 'Tên menu không được vượt quá 255 ký tự.',
+
+            'topic.required' => 'Vui lòng chọn chủ đề menu.',
+            'topic.in' => 'Chủ đề menu không hợp lệ.',
+
+            'part_id.required' => 'Vui lòng chọn đường dẫn.',
+            'part_id.integer' => 'Đường dẫn đã chọn không hợp lệ.',
+
+            'custom_path.required' => 'Vui lòng nhập liên kết tùy chỉnh.',
+            'custom_path.string' => 'Liên kết tùy chỉnh không hợp lệ.',
+            'custom_path.max' => 'Liên kết tùy chỉnh không được vượt quá 255 ký tự.',
+
+            'parent_id.integer' => 'Menu cha không hợp lệ.',
+            'parent_id.exists' => 'Menu cha không tồn tại.',
+
+            'location.string' => 'Vị trí menu không hợp lệ.',
+            'location.max' => 'Vị trí menu không được vượt quá 50 ký tự.',
+
+            'sort.integer' => 'Thứ tự phải là số.',
+            'sort.min' => 'Thứ tự không được nhỏ hơn 0.',
         ]);
     }
-    private function resolveTarget(string $topic, int $partId): array
+
+    private function resolveTarget(string $topic, ?int $partId = null, ?string $customPath = null): array
     {
-        return match ($topic) {
-            MenuTargetType::CATEGORY->value => (function () use ($partId) {
-                $target = Category::query()
-                    ->where('status', 1)
-                    ->findOrFail($partId);
+        if ($topic === MenuTargetType::CUSTOM->value) {
+            $path = trim((string) $customPath);
 
-                return [
-                    'target' => $target,
-                    'path' => PublicUrl::category($target),
-                ];
-            })(),
+            if ($path === '') {
+                abort(422, 'Vui lòng nhập liên kết tùy chỉnh.');
+            }
 
-            MenuTargetType::POST->value => (function () use ($partId) {
-                $target = Post::query()
-                    ->where('status', 1)
-                    ->findOrFail($partId);
+            if (!preg_match('/^https?:\/\//i', $path)) {
+                $path = '/' . ltrim($path, '/');
+            }
 
-                return [
-                    'target' => $target,
-                    'path' => PublicUrl::post($target),
-                ];
-            })(),
-        };
+            return [
+                'path' => $path,
+                'part_id' => null,
+            ];
+        }
+
+        if ($topic === MenuTargetType::CATEGORY->value) {
+            $category = Category::query()->findOrFail($partId);
+
+            return [
+                'path' => PublicUrl::category($category),
+                'part_id' => $category->id,
+            ];
+        }
+
+        if ($topic === MenuTargetType::POST->value) {
+            $post = Post::query()->findOrFail($partId);
+
+            return [
+                'path' => PublicUrl::post($post),
+                'part_id' => $post->id,
+            ];
+        }
+
+        abort(422, 'Chủ đề menu không hợp lệ.');
     }
 
     private function buildMenuPayload(array $data, string $path, ?Menu $item = null): array
@@ -548,13 +635,32 @@ class MenuController extends Controller
         return [
             'name' => $data['name'],
             'topic' => $data['topic'],
-            'part_id' => $data['part_id'],
+            'part_id' => $data['topic'] === MenuTargetType::CUSTOM->value
+                ? null
+                : ($data['part_id'] ?? null),
             'path' => $path,
             'parent_id' => $data['parent_id'] ?? null,
             'location' => $data['location'] ?? null,
-            'status' => $item?->status ?? (!empty($path) ? 1 : 0),
-            'sort' => isset($data['sort']) ? (int) $data['sort'] : ($item?->sort ?? 0),
-            'updated_by' => Auth::id(),
+            'sort' => $data['sort'] ?? ($item?->sort),
         ];
+    }
+
+    private function normalizeCustomPath(?string $path): string
+    {
+        $path = trim((string) $path);
+
+        if ($path === '') {
+            return '/';
+        }
+
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return $path;
+        }
+
+        if ($path === '/') {
+            return '/';
+        }
+
+        return '/' . ltrim($path, '/');
     }
 }

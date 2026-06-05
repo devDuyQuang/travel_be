@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 
+
 class CategoryController extends Controller
 {
     private $model;
@@ -100,6 +101,7 @@ class CategoryController extends Controller
                 'name'         => $c->name ?? '—',
                 'slug'         => $c->slug ?? '',
                 'type'         => $c->type ?? '—',
+                'parent_id' => $c->parent_id,
                 'depth'        => $entry['depth'],
                 'status'       => (int) $c->status,
                 'home'         => (int) $c->home,
@@ -228,7 +230,7 @@ class CategoryController extends Controller
             'name'            => "required|string|max:255|unique:{$this->model->table},name",
             'slug'            => "required|string|max:255|unique:{$this->model->table},slug",
             'parent_id'       => "nullable|integer|exists:{$this->model->table},id",
-            'type'            => 'nullable|string|max:255',
+            'type' => ['required', 'string', Rule::in(['post', 'product'])],
             'description'     => 'nullable|string',
             'content'         => 'nullable|string',
             'file'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
@@ -263,7 +265,7 @@ class CategoryController extends Controller
             $category->sort = $newSort;
             $category->order_position = $newOrderPos;
             $category->slug = Str::slug($validatedData['slug']);
-            $category->type = $validatedData['type'] ?? 'Post';
+            $category->type = strtolower($validatedData['type']);
             $category->status = 1;
 
             if (auth()->check()) {
@@ -329,7 +331,7 @@ class CategoryController extends Controller
             'name'            => ['required', 'string', 'max:255'],
             'slug'            => ['required', 'string', 'max:255', Rule::unique($this->model->table, 'slug')->ignore($id)],
             'parent_id'       => ['nullable', 'integer', Rule::exists($this->model->table, 'id')],
-            'type'            => ['nullable', 'string', 'max:255'],
+            'type' => ['required', 'string', Rule::in(['post', 'product'])],
             'description'     => ['nullable', 'string'],
             'content'         => ['nullable', 'string'],
             'title_seo'       => ['nullable', 'string', 'max:255'],
@@ -340,6 +342,8 @@ class CategoryController extends Controller
             'icon_file'       => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif,svg', 'max:5120'],
             'remove_icon'     => ['nullable', 'boolean'],
         ]);
+        $data['type'] = strtolower($data['type']);
+        $data['slug'] = Str::slug($data['slug']);
 
         if (!empty($data['parent_id']) && (int) $data['parent_id'] === (int) $id) {
             return response()->json([
@@ -397,6 +401,8 @@ class CategoryController extends Controller
             if (auth()->check()) {
                 $data['updated_by'] = auth()->id();
             }
+
+            $data['type'] = strtolower($data['type']);
 
             $item->fill(array_merge($data, [
                 'status' => $item->status,
@@ -513,23 +519,21 @@ class CategoryController extends Controller
     public function updateOrder(Request $request)
     {
         $data = $request->validate([
-            'items' => 'required|array',
-            'items.*.id' => "required|integer|exists:{$this->model->table},id",
-            'items.*.parent_id' => "nullable|integer|exists:{$this->model->table},id",
-            'items.*.sort' => 'required|integer|min:1',
+            'items' => ['required', 'array'],
+            'items.*.id' => ["required", "integer", "exists:{$this->model->table},id"],
+            'items.*.order_position' => ['required', 'integer', 'min:1'],
         ]);
 
         DB::transaction(function () use ($data) {
             foreach ($data['items'] as $row) {
                 $this->model::where('id', $row['id'])->update([
-                    'parent_id' => $row['parent_id'],
-                    'sort' => $row['sort'],
+                    'order_position' => $row['order_position'],
                 ]);
             }
         });
 
         return response()->json([
-            'message' => 'Cập nhật thứ tự & cha con thành công.',
+            'message' => 'Cập nhật thứ tự danh mục thành công.',
         ]);
     }
 

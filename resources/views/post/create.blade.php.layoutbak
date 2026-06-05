@@ -1,12 +1,7 @@
 @extends('index')
 @section('title', 'Thêm '. page_title())
 @section('content')
-@include('partials.css.post')
-
-<!--start main wrapper-->
-<main class="main-wrapper post-form-page">
-  <div class="main-content">
-<h5 class="card-header">Thêm Bài viết</h5>
+<h5 class="card-header">Thêm {{ page_title() }}</h5>
 <div class="card-body">
    <div id="ajax-alert" style="display:none" class="alert" role="alert"></div>
    <x-tab-form
@@ -64,7 +59,4 @@
       <x-submit-buttons :cancel-route="panel_route(module().'.index')" submit-text="Lưu" cancel-text="Thoát" />
    </x-tab-form>
 </div>
-  </div>
-</main>
-<!--end main wrapper-->
 @endsection

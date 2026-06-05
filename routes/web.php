@@ -19,6 +19,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DegreeController;
 use App\Http\Controllers\ServiceRegistrationController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', fn() => redirect()->to(panel_route('login')));
 Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -28,9 +29,21 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/export-posts', [Dashboard::class, 'exportPosts'])->name('dashboard.export-posts');
 
+    Route::prefix('product')->name('product.')->group(function () {
+        Route::get('/', [ProductController::class, 'index'])->name('index');
+        Route::get('/datatable', [ProductController::class, 'datatable'])->name('datatable');
+        Route::get('/create', [ProductController::class, 'create'])->name('create');
+        Route::post('/', [ProductController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [ProductController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ProductController::class, 'update'])->name('update');
+        Route::patch('/{id}/status', [ProductController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
+    });
+
+
+
     Route::get('/contact', [ContactController::class, 'index'])
         ->name('contact.index');
-
     Route::delete('/contact/{id}', [ContactController::class, 'destroy'])
         ->name('contact.destroy');
     Route::prefix('post')->name('post.')->group(function () {
@@ -46,7 +59,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     Route::prefix('category')->name('category.')->group(function () {
         Route::patch('/{id}/home', [CategoryController::class, 'toggleHome'])
-    ->name('toggle-home');
+            ->name('toggle-home');
         Route::get('/',            [CategoryController::class, 'index'])->name('index');
         Route::get('/datatable',   [CategoryController::class, 'datatable'])->name('datatable');
         Route::post('/reorder',    [CategoryController::class, 'reorder'])->name('reorder');

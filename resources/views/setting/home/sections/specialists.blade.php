@@ -13,7 +13,7 @@
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="specialists-list-tab" data-bs-toggle="tab" data-bs-target="#specialists-list" type="button" role="tab" aria-controls="specialists-list" aria-selected="false">
-                Danh sách bác sĩ
+                Danh sách nhân viên
               </button>
             </li>
           </ul>

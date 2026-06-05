@@ -7,5 +7,6 @@
     @yield('content')
     @include('partials.footer')
     @include('partials.script')
+@stack('scripts')
 </body>
 </html>

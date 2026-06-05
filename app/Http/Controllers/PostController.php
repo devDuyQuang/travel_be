@@ -394,37 +394,66 @@ class PostController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, $domain, $id)
-    {
-        try {
-            $post = $this->model->findOrFail($id);
+  public function destroy(Request $request, $domain, $id)
+{
+    DB::beginTransaction();
 
-            if (!empty($post->image)) {
-                $domainSlug = $this->sanitizeDomain($domain ?? 'default');
-                $expectedPrefix = "uploads/{$domainSlug}/";
+    try {
+        $post = $this->model->findOrFail($id);
 
-                if (str_starts_with($post->image, $expectedPrefix) && Storage::disk('public')->exists($post->image)) {
-                    Storage::disk('public')->delete($post->image);
-                }
-            }
+        $imagePath = $post->image;
 
-            $post->delete();
-
-            $msg = 'Xóa bài viết thành công.';
-
-            return $request->ajax() || $request->wantsJson()
-                ? response()->json(['message' => $msg])
-                : redirect()->to(panel_route(module() . '.index'))->with('success', $msg);
-        } catch (\Throwable $e) {
-            Log::error('Delete post error: ' . $e->getMessage());
-
-            $msg = 'Có lỗi xảy ra khi xóa.';
-
-            return $request->ajax() || $request->wantsJson()
-                ? response()->json(['message' => $msg], 500)
-                : redirect()->back()->with('error', $msg);
+        // Xoá liên kết danh mục trước, tránh lỗi khóa ngoại category_post
+        if (method_exists($post, 'categories')) {
+            $post->categories()->detach();
         }
+
+        // Xoá ảnh nếu có
+        if (!empty($imagePath)) {
+            $domainSlug = $this->sanitizeDomain($domain ?? 'default');
+            $expectedPrefix = "uploads/{$domainSlug}/";
+
+            if (
+                str_starts_with($imagePath, $expectedPrefix)
+                && Storage::disk('public')->exists($imagePath)
+            ) {
+                Storage::disk('public')->delete($imagePath);
+            }
+        }
+
+        // Không có SoftDeletes thì delete() là xoá thật khỏi DB
+        $post->delete();
+
+        DB::commit();
+
+        $msg = 'Xóa dịch vụ thành công.';
+
+        return $request->ajax() || $request->wantsJson()
+            ? response()->json([
+                'success' => true,
+                'message' => $msg,
+            ])
+            : redirect()->to(panel_route(module() . '.index'))->with('success', $msg);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+
+        Log::error('Delete post error: ' . $e->getMessage(), [
+            'post_id' => $id,
+            'domain' => $domain,
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        $msg = 'Có lỗi xảy ra khi xóa: ' . $e->getMessage();
+
+        return $request->ajax() || $request->wantsJson()
+            ? response()->json([
+                'success' => false,
+                'message' => $msg,
+            ], 500)
+            : redirect()->back()->with('error', $msg);
     }
+}
 
     private function generateUniqueSlug($baseSlug, $excludeId = null)
     {

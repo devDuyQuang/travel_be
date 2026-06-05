@@ -121,7 +121,11 @@ class DegreeController extends Controller
     {
         $item = $this->model->findOrFail($id);
 
-        return view(module() . '.edit', compact('item'));
+        $currentImageUrl = function_exists('normalize_image_url')
+            ? normalize_image_url($item->image, module())
+            : ($item->image ? Storage::url($item->image) : null);
+
+        return view(module() . '.edit', compact('item', 'currentImageUrl'));
     }
 
     public function update(Request $request, $domain, $id)

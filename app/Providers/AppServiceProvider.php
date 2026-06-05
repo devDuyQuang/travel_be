@@ -52,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
                         'icon'  => 'tabler-table',
                         'label' => 'Bảng Dữ Liệu',
                     ],
+
                     [
                         'route' => 'category.index',
                         'url'   => '/category',
@@ -60,18 +61,24 @@ class AppServiceProvider extends ServiceProvider
                     ],
                 ],
             ],
+            [
+                'route' => 'product.index',
+                'url'   => '/product',
+                'icon'  => 'tabler-package',
+                'label' => 'Sản Phẩm',
+            ],
 
             [
                 'route' => 'doctor.index',
                 'url'   => '/doctor',
                 'icon'  => 'tabler-brand-feedly',
-                'label' => 'Thông Tin Bác Sĩ',
+                'label' => 'Thông Tin Nhân Viên',
                 'childrens' => [
                     [
                         'route' => 'doctor.index',
                         'url'   => '/doctor',
                         'icon'  => 'tabler-stethoscope',
-                        'label' => 'Bác Sĩ',
+                        'label' => 'Nhân Viên',
                     ],
                     [
                         'route' => 'degree.index',
@@ -104,7 +111,7 @@ class AppServiceProvider extends ServiceProvider
                         'route' => 'appointment.index',
                         'url'   => '/appointment',
                         'icon'  => 'tabler-calendar-time',
-                        'label' => 'Đặt Lịch Khám',
+                        'label' => 'Đặt Lịch Hẹn',
                     ],
                     [
                         'route' => 'contact.index',

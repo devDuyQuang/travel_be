@@ -166,14 +166,20 @@ class MenuController extends Controller
         $topic  = strtolower(trim((string) $menu->topic));
         $partId = (int) $menu->part_id;
 
-        /*
-         * 1. Case chuẩn: menu trỏ tới category bằng topic + part_id.
-         *
-         * Category type:
-         * - Service => /dich-vu/{slug}
-         * - Post    => /bai-viet/{slug}
-         * - Khác    => /danh-muc/{slug}
-         */
+        if ($topic === 'custom') {
+            $path = trim((string) $menu->path);
+
+            if ($path === '') {
+                return null;
+            }
+
+            if (preg_match('/^https?:\/\//i', $path)) {
+                return $path;
+            }
+
+            return '/' . ltrim($path, '/');
+        }
+
         if ($topic === 'category' && $partId > 0) {
             $category = $categoriesById->get($partId);
 
@@ -182,13 +188,6 @@ class MenuController extends Controller
             }
         }
 
-        /*
-         * 2. Case chuẩn: menu trỏ tới post bằng topic + part_id.
-         *
-         * Theo logic hiện tại của bạn:
-         * Bài viết thật mở trực tiếp /{post.slug}
-         * Không thêm /bai-viet.
-         */
         if ($topic === 'post' && $partId > 0) {
             $post = $postsById->get($partId);
 
@@ -197,18 +196,6 @@ class MenuController extends Controller
             }
         }
 
-        /*
-         * 3. Fallback cho dữ liệu menu cũ/sai.
-         *
-         * Ví dụ live đang trả:
-         * /bong-gan-day-chang
-         * /dut-acl-day-chang-cheo
-         *
-         * Nhưng thực tế đây là category type Service,
-         * nên phải ép lại thành:
-         * /dich-vu/bong-gan-day-chang
-         * /dich-vu/dut-acl-day-chang-cheo
-         */
         $slug = $this->extractSlugFromPath($menu->path);
 
         if ($slug) {
@@ -225,35 +212,6 @@ class MenuController extends Controller
             }
         }
 
-        /*
-         * 4. Fallback theo tên menu.
-         *
-         * Có trường hợp path cũ sai slug, nhưng name menu giống name category.
-         * Ví dụ name = "Bong gân dây chằng".
-         */
-        $menuName = mb_strtolower(trim((string) $menu->name));
-
-        if ($menuName !== '') {
-            $categoryByName = $categoriesById->first(function ($category) use ($menuName) {
-                return mb_strtolower(trim((string) $category->name)) === $menuName;
-            });
-
-            if ($categoryByName && !empty($categoryByName->slug)) {
-                return $this->buildCategoryPath($categoryByName);
-            }
-
-            $postByName = $postsById->first(function ($post) use ($menuName) {
-                return mb_strtolower(trim((string) $post->name)) === $menuName;
-            });
-
-            if ($postByName && !empty($postByName->slug)) {
-                return '/' . ltrim((string) $postByName->slug, '/');
-            }
-        }
-
-        /*
-         * 5. Fallback cuối cùng: giữ path cũ.
-         */
         if (!empty($menu->path)) {
             return '/' . ltrim((string) $menu->path, '/');
         }

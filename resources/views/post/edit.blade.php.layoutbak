@@ -2,12 +2,7 @@
 @section('title', 'Chỉnh Sửa '. page_title())
 
 @section('content')
-@include('partials.css.post')
-  
-<!--start main wrapper-->
-<main class="main-wrapper post-form-page">
-  <div class="main-content">
-<h5 class="card-header">Chỉnh Sửa Bài viết</h5>
+  <h5 class="card-header">Chỉnh Sửa {{ page_title() }}</h5>
 
   <div class="card-body">
     <div id="ajax-alert" style="display:none" class="alert" role="alert"></div>
@@ -95,7 +90,4 @@
 
     </x-tab-form>
   </div>
-  </div>
-</main>
-<!--end main wrapper-->
 @endsection

@@ -180,4 +180,104 @@
     });
 })();
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const table = document.querySelector('#reload-table');
+
+  if (!table || typeof Sortable === 'undefined') {
+    return;
+  }
+
+  function getUpdateOrderUrl() {
+    return @json(panel_route(module().'.update-order'));
+  }
+
+  function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+  }
+
+  function getRowIds() {
+    return Array.from(document.querySelectorAll('#reload-table tbody tr'))
+      .map(function (tr, index) {
+        const deleteBtn = tr.querySelector('.btn-delete[data-id]');
+        const id = deleteBtn ? deleteBtn.getAttribute('data-id') : null;
+
+        return id ? {
+          id: Number(id),
+          sort: index + 1
+        } : null;
+      })
+      .filter(Boolean);
+  }
+
+  function initMenuSortable() {
+    const tbody = document.querySelector('#reload-table tbody');
+
+    if (!tbody || tbody.dataset.sortableReady === '1') {
+      return;
+    }
+
+    tbody.dataset.sortableReady = '1';
+
+    new Sortable(tbody, {
+      handle: '.menu-drag-handle',
+      animation: 150,
+      ghostClass: 'menu-row-dragging',
+
+      onEnd: async function () {
+        const items = getRowIds();
+
+        if (!items.length) {
+          return;
+        }
+
+        try {
+          const response = await fetch(getUpdateOrderUrl(), {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': getCsrfToken(),
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              items: items
+            })
+          });
+
+          const data = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok) {
+            throw new Error(data.message || 'Không thể lưu thứ tự menu.');
+          }
+
+          if (window.toastSuccess) {
+            window.toastSuccess(data.message || 'Đã cập nhật thứ tự menu.');
+          }
+        } catch (error) {
+          console.error(error);
+
+          if (window.toastError) {
+            window.toastError(error.message || 'Không thể lưu thứ tự menu.');
+          } else {
+            alert(error.message || 'Không thể lưu thứ tự menu.');
+          }
+        }
+      }
+    });
+  }
+
+  initMenuSortable();
+
+  if (window.jQuery) {
+    jQuery(document).on('draw.dt', function () {
+      setTimeout(initMenuSortable, 100);
+    });
+  }
+});
+</script>
 @endpush

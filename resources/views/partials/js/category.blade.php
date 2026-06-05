@@ -253,4 +253,126 @@ jQuery(document)
     });
 });
 </script>
+<script>
+(function () {
+  const updateOrderUrl = @json(panel_route(module().'.update-order'));
+
+  function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+  }
+
+  function initCategorySortable() {
+    const table = document.querySelector('#reload-table');
+    if (!table) return;
+
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+
+    if (typeof Sortable === 'undefined') {
+      console.warn('SortableJS chưa được load.');
+      return;
+    }
+
+    if (tbody.dataset.sortableReady === '1') return;
+    tbody.dataset.sortableReady = '1';
+
+    new Sortable(tbody, {
+      handle: '.category-drag-handle',
+      animation: 150,
+      ghostClass: 'category-sortable-ghost',
+      chosenClass: 'category-sortable-chosen',
+
+      onEnd: async function () {
+        const rows = Array.from(tbody.querySelectorAll('tr[data-id]'));
+
+        const items = rows.map(function (tr, index) {
+          return {
+            id: tr.dataset.id,
+            order_position: index + 1
+          };
+        });
+
+        if (!items.length) return;
+
+        try {
+          const response = await fetch(updateOrderUrl, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': getCsrfToken(),
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ items })
+          });
+
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(data.message || 'Lưu thứ tự thất bại.');
+          }
+
+          if (window.toastSuccess) {
+            window.toastSuccess(data.message || 'Đã cập nhật thứ tự danh mục.');
+          }
+
+          if (window.jQuery && jQuery.fn.dataTable && jQuery.fn.dataTable.isDataTable('#reload-table')) {
+            jQuery('#reload-table').DataTable().ajax.reload(null, false);
+          }
+        } catch (error) {
+          console.error(error);
+
+          if (window.toastError) {
+            window.toastError(error.message || 'Không thể lưu thứ tự danh mục.');
+          } else {
+            alert(error.message || 'Không thể lưu thứ tự danh mục.');
+          }
+
+          if (window.jQuery && jQuery.fn.dataTable && jQuery.fn.dataTable.isDataTable('#reload-table')) {
+            jQuery('#reload-table').DataTable().ajax.reload(null, false);
+          }
+        }
+      }
+    });
+  }
+
+  function bindCategoryRowIds() {
+    if (!window.jQuery || !jQuery.fn.dataTable) return;
+    if (!jQuery.fn.dataTable.isDataTable('#reload-table')) return;
+
+    const dt = jQuery('#reload-table').DataTable();
+
+    dt.rows().every(function () {
+      const data = this.data();
+      const node = this.node();
+
+      if (data && data.id && node) {
+        node.setAttribute('data-id', data.id);
+      }
+    });
+  }
+
+  function refreshCategorySortable() {
+    bindCategoryRowIds();
+
+    const tbody = document.querySelector('#reload-table tbody');
+    if (tbody) {
+      tbody.dataset.sortableReady = '0';
+    }
+
+    initCategorySortable();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(refreshCategorySortable, 300);
+  });
+
+  if (window.jQuery) {
+    jQuery(document).on('draw.dt', function () {
+      setTimeout(refreshCategorySortable, 50);
+    });
+  }
+})();
+</script>
 @endpush

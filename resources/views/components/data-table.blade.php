@@ -78,28 +78,10 @@
     processing: true,
     serverSide: true,
     columns: dtColumns,
+    dom: '<"row align-items-center mb-3"<"col-md-6"l><"col-md-6"f>>' +
+         '<"table-responsive"t>' +
+         '<"row align-items-center mt-3"<"col-md-6"i><"col-md-6"p>>',
 
-    layout: {
-      topStart: {
-        rowClass: 'row mx-3 my-0 justify-content-between',
-        features: [{
-          pageLength: {
-            menu: [7, 10, 25, 50, 100],
-            text: 'Hiển thị _MENU_ dòng'
-          }
-        }]
-      },
-      topEnd: {
-        search: {
-          placeholder: searchPlaceholder || 'Nhập từ khóa...'
-        }
-      },
-      bottomStart: {
-        rowClass: 'row mx-3 justify-content-between',
-        features: ['info']
-      },
-      bottomEnd: 'paging'
-    },
 
     language: {
       search: 'Tìm kiếm:',
@@ -181,7 +163,7 @@
     base.columnDefs = base.columnDefs.concat(extraColumnDefs);
   }
 
-  new DataTable(tableEl, base);
+  jQuery(tableEl).DataTable(base);
 })();
 </script>
 @endpush
