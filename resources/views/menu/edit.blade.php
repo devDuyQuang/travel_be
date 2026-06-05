@@ -15,11 +15,12 @@
       <div id="ajax-alert" class="alert" role="alert" style="display:none"></div>
 
       <form
-        action="{{ panel_route(module().'.update', $item->id) }}"
-        method="POST"
-        id="menu-form"
-        class="ajax-form"
-        data-index-url="{{ panel_route(module().'.index') }}">
+      action="{{ panel_route(module().'.update', $item->id) }}"
+  method="POST"
+  id="menu-form"
+  class="ajax-form"
+  data-stay="true"
+  data-index-url="{{ panel_route(module().'.index') }}">
         @csrf
         @method('PUT')
 
@@ -78,6 +79,7 @@
           :value="old('location', $item->location)"
           placeholder="Chọn vị trí" />
 
+        @include('partials.debug.json-response')
         <x-submit-buttons
           :cancel-route="panel_route(module().'.index')"
           submit-text="Cập nhật"

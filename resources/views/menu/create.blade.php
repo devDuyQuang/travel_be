@@ -16,10 +16,11 @@
 
       <form
         action="{{ panel_route(module().'.store') }}"
-        method="POST"
-        id="menu-form"
-        class="ajax-form"
-        data-index-url="{{ panel_route(module().'.index') }}">
+  method="POST"
+  id="menu-form"
+  class="ajax-form"
+  data-stay="true"
+  data-index-url="{{ panel_route(module().'.index') }}">
         @csrf
 
         <x-input-field

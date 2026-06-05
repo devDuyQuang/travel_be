@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 @include('partials.head')
+
 <body>
     @include('partials.nav')
     @include('partials.aside')
+
     @yield('content')
+
     @include('partials.footer')
     @include('partials.script')
-@stack('scripts')
+
+    @include('partials.css.json-response')
+
+    @stack('scripts')
+
+    @include('partials.js.ajax-json-response')
 </body>
 </html>

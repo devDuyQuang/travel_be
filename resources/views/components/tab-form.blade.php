@@ -59,6 +59,8 @@
             @endforeach
 
             {{ $slot }}
+
+            @include('partials.debug.json-response')
         </div>
     </div>
 </form>

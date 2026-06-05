@@ -26,7 +26,8 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
 
             Route::middleware('web')
-                ->domain('admin.{domain}')
+                // ->domain('admin.{domain}')
+                ->domain('cms.{domain}')
                 ->where(['domain' => '.+'])
                 ->as('admin.')
                 ->group(base_path('routes/web.php'));

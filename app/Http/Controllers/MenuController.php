@@ -263,9 +263,10 @@ class MenuController extends Controller
 
         return request()->ajax() || request()->wantsJson()
             ? response()->json([
+                'success' => true,
                 'message' => 'Đã tạo menu.',
                 'id' => $row->id,
-                'redirect_url' => panel_route('menu.index'),
+                'redirect_url' => null,
             ])
             : redirect()->to(panel_route('menu.index'))->with('success', 'Đã tạo menu.');
     }
@@ -335,8 +336,10 @@ class MenuController extends Controller
 
         return request()->ajax() || request()->wantsJson()
             ? response()->json([
+                'success' => true,
                 'message' => 'Cập nhật thành công.',
-                'redirect_url' => panel_route('menu.index'),
+                'id' => $item->id,
+                'redirect_url' => null,
             ])
             : redirect()->to(panel_route('menu.index'))->with('success', 'Cập nhật thành công.');
     }

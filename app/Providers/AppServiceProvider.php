@@ -17,8 +17,14 @@ class AppServiceProvider extends ServiceProvider
 
         $host = request()->getHost();
 
-        if (Str::startsWith($host, 'admin.')) {
-            $base = Str::after($host, 'admin.');
+
+        // if (Str::startsWith($host, 'admin.')) { // đổi router từ admin qua cms
+        //     $base = Str::after($host, 'admin.');
+        //     URL::defaults(['domain' => $base]);
+        // }
+
+        if (Str::startsWith($host, 'cms.')) { // đổi router từ admin qua cms
+            $base = Str::after($host, 'cms.');
             URL::defaults(['domain' => $base]);
         }
 
