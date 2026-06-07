@@ -2,6 +2,10 @@
 @section('title', 'Cấu hình trực tuyến - Liên Hệ')
 
 @section('content')
+@include('partials.css.setting')
+
+<main class="main-wrapper setting-page">
+  <div class="main-content">
 @php
   $settingType = $settingType ?? 'clinic';
   $settingTypes = $settingTypes ?? ['clinic' => 'clinic', 'rac' => 'RAC'];
@@ -27,9 +31,9 @@
 <div class="card-body text-start">
   <div id="ajax-alert" style="display:none" class="alert" role="alert"></div>
 
-  <div class="row g-4 justify-content-start">
+  <div class="row g-4 justify-content-start setting-layout-row">
     {{-- Cột trái: navbar (vertical tab) --}}
-    <div class="col-12 col-sm-4 col-md-3 col-lg-3 text-start">
+   <div class="col-12 col-lg-auto text-start setting-sidebar-col">
       <div class="nav flex-column nav-pills border rounded p-2 text-start" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         @foreach($sectionsList as $item)
           @php $key = $item['key']; @endphp
@@ -49,7 +53,7 @@
     </div>
 
     {{-- Cột phải: nội dung --}}
-    <div class="col-12 col-sm-8 col-md-9 col-lg-9 border rounded p-3">
+  <div class="col-12 setting-content-col border rounded p-3 setting-content-box">
       <div class="tab-content" id="contact-sections-tabContent">
         @foreach($sectionsList as $item)
           @php
@@ -85,9 +89,10 @@
     </div>
   </div>
 </div>
-
+  </div>
+</main>
 @push('scripts')
-<style>
+<!-- <style>
   #v-pills-tab.nav-pills,
   #v-pills-tab.nav-pills .nav-link {
     text-align: left !important;
@@ -106,7 +111,7 @@
   #contact-sections-tabContent .card .tab-content {
     padding: 0 !important;
   }
-</style>
+</style> -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const pre = document.getElementById('home-json-preview');

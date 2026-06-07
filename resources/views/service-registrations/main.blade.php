@@ -2,112 +2,202 @@
 @section('title', 'Quản lý Đăng ký Gói Dịch vụ')
 
 @section('content')
+@include('partials.css.service-registrations')
+
 @php
-    $module = module();
+$module = module();
 
-    $editRouteTpl = panel_route($module . '.edit', ['id' => '__ID__']);
-    $deleteRouteTpl = panel_route($module . '.destroy', ['id' => '__ID__']);
+$deleteRouteTpl = panel_route($module . '.destroy', ['id' => '__ID__']);
+$deleteRouteTplJson = json_encode($deleteRouteTpl, JSON_UNESCAPED_SLASHES);
+$deleteTextJson = json_encode('Xoá', JSON_UNESCAPED_UNICODE);
 
-    $editRouteTplJson = json_encode($editRouteTpl, JSON_UNESCAPED_SLASHES);
-    $deleteRouteTplJson = json_encode($deleteRouteTpl, JSON_UNESCAPED_SLASHES);
-    $deleteTextJson = json_encode('Xoá', JSON_UNESCAPED_UNICODE);
+$actionsRenderByKey = <<<JS
+  if (type !== 'display') return '';
 
-    // 1. Render cột thao tác
-    $actionsRenderByKey = <<<JS
-        const id = row.id ?? "";
-        const name = row.full_name ?? "";
-        const editUrl = id ? {$editRouteTplJson}.replace("__ID__", id) : "javascript:void(0)";
-        const deleteUrl = id ? {$deleteRouteTplJson}.replace("__ID__", id) : "javascript:void(0)";
-        const deleteText = {$deleteTextJson};
-        return `
-          <div class="dropdown">
-            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-              <i class="icon-base ti tabler-dots-vertical"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-end">
-              <a class="dropdown-item btn-delete text-danger"
-                href="javascript:void(0)"
-                data-id="\${id}"
-                data-name="\${name}"
-                data-url="\${deleteUrl}"
-                data-bs-toggle="modal"
-                data-bs-target="#deleteModal">
-                <i class="icon-base ti tabler-trash me-2"></i> \${deleteText}
-              </a>
-            </div>
-          </div>
-        `;
+  const esc = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const id = row.id ?? '';
+  const name = row.full_name ?? '';
+  const deleteUrl = id ? {$deleteRouteTplJson}.replace('__ID__', id) : 'javascript:void(0)';
+  const deleteText = {$deleteTextJson};
+
+  return '' +
+    '<div class="service-registration-action-wrap">' +
+      '<div class="dropdown">' +
+        '<button type="button" class="service-registration-action-btn dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">' +
+          '<span class="material-icons-outlined">more_vert</span>' +
+        '</button>' +
+
+        '<div class="dropdown-menu dropdown-menu-end">' +
+          '<a class="dropdown-item btn-delete text-danger" href="javascript:void(0)" ' +
+            'data-id="' + esc(id) + '" ' +
+            'data-name="' + esc(name) + '" ' +
+            'data-url="' + esc(deleteUrl) + '" ' +
+            'data-bs-toggle="modal" ' +
+            'data-bs-target="#deleteModal">' +
+            '<span class="material-icons-outlined me-2" style="font-size:18px;">delete</span>' +
+            deleteText +
+          '</a>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
 JS;
 
-    // 2. Render Badge trạng thái (Sử dụng trực tiếp status_label từ Controller)
-    $statusRenderByKey = <<<JS
-        return row.status_label || '<span class="badge bg-label-secondary">Không xác định</span>';
+$statusRenderByKey = <<<'JS'
+  if (type !== 'display') return data;
+
+  return row.status_label || '<span class="badge bg-label-secondary">Không xác định</span>';
 JS;
 
-    // 3. Render thông tin liên hệ (Email & Phone)
-    $contactRenderByKey = <<<JS
-        const email = row.email ? `<div class="small text-muted"><i class="ti tabler-mail ti-xs me-1"></i>\${row.email}</div>` : '';
-        const phone = `<div><i class="ti tabler-phone ti-xs me-1"></i>\${row.phone}</div>`;
-        return `\${phone}\${email}`;
+$contactRenderByKey = <<<'JS'
+  if (type !== 'display') return data;
+
+  const esc = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const phone = row.phone
+    ? '<div><span class="material-icons-outlined me-1" style="font-size:16px;vertical-align:middle;">call</span>' + esc(row.phone) + '</div>'
+    : '<div>—</div>';
+
+  const email = row.email
+    ? '<div class="small"><span class="material-icons-outlined me-1" style="font-size:16px;vertical-align:middle;">mail</span>' + esc(row.email) + '</div>'
+    : '';
+
+  return '<div class="service-registration-contact">' + phone + email + '</div>';
 JS;
 
-    // 4. Render thông tin Gói (Tên gói & Giá)
-    $packageRenderByKey = <<<JS
-        const price = row.package_price ? `<div class="badge bg-label-primary mt-1">\${row.package_price}</div>` : '';
-        return `<div class="fw-bold text-primary">\${row.package_name}</div>\${price}`;
+$packageRenderByKey = <<<'JS'
+  if (type !== 'display') return data;
+
+  const esc = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const name = row.package_name
+    ? '<div class="service-registration-package-name">' + esc(row.package_name) + '</div>'
+    : '<div>—</div>';
+
+  const price = row.package_price
+    ? '<div class="service-registration-package-price">' + esc(row.package_price) + '</div>'
+    : '';
+
+  return name + price;
 JS;
 
-    // 5. Render ngày tạo (Format d/m/Y H:i)
-    $createdAtRenderByKey = <<<JS
-        if (!data) return '';
-        // Vì Controller đã format 'd/m/Y H:i', ta tách chuỗi để hiển thị đẹp hơn
-        const parts = data.split(' ');
-        return `<div class="d-flex flex-column"><span class="fw-bold">\${parts[0]}</span><small class="text-muted">\${parts[1] || ''}</small></div>`;
+$messageRenderByKey = <<<'JS'
+  if (type !== 'display') return data;
+
+  const esc = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const fullText = String(data || row.message || '');
+  const limit = 70;
+  const text = fullText.length > limit ? fullText.substring(0, limit) + '...' : fullText;
+
+  return fullText
+    ? '<span class="service-registration-message-text" title="' + esc(fullText) + '">' + esc(text) + '</span>'
+    : '<span class="text-muted">—</span>';
 JS;
 
-    $options = [
-        'control' => true,
-        'order' => [[5, 'desc']], // Sắp xếp theo ngày tạo (cột số 5)
-        'rendersByKey' => [
-            'contact' => $contactRenderByKey,
-            'package_info' => $packageRenderByKey,
-            'status' => $statusRenderByKey,
-            'created_at' => $createdAtRenderByKey,
-            'actions' => $actionsRenderByKey,
-        ],
-        'columnDefs' => [
-            ['targets' => 4, 'className' => 'none'], // Ẩn lời nhắn (message) vào details
-            ['targets' => -1, 'orderable' => false, 'searchable' => false, 'className' => 'all text-center'],
-        ],
-        'responsiveModal' => true,
-        'responsiveHeaderField' => 'full_name',
-        'modalFields' => ['full_name', 'phone', 'email', 'package_name', 'package_price', 'status_label', 'message', 'created_at'],
-        'modalRenders' => [
-            'created_at' => $createdAtRenderByKey,
-            'message' => "return `<div class='p-2 bg-light rounded'>\${data || 'Không có ghi chú'}</div>`;",
-        ],
-        'searchPlaceholder' => 'Tìm tên, SĐT, gói...',
-    ];
+$createdAtRenderByKey = <<<'JS'
+  if (type !== 'display') return data;
+
+  if (!data) return '—';
+
+  const parts = String(data).split(' ');
+
+  return '' +
+    '<div class="service-registration-date">' +
+      '<strong>' + (parts[0] || '') + '</strong>' +
+      '<small>' + (parts[1] || '') + '</small>' +
+    '</div>';
+JS;
+
+$options = [
+  'control' => false,
+  'order' => [[5, 'desc']],
+  'responsive' => false,
+  'responsiveModal' => false,
+  'autoWidth' => false,
+  'scrollX' => false,
+  'searchPlaceholder' => 'Tìm tên, SĐT, gói...',
+
+  'language' => [
+    'lengthMenu' => 'Hiển thị _MENU_ dòng',
+    'search' => 'Tìm kiếm:',
+    'info' => 'Hiển thị _START_ đến _END_ của _TOTAL_ dòng',
+    'infoEmpty' => 'Hiển thị 0 đến 0 của 0 dòng',
+    'infoFiltered' => '(lọc từ _MAX_ dòng)',
+    'zeroRecords' => 'Không tìm thấy dữ liệu phù hợp',
+    'emptyTable' => 'Không có dữ liệu',
+    'paginate' => [
+      'first' => '«',
+      'previous' => '‹',
+      'next' => '›',
+      'last' => '»',
+    ],
+  ],
+
+  'rendersByKey' => [
+    'contact' => $contactRenderByKey,
+    'package_info' => $packageRenderByKey,
+    'status' => $statusRenderByKey,
+    'message' => $messageRenderByKey,
+    'created_at' => $createdAtRenderByKey,
+    'actions' => $actionsRenderByKey,
+  ],
+
+  'columnDefs' => [
+    ['targets' => 0, 'className' => 'text-start service-registration-customer-col'],
+    ['targets' => 1, 'className' => 'text-start service-registration-contact-col'],
+    ['targets' => 2, 'className' => 'text-start service-registration-package-col'],
+    ['targets' => 3, 'className' => 'text-center text-nowrap service-registration-status-col'],
+    ['targets' => 4, 'className' => 'text-start service-registration-message-col'],
+    ['targets' => 5, 'className' => 'text-center text-nowrap service-registration-date-col'],
+    ['targets' => 6, 'orderable' => false, 'searchable' => false, 'className' => 'text-center text-nowrap service-registration-action-col'],
+  ],
+];
 @endphp
 
-<x-table-header
-    :title="'Danh Sách Đăng Ký Gói'"
-    icon="tabler-package"
-/>
+<main class="main-wrapper service-registration-list-page">
+  <div class="main-content">
 
-<x-data-table
-    id="reload-table"
-    :columns="[
-        ['key' => 'full_name',    'title' => 'Khách hàng'],
-        ['key' => 'contact',      'title' => 'Liên hệ'],
-        ['key' => 'package_info', 'title' => 'Gói dịch vụ'],
-        ['key' => 'status',       'title' => 'Trạng thái'],
-        ['key' => 'message',      'title' => 'Lời nhắn', 'class' => 'none'],
-        ['key' => 'created_at',   'title' => 'Ngày đăng ký'],
-        ['key' => 'actions',      'title' => '']
-    ]"
-    ajax-url="{{ panel_route($module.'.datatable') }}"
-    :options="$options"
-></x-data-table>
+    <div class="service-registration-page-header">
+      <h5 class="service-registration-page-title">
+        <span class="material-icons-outlined">inventory_2</span>
+        Danh Sách Đăng Ký Gói
+      </h5>
+    </div>
 
+    <div class="service-registration-table-card">
+      <x-data-table
+        id="reload-table"
+        :columns="[
+          ['key' => 'full_name', 'title' => 'KHÁCH HÀNG'],
+          ['key' => 'contact', 'title' => 'LIÊN HỆ'],
+          ['key' => 'package_info', 'title' => 'GÓI DỊCH VỤ'],
+          ['key' => 'status', 'title' => 'TRẠNG THÁI'],
+          ['key' => 'message', 'title' => 'LỜI NHẮN'],
+          ['key' => 'created_at', 'title' => 'NGÀY ĐĂNG KÝ'],
+          ['key' => 'actions', 'title' => 'THAO TÁC'],
+        ]"
+        ajax-url="{{ panel_route($module.'.datatable') }}"
+        :options="$options"
+      />
+    </div>
+
+  </div>
+</main>
 @endsection

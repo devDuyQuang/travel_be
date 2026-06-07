@@ -2,6 +2,10 @@
 @section('title', 'Cấu hình trang chủ')
 
 @section('content')
+@include('partials.css.setting')
+
+<main class="main-wrapper setting-page">
+  <div class="main-content">
 @php
   $settingType = $settingType ?? 'clinic';
   $settingTypes = $settingTypes ?? ['clinic' => 'clinic', 'rac' => 'RAC'];
@@ -27,9 +31,9 @@
 <div class="card-body text-start">
   <div id="ajax-alert" style="display:none" class="alert" role="alert"></div>
 
-  <div class="row g-4 justify-content-start">
+<div class="row g-4 justify-content-start setting-layout-row">
     {{-- Cột trái: navbar (vertical tab, không reload) --}}
-    <div class="col-12 col-sm-4 col-md-3 col-lg-3 text-start">
+    <div class="col-12 col-sm-4 col-md-3 col-lg-3 text-start setting-sidebar-col">
       <div class="nav flex-column nav-pills border rounded p-2 text-start" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         @foreach($sectionsList as $item)
           @php $key = $item['key']; @endphp
@@ -49,7 +53,7 @@
     </div>
 
     {{-- Cột phải: nội dung (tab-pane cho từng section) --}}
-    <div class="col-12 col-sm-8 col-md-9 col-lg-9 border rounded p-3">
+   <div class="col-12 setting-content-col border rounded p-3 setting-content-box">
       <div class="tab-content" id="home-sections-tabContent">
         @foreach($sectionsList as $item)
           @php
@@ -76,92 +80,10 @@
     </div>
   </div>
 </div>
-
+  </div>
+</main>
 @push('scripts')
-<style>
-  #v-pills-tab.nav-pills,
-  #v-pills-tab.nav-pills .nav-link {
-    text-align: left !important;
-  }
-  #v-pills-tab.nav-pills .nav-link {
-    display: block !important;
-    justify-content: flex-start !important;
-    font-size: 0.9rem;
-  }
 
-  /* Nav-tabs con: text có thể xuống hàng, nhưng dãy tab vẫn một hàng, cuộn ngang nếu thiếu chỗ */
-  .card-header .nav-tabs.card-header-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-  .card-header .nav-tabs.card-header-tabs .nav-link {
-    white-space: normal;
-    text-align: center;
-  }
-
-  /* Hero tabs: 4 mục chia 2 cột x 2 dòng, không cần thanh kéo ngang */
-  #heroTabs {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  #heroTabs .nav-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-    text-align: center;
-  }
-  #heroTabs .nav-link {
-    width: 100%;
-  }
-
-  /* Tiện ích: 4 tab chia 2 cột x 2 hàng */
-  #utilitiesTabs {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  #utilitiesTabs .nav-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-    text-align: center;
-  }
-  #utilitiesTabs .nav-link {
-    width: 100%;
-  }
-
-  /* Ý kiến khách hàng: 4 tab chia 2 cột x 2 hàng */
-  #testimonialsTabs {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  #testimonialsTabs .nav-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-    text-align: center;
-  }
-  #testimonialsTabs .nav-link {
-    width: 100%;
-  }
-
-  /* Doctor section: chỉ giữ border, bỏ hết màu nền bên trong */
-  .doctor-card,
-  .doctor-card .card-header,
-  .doctor-card .card-body,
-  .doctor-card .tab-pane {
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-
-  div.tab-content#home-sections-tabContent,
-  #home-sections-tabContent.tab-content,
-  #home-sections-tabContent {
-    padding: 0 !important;
-  }
-
-  /* Bỏ padding 1.5rem ở tab-content trong tất cả tab con (card-body .tab-content) */
-  #home-sections-tabContent .card-body .tab-content,
-  #home-sections-tabContent .card .tab-content {
-    padding: 0 !important;
-  }
-</style>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const pre = document.getElementById('home-json-preview');

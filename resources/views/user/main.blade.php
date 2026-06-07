@@ -2,6 +2,8 @@
 @section('title', page_title())
 
 @section('content')
+@include('partials.css.user')
+
 @php
 $module = module();
 
@@ -41,8 +43,11 @@ return '<button type="button" ' +
 JS;
 
 $actionsRenderByKey = <<<JS
+if (type !== 'display') return '';
+
 const id = row.id ?? "";
 const name = row.name ?? "";
+
 const editUrl = id ? {$editRouteTplJson}.replace("__ID__", id) : "javascript:void(0)";
 const deleteUrl = id ? {$deleteRouteTplJson}.replace("__ID__", id) : "javascript:void(0)";
 
@@ -59,7 +64,7 @@ return `
        data-bs-toggle="tooltip"
        data-bs-placement="top"
        title="Chỉnh sửa">
-      <i class="icon-base ti tabler-pencil"></i>
+      <span class="material-icons-outlined">edit</span>
     </a>
 
     <a href="javascript:void(0)"
@@ -71,128 +76,86 @@ return `
        data-bs-target="#deleteModal"
        data-bs-placement="top"
        title="Xoá">
-      <i class="icon-base ti tabler-trash"></i>
+      <span class="material-icons-outlined">delete</span>
     </a>
   </div>
 `;
 JS;
 
 $options = [
-  'control' => true,
+  'control' => false,
   'order' => [[0, 'asc']],
+  'responsive' => false,
+  'responsiveModal' => false,
+  'autoWidth' => false,
+  'scrollX' => false,
+  'searchPlaceholder' => 'Nhập từ khóa...',
+
+  'language' => [
+    'lengthMenu' => 'Hiển thị _MENU_ dòng',
+    'search' => 'Tìm kiếm:',
+    'info' => 'Hiển thị _START_ đến _END_ của _TOTAL_ dòng',
+    'infoEmpty' => 'Hiển thị 0 đến 0 của 0 dòng',
+    'infoFiltered' => '(lọc từ _MAX_ dòng)',
+    'zeroRecords' => 'Không tìm thấy dữ liệu phù hợp',
+    'emptyTable' => 'Không có dữ liệu',
+    'paginate' => [
+      'first' => '«',
+      'previous' => '‹',
+      'next' => '›',
+      'last' => '»',
+    ],
+  ],
+
   'rendersByKey' => [
     'creator' => $metaRenderByKey,
     'actions' => $actionsRenderByKey,
   ],
+
   'columnDefs' => [
-    ['targets' => 4, 'className' => 'all text-center align-middle user-meta-col'],
-    ['targets' => 5, 'className' => 'none'],
-    ['targets' => 6, 'orderable' => false, 'searchable' => false, 'className' => 'all text-center align-middle user-action-col'],
+    ['targets' => 0, 'className' => 'text-start user-name-col'],
+    ['targets' => 1, 'className' => 'text-start user-email-col'],
+    ['targets' => 2, 'className' => 'text-start user-role-col'],
+    ['targets' => 3, 'className' => 'text-center user-meta-col'],
+    ['targets' => 4, 'className' => 'none'],
+    ['targets' => 5, 'orderable' => false, 'searchable' => false, 'className' => 'text-center user-action-col'],
   ],
-  'responsiveModal' => true,
-  'responsiveHeaderField' => 'name',
-  'modalFields' => ['name', 'email', 'role', 'creator', 'created_at'],
-  'searchPlaceholder' => 'Nhập từ khóa...',
 ];
 @endphp
 
-<x-table-header
-  :title="page_title()"
-  icon="tabler-users"
-  :create-route="panel_route(module().'.create')" />
+<main class="main-wrapper user-list-page">
+  <div class="main-content">
 
-<x-data-table
-  id="reload-table"
-  :columns="[
-    ['key'=>'name', 'title'=>'NAME'],
-    ['key'=>'email', 'title'=>'EMAIL'],
-    ['key'=>'role', 'title'=>'ROLE'],
-    ['key'=>'creator', 'title'=>'THÔNG TIN'],
-    ['key'=>'__details', 'title'=>'', 'class'=>'none'],
-    ['key'=>'actions', 'title'=>'HÀNH ĐỘNG']
-  ]"
-  ajax-url="{{ panel_route(module().'.datatable') }}"
-  :options="$options"
-/>
+    <div class="user-page-header">
+      <h5 class="user-page-title">
+        <span class="material-icons-outlined">group</span>
+        {{ page_title() }}
+      </h5>
 
-<style>
-  .user-meta-col {
-    width: 110px;
-    min-width: 110px;
-    white-space: nowrap !important;
-  }
+      <a href="{{ panel_route(module().'.create') }}" class="btn btn-primary user-create-btn">
+        <span class="material-icons-outlined">add</span>
+        Thêm mới
+      </a>
+    </div>
 
-  .user-meta-trigger {
-    color: rgba(255,255,255,0.65) !important;
-    box-shadow: none !important;
-  }
+    <div class="user-table-card">
+      <x-data-table
+        id="reload-table"
+        :columns="[
+          ['key'=>'name', 'title'=>'NAME'],
+          ['key'=>'email', 'title'=>'EMAIL'],
+          ['key'=>'role', 'title'=>'ROLE'],
+          ['key'=>'creator', 'title'=>'THÔNG TIN'],
+          ['key'=>'__details', 'title'=>'', 'class'=>'none'],
+          ['key'=>'actions', 'title'=>'HÀNH ĐỘNG']
+        ]"
+        ajax-url="{{ panel_route(module().'.datatable') }}"
+        :options="$options"
+      />
+    </div>
 
-  .user-meta-trigger i {
-    font-size: 1.05rem;
-    line-height: 1;
-  }
-
-  .user-meta-trigger:hover {
-    opacity: 0.9;
-  }
-
-  .user-meta-popover {
-    min-width: 200px;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-  }
-
-  .user-meta-row {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    white-space: nowrap;
-  }
-
-  .user-meta-row + .user-meta-row {
-    margin-top: 4px;
-  }
-
-  .user-action-col {
-    width: 120px;
-    min-width: 120px;
-  }
-
-  .user-action-icons {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    width: 100%;
-  }
-
-  .user-action-icon {
-    width: 22px;
-    height: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none !important;
-    line-height: 1;
-  }
-
-  .user-action-icon i {
-    font-size: 1.1rem;
-    line-height: 1;
-  }
-
-  .user-action-edit {
-    color: #00cfe8 !important;
-  }
-
-  .user-action-delete {
-    color: #ea5455 !important;
-  }
-
-  .user-action-icon:hover {
-    opacity: 0.9;
-  }
-</style>
+  </div>
+</main>
 @endsection
 
 @push('scripts')

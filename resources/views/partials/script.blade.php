@@ -204,6 +204,11 @@ $(document).ready(function() {
 
     const action = form.getAttribute('action') || window.location.href;
     const method = (form.getAttribute('method') || 'POST').toUpperCase();
+    if (typeof CKEDITOR !== 'undefined') {
+  for (const instance in CKEDITOR.instances) {
+    CKEDITOR.instances[instance].updateElement();
+  }
+}
     let formData = new FormData(form);
 
     // normalize checkbox

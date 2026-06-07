@@ -21,6 +21,7 @@ use App\Http\Controllers\DegreeController;
 use App\Http\Controllers\ServiceRegistrationController;
 use App\Http\Controllers\ProductController;
 
+
 Route::get('/', fn() => redirect()->to(panel_route('login')));
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');

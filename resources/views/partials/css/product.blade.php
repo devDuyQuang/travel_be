@@ -528,6 +528,59 @@
   margin-top: 10px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, .12);
+
+}
+
+/* ================================
+   Product table info popover
+================================ */
+
+.product-form-page .popover,
+.product-page .popover,
+.popover {
+  max-width: 420px;
+}
+
+.product-form-page .popover-body,
+.product-page .popover-body,
+.popover-body {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.5;
+}
+
+.product-form-page .popover-body div,
+.product-page .popover-body div,
+.popover-body div {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.product-section {
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.product-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e6c76f;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 10px;
+}
+
+.product-form-page .form-label {
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.product-form-page .form-control,
+.product-form-page .form-select {
+    min-height: 42px;
 }
 
 /* ================================

@@ -2,6 +2,10 @@
 @section('title', page_title())
 
 @section('content')
+@include('partials.css.setting')
+
+<main class="main-wrapper setting-page">
+  <div class="main-content">
 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
   <h5 class="mb-0 d-flex align-items-center gap-2 flex-wrap"> <i class="icon-base ti tabler-settings"></i>{{ page_title() }}</h5>
 
@@ -46,9 +50,9 @@
 <div class="card-body text-start">
   <div id="ajax-alert" style="display:none" class="alert" role="alert"></div>
 
-  <div class="row g-4 justify-content-start">
+ <div class="row g-4 justify-content-start setting-layout-row">
     {{-- Cột trái: navbar dọc --}}
-    <div class="col-12 col-sm-4 col-md-3 col-lg-3 text-start">
+   <div class="col-12 col-lg-auto text-start setting-sidebar-col">
       <div class="nav flex-column nav-pills border rounded p-2 text-start" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         <a href="#main-section-config"
            class="nav-link text-start {{ request('tab', 'config') === 'config' ? 'active' : '' }} rounded mb-1 small"
@@ -174,7 +178,7 @@
     </div>
 
     {{-- Cột phải: nội dung tab ngang --}}
-    <div class="col-12 col-sm-8 col-md-9 col-lg-9 border rounded p-3">
+  <div class="col-12 setting-content-col border rounded p-3 setting-content-box">
       <div class="tab-content" id="main-sections-tabContent" style="padding: 0 !important;">
         <div class="tab-pane fade {{ request('tab', 'config') === 'config' ? 'show active' : '' }}" id="main-section-config" role="tabpanel" aria-labelledby="main-tab-config">
           {{-- Ẩn tab header dư thừa của x-tab-form (chỉ có 1 tab nên không cần hiện) --}}
@@ -444,46 +448,98 @@
         </div>
 
 
-        {{-- Tab: Logo & Favicon --}}
-        <div class="tab-pane fade {{ request('tab') === 'logo' ? 'show active' : '' }}" id="main-section-logo" role="tabpanel" aria-labelledby="main-tab-logo">
-          <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">2. Logo &amp; Favicon</h5>
-          <form action="{{ panel_route('setting.updateLogoFavicon') }}" method="POST" enctype="multipart/form-data" class="ajax-form">
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="type" value="{{ $settingType ?? 'clinic' }}">
-            <input type="hidden" name="tab" value="logo">
-            <div class="row g-3">
-              <div class="col-md-12">
-                <x-file-input
-                  label="Logo White (PNG/SVG/JPG)"
-                  name="logo_file"
-                  :multiple="false"
-                  :current-url="$currentLogoUrl ?? null"
-                />
-              </div>
-              <div class="col-md-12">
-                <x-file-input
-                  label="Logo Black (PNG/SVG/JPG)"
-                  name="logo_black_file"
-                  :multiple="false"
-                  :current-url="$currentLogoBlackUrl ?? null"
-                />
-              </div>
-              <div class="col-md-12">
-                <x-file-input
-                  label="Favicon (ICO/PNG)"
-                  name="favicon_file"
-                  :multiple="false"
-                  :current-url="$currentFaviconUrl ?? null"
-                />
-              </div>
-              <div class="col-12 mt-3 text-end">
-                <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
-                <button type="reset" class="btn btn-label-secondary">Hủy</button>
-              </div>
-            </div>
-          </form>
-        </div>
+       {{-- Tab: Logo & Favicon --}}
+<div
+  class="tab-pane fade {{ request('tab') === 'logo' ? 'show active' : '' }}"
+  id="main-section-logo"
+  role="tabpanel"
+  aria-labelledby="main-tab-logo">
+
+  <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">
+    2. Logo &amp; Favicon
+  </h5>
+
+  <form
+    action="{{ panel_route('setting.updateLogoFavicon') }}"
+    method="POST"
+    enctype="multipart/form-data"
+    class="ajax-form setting-logo-form">
+
+    @csrf
+    @method('PUT')
+
+    <input type="hidden" name="type" value="{{ $settingType ?? 'clinic' }}">
+    <input type="hidden" name="tab" value="logo">
+
+    {{-- Logo White --}}
+    <div class="setting-logo-upload mb-4">
+      <label class="form-label fw-bold">Logo White (PNG/SVG/JPG)</label>
+
+      <div class="setting-logo-preview-box">
+        @if(!empty($currentLogoUrl))
+          <img src="{{ $currentLogoUrl }}" class="setting-logo-preview-img" alt="Logo White">
+        @else
+          <div class="setting-logo-empty">Chưa có ảnh</div>
+        @endif
+      </div>
+
+      <div class="setting-logo-file-row">
+        <input
+          type="file"
+          name="logo_file"
+          class="form-control"
+          accept="image/png,image/jpeg,image/jpg,image/svg+xml">
+      </div>
+    </div>
+
+    {{-- Logo Black --}}
+    <div class="setting-logo-upload mb-4">
+      <label class="form-label fw-bold">Logo Black (PNG/SVG/JPG)</label>
+
+      <div class="setting-logo-preview-box">
+        @if(!empty($currentLogoBlackUrl))
+          <img src="{{ $currentLogoBlackUrl }}" class="setting-logo-preview-img" alt="Logo Black">
+        @else
+          <div class="setting-logo-empty">Chưa có ảnh</div>
+        @endif
+      </div>
+
+      <div class="setting-logo-file-row">
+        <input
+          type="file"
+          name="logo_black_file"
+          class="form-control"
+          accept="image/png,image/jpeg,image/jpg,image/svg+xml">
+      </div>
+    </div>
+
+    {{-- Favicon --}}
+    <div class="setting-logo-upload mb-4">
+      <label class="form-label fw-bold">Favicon (ICO/PNG)</label>
+
+      <div class="setting-logo-preview-box setting-favicon-preview-box">
+        @if(!empty($currentFaviconUrl))
+          <img src="{{ $currentFaviconUrl }}" class="setting-logo-preview-img setting-favicon-preview-img" alt="Favicon">
+        @else
+          <div class="setting-logo-empty">Chưa có ảnh</div>
+        @endif
+      </div>
+
+      <div class="setting-logo-file-row">
+        <input
+          type="file"
+          name="favicon_file"
+          class="form-control"
+          accept="image/x-icon,image/vnd.microsoft.icon,image/png">
+      </div>
+    </div>
+
+    <div class="text-end mt-4">
+      <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
+      <button type="reset" class="btn btn-label-secondary">Hủy</button>
+    </div>
+  </form>
+</div>
 
         <div class="tab-pane fade {{ request('tab') === 'topbar' ? 'show active' : '' }}" id="main-section-topbar" role="tabpanel" aria-labelledby="main-tab-topbar">
             <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">3. Thông Tin Topbar</h5>
@@ -1267,7 +1323,8 @@
     </div>
   </div>
 </div>
-
+  </div>
+</main>
 @push('scripts')
 <style>
   #v-pills-tab.nav-pills,

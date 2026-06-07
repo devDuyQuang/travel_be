@@ -1,0 +1,179 @@
+
+≈<style>
+.setting-page .main-content {
+  padding-bottom: 48px;
+}
+
+/* Header */
+.setting-page .card-header {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-bottom: 18px;
+}
+
+.setting-page .card-header h5 {
+  color: #f8fafc;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* Body */
+.setting-page .card-body {
+  padding: 0 !important;
+}
+
+/* Main setting layout */
+.setting-page .setting-layout-row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.setting-page .setting-sidebar-col {
+  flex: 0 0 250px;
+  max-width: 250px;
+}
+
+.setting-page .setting-content-col {
+  flex: 1 1 0;
+  max-width: calc(100% - 250px);
+  min-width: 0;
+}
+
+/* Left tabs */
+.setting-page .setting-sidebar-tabs,
+.setting-page #v-pills-tab,
+.setting-page #about-pills-tab {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px !important;
+  border-radius: 10px !important;
+}
+
+.setting-page .setting-sidebar-tabs .nav-link,
+.setting-page #v-pills-tab .nav-link,
+.setting-page #about-pills-tab .nav-link {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 4px;
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px !important;
+  color: rgba(255, 255, 255, .72);
+  font-size: 14px !important;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left !important;
+  white-space: normal;
+  border-radius: 8px !important;
+}
+
+.setting-page .setting-sidebar-tabs .nav-link.active,
+.setting-page #v-pills-tab .nav-link.active,
+.setting-page #about-pills-tab .nav-link.active {
+  color: #fff !important;
+  background: #0d6efd !important;
+}
+
+.setting-page .setting-sidebar-tabs .nav-link:hover,
+.setting-page #v-pills-tab .nav-link:hover,
+.setting-page #about-pills-tab .nav-link:hover {
+  background: rgba(255, 255, 255, .06);
+}
+
+/* Right content */
+.setting-page .setting-content-box {
+  min-width: 0;
+  padding: 18px !important;
+  border-radius: 12px !important;
+}
+
+.setting-page .tab-content {
+  padding: 0 !important;
+}
+
+.setting-page .tab-pane > h5,
+.setting-page h5.fw-bold.text-uppercase {
+  color: #f8fafc;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+/* Forms */
+.setting-page .form-label {
+  margin-bottom: 7px;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.setting-page .form-control,
+.setting-page .form-select {
+  min-height: 40px;
+  border-radius: 8px;
+}
+
+.setting-page textarea.form-control {
+  min-height: 92px;
+}
+
+/* Group cards */
+.setting-page .border.rounded {
+  border-color: rgba(255, 255, 255, .12) !important;
+}
+
+.setting-page .section-box,
+.setting-page .border.rounded.mb-3.p-3 {
+  background: rgba(255, 255, 255, .015);
+}
+
+/* Inner tables */
+.setting-page .table-responsive {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.setting-page table.table {
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.setting-page table.table th {
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.setting-page table.table td {
+  font-size: 14px;
+}
+
+/* JSON response */
+.setting-page #home-json-wrapper,
+.setting-page #about-json-wrapper {
+  border-color: rgba(255, 255, 255, .12) !important;
+  background: rgba(255, 255, 255, .035) !important;
+}
+
+.setting-page #home-json-preview,
+.setting-page #about-json-preview {
+  background: rgba(0, 0, 0, .35) !important;
+}
+
+/* Mobile */
+@media (max-width: 991.98px) {
+  .setting-page .setting-sidebar-col,
+  .setting-page .setting-content-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .setting-page .setting-sidebar-tabs,
+  .setting-page #v-pills-tab,
+  .setting-page #about-pills-tab {
+    max-height: none;
+  }
+}
+</style>

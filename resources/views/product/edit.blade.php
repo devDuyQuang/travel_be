@@ -18,61 +18,328 @@
                 method="PUT"
                 :tabs="[
           ['id' => 'home', 'title' => 'Thông Tin Chung', 'active' => true],
-          ['id' => 'seo',  'title' => 'Nội Dung']
+          ['id' => 'seo',  'title' => 'Thẻ SEO']
         ]">
                 <x-slot name="home">
-                    <x-input-field
-                        name="name"
-                        label="Tên sản phẩm"
-                        :required="true"
-                        :value="old('name', $item->name)" />
+                    {{-- THÔNG TIN CƠ BẢN --}}
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Thông tin cơ bản</h6>
 
-                    <x-input-field
-                        name="slug"
-                        label="Slug"
-                        :required="true"
-                        :value="old('slug', $item->slug)" />
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <x-input-field
+                                    name="name"
+                                    label="Tên sản phẩm"
+                                    :required="true"
+                                    :value="old('name', $item->name)" />
+                            </div>
 
-                    <x-select-field
-                        name="category_id"
-                        label="Danh mục"
-                        :options="$categories"
-                        :value="old('category_id', $item->category_id)"
-                        id="category_id"
-                        placeholder="Chọn danh mục" />
+                            <div class="col-md-6">
+                                <x-input-field
+                                    name="slug"
+                                    label="Slug"
+                                    :required="true"
+                                    :value="old('slug', $item->slug)" />
+                            </div>
 
-                    <x-input-field
-                        name="price"
-                        label="Giá"
-                        type="number"
-                        :value="old('price', $item->price)" />
+                            <div class="col-md-6">
+                                <label for="category_id" class="form-label">Danh mục</label>
 
-                    <x-input-field
-                        name="price_discount"
-                        label="Giá khuyến mãi"
-                        type="number"
-                        :value="old('price_discount', $item->price_discount)" />
+                                <select name="category_id" id="category_id" class="form-select">
+                                    <option value="">Chọn danh mục</option>
 
-                    <x-textarea-field
-                        name="description"
-                        label="Mô tả"
-                        rows="3"
-                        :value="old('description', $item->description)" />
+                                    @foreach($categories as $categoryId => $categoryName)
+                                    <option value="{{ $categoryId }}" {{ old('category_id', $item->category_id) == $categoryId ? 'selected' : '' }}>
+                                        {{ $categoryName }}
+                                    </option>
+                                    @endforeach
+                                </select>
 
-                    <div class="product-file-field mb-6">
-                        <x-file-input
-                            label="Ảnh đại diện"
-                            name="image"
-                            :multiple="false"
-                            :current-url="$currentImageUrl" />
+                                @error('category_id')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- GIÁ & HIỂN THỊ CARD --}}
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Giá & thông tin hiển thị</h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="price" class="form-label">Giá</label>
+                                <input
+                                    type="text"
+                                    name="price"
+                                    id="price"
+                                    class="form-control"
+                                    inputmode="decimal"
+                                    value="{{ old('price', $item->price) }}"
+                                    placeholder="VD: 154.90">
+
+                                @error('price')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="price_discount" class="form-label">Giá khuyến mãi</label>
+                                <input
+                                    type="text"
+                                    name="price_discount"
+                                    id="price_discount"
+                                    class="form-control"
+                                    inputmode="decimal"
+                                    value="{{ old('price_discount', $item->price_discount) }}"
+                                    placeholder="VD: 117.65">
+
+                                @error('price_discount')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3">
+                                <x-input-field
+                                    name="location"
+                                    label="Địa điểm"
+                                    :value="old('location', $item->location)" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <x-input-field
+                                    name="duration"
+                                    label="Thời lượng"
+                                    :value="old('duration', $item->duration)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- THÔNG TIN SÂN GOLF --}}
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Thông tin sân golf</h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="review_rating" class="form-label">Google reviews rating</label>
+                                <input
+                                    type="text"
+                                    name="review_rating"
+                                    id="review_rating"
+                                    class="form-control"
+                                    inputmode="decimal"
+                                    value="{{ old('review_rating', $item->review_rating) }}"
+                                    placeholder="VD: 4.4 hoặc 4,4">
+
+                                @error('review_rating')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <x-input-field
+                                    name="review_count"
+                                    label="Google reviews count"
+                                    :value="old('review_count', $item->review_count)" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <x-input-field
+                                    name="established_year"
+                                    label="Established year"
+                                    type="number"
+                                    :value="old('established_year', $item->established_year)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- NỘI DUNG NGẮN --}}
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Nội dung hiển thị</h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <x-textarea-field
+                                    name="description"
+                                    label="Mô tả ngắn"
+                                    rows="3"
+                                    :value="old('description', $item->description)" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-textarea-field
+                                    name="highlight"
+                                    label="Điểm nổi bật của sân"
+                                    rows="4"
+                                    :value="old('highlight', $item->highlight)" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-textarea-field
+                                    name="facility"
+                                    label="Dịch vụ tiện ích của sân"
+                                    rows="4"
+                                    :value="old('facility', $item->facility)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- HÌNH ẢNH & VIDEO --}}
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Hình ảnh & Video</h6>
+
+                        <div class="row g-4">
+                            {{-- Ảnh đại diện --}}
+                            <div class="col-md-6">
+                                <div class="product-media-card">
+                                    <label class="form-label fw-semibold">Ảnh đại diện</label>
+
+                                    @if (!empty($item->image))
+                                    <div class="mb-2">
+                                        <img
+                                            src="{{ Storage::url($item->image) }}"
+                                            alt="Ảnh đại diện"
+                                            style="width: 220px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                                    </div>
+                                    @endif
+
+                                    <div class="custom-file-row">
+                                        <label class="custom-file-btn">
+                                            Chọn tệp
+                                            <input
+                                                type="file"
+                                                name="image"
+                                                class="custom-file-input"
+                                                accept="image/*"
+                                                hidden>
+                                        </label>
+
+                                        <span class="custom-file-name">
+                                            {{ !empty($item->image) ? basename($item->image) : 'Không có tệp nào được chọn' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Video URL --}}
+                            <div class="col-md-6">
+                                <div class="product-media-card">
+                                    <label class="form-label fw-semibold">Video URL</label>
+
+                                    <input
+                                        type="text"
+                                        name="video_url"
+                                        class="form-control"
+                                        value="{{ old('video_url', $item->video_url) }}"
+                                        placeholder="VD: https://www.youtube.com/watch?v=xxxx">
+                                </div>
+                            </div>
+
+                            {{-- Ảnh phụ 1 --}}
+                            <div class="col-md-6">
+                                <div class="product-media-card">
+                                    <label class="form-label fw-semibold">Ảnh phụ 1</label>
+
+                                    @if (!empty($item->gallery_image_1))
+                                    <div class="mb-2">
+                                        <img
+                                            src="{{ Storage::url($item->gallery_image_1) }}"
+                                            alt="Ảnh phụ 1"
+                                            style="width: 220px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                                    </div>
+                                    @endif
+
+                                    <div class="custom-file-row">
+                                        <label class="custom-file-btn">
+                                            Chọn tệp
+                                            <input
+                                                type="file"
+                                                name="gallery_image_1"
+                                                class="custom-file-input"
+                                                accept="image/*"
+                                                hidden>
+                                        </label>
+
+                                        <span class="custom-file-name">
+                                            {{ !empty($item->gallery_image_1) ? basename($item->gallery_image_1) : 'Không có tệp nào được chọn' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Ảnh phụ 2 --}}
+                            <div class="col-md-6">
+                                <div class="product-media-card">
+                                    <label class="form-label fw-semibold">Ảnh phụ 2</label>
+
+                                    @if (!empty($item->gallery_image_2))
+                                    <div class="mb-2">
+                                        <img
+                                            src="{{ Storage::url($item->gallery_image_2) }}"
+                                            alt="Ảnh phụ 2"
+                                            style="width: 220px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                                    </div>
+                                    @endif
+
+                                    <div class="custom-file-row">
+                                        <label class="custom-file-btn">
+                                            Chọn tệp
+                                            <input
+                                                type="file"
+                                                name="gallery_image_2"
+                                                class="custom-file-input"
+                                                accept="image/*"
+                                                hidden>
+                                        </label>
+
+                                        <span class="custom-file-name">
+                                            {{ !empty($item->gallery_image_2) ? basename($item->gallery_image_2) : 'Không có tệp nào được chọn' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- NỘI DUNG CHI TIẾT --}}
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Nội dung chi tiết</h6>
+
+                        <x-ckeditor
+                            name="content"
+                            label="Nội dung"
+                            :value="old('content', $item->content)" />
                     </div>
                 </x-slot>
 
                 <x-slot name="seo">
-                    <x-ckeditor
-                        name="content"
-                        label="Nội dung"
-                        :value="old('content', $item->content)" />
+                    <div class="product-section mb-4">
+                        <h6 class="product-section-title mb-3">Thông tin SEO</h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <x-input-field
+                                    name="title_seo"
+                                    label="Title SEO"
+                                    :value="old('title_seo')" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-input-field
+                                    name="canonical_url"
+                                    label="Canonical URL"
+                                    :value="old('canonical_url')" />
+                            </div>
+
+                            <div class="col-md-12">
+                                <x-textarea-field
+                                    name="description_seo"
+                                    label="Description SEO"
+                                    rows="4"
+                                    :value="old('description_seo')" />
+                            </div>
+                        </div>
+                    </div>
                 </x-slot>
 
                 <x-submit-buttons
@@ -82,5 +349,60 @@
             </x-tab-form>
         </div>
     </div>
+    <style>
+        .custom-file-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .custom-file-btn {
+            margin: 0;
+            padding: 9px 18px;
+            border-radius: 6px;
+            background: #2f3338;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid #444;
+        }
+
+        .custom-file-btn:hover {
+            background: #3b4046;
+        }
+
+        .custom-file-name {
+            color: #d6d6d6;
+            font-size: 14px;
+            word-break: break-all;
+        }
+    </style>
+
 </main>
+
+<script>
+    document.addEventListener('change', function(event) {
+        const input = event.target;
+
+        if (!input.classList.contains('custom-file-input')) {
+            return;
+        }
+
+        const fileName = input.files && input.files.length > 0 ?
+            input.files[0].name :
+            'Không có tệp nào được chọn';
+
+        const wrapper = input.closest('.custom-file-row');
+
+        if (wrapper) {
+            const fileNameElement = wrapper.querySelector('.custom-file-name');
+
+            if (fileNameElement) {
+                fileNameElement.textContent = fileName;
+            }
+        }
+    });
+</script>
 @endsection

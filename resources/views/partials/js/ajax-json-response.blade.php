@@ -2,18 +2,17 @@
     (function() {
         window.CMS_DEBUG_JSON = "{{ config('app.debug') ? '1' : '0' }}" === "1";
 
-        console.log('cms ajax json response loaded');
-
         function findResponseBox(form) {
-            return form.closest('.main-content')?.querySelector('.cms-json-response-card') ||
-                form.closest('.card-body')?.querySelector('.cms-json-response-card') ||
+            return form.querySelector('.cms-json-response-card') ||
+                form.closest('.tab-pane')?.querySelector('.cms-json-response-card') ||
                 form.parentElement?.querySelector('.cms-json-response-card') ||
-                document.querySelector('.cms-json-response-card');
+                null;
         }
 
         function showJsonResponse(form, payload) {
             if (!window.CMS_DEBUG_JSON) return;
 
+            const currentScrollY = window.scrollY;
             const box = findResponseBox(form);
 
             if (!box) {
@@ -31,9 +30,10 @@
             box.style.display = 'block';
             content.textContent = JSON.stringify(payload, null, 2);
 
-            box.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
+            window.scrollTo({
+                top: currentScrollY,
+                left: 0,
+                behavior: 'auto'
             });
         }
 
@@ -102,11 +102,14 @@
             e.preventDefault();
             e.stopImmediatePropagation();
 
-            console.log('cms ajax form submit captured', form);
-
             clearFieldErrors(form);
 
             const submitBtn = form.querySelector('[type="submit"]');
+            if (typeof CKEDITOR !== 'undefined') {
+                for (const instance in CKEDITOR.instances) {
+                    CKEDITOR.instances[instance].updateElement();
+                }
+            }
             const formData = new FormData(form);
 
             if (submitBtn) {
