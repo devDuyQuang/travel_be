@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -14,30 +15,20 @@ class Product extends Model
         'image',
         'description',
         'location',
-        'title_seo',
         'duration',
-        'canonical_url',
-        'description_seo',
         'review_rating',
         'review_count',
+        'star_rating',
         'established_year',
         'highlight',
         'facility',
         'content',
-        'gallery_image_1',
-        'gallery_image_2',
-        'gallery_image_3',
-        'video_url',
-        'image_original_name',
-        'gallery_image_1_original_name',
-        'gallery_image_2_original_name',
         'price',
         'price_discount',
         'status',
-        'sort',
-        'order_position',
-        'created_by',
-        'updated_by',
+        'golf_information',
+        'badge_text',
+        // ...
     ];
 
     protected $casts = [
@@ -63,5 +54,10 @@ class Product extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 }

@@ -60,6 +60,13 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="col-md-6">
+                                <x-input-field
+                                    name="badge_text"
+                                    label="Nhãn hiển thị"
+                                    :value="old('badge_text')"
+                                    placeholder="VD: New" />
+                            </div>
                         </div>
                     </div>
 
@@ -69,7 +76,25 @@
 
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label for="price" class="form-label">Giá</label>
+                                <label for="star_rating" class="form-label">Số sao hiển thị</label>
+                                <input
+                                    type="number"
+                                    name="star_rating"
+                                    id="star_rating"
+                                    class="form-control"
+                                    min="0"
+                                    max="5"
+                                    step="0.1"
+                                    value="{{ old('star_rating', $item->star_rating ?? 4.4) }}"
+                                    placeholder="VD: 4.4">
+
+                                @error('star_rating')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="price" class="form-label">Giá hiển thị</label>
                                 <input
                                     type="text"
                                     name="price"
@@ -77,29 +102,12 @@
                                     class="form-control"
                                     inputmode="decimal"
                                     value="{{ old('price') }}"
-                                    placeholder="VD: 154.90">
+                                    placeholder="VD: 59.00">
 
                                 @error('price')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <div class="col-md-3">
-                                <label for="price_discount" class="form-label">Giá khuyến mãi</label>
-                                <input
-                                    type="text"
-                                    name="price_discount"
-                                    id="price_discount"
-                                    class="form-control"
-                                    inputmode="decimal"
-                                    value="{{ old('price_discount') }}"
-                                    placeholder="VD: 117.65">
-
-                                @error('price_discount')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <div class="col-md-3">
                                 <x-input-field
                                     name="location"
@@ -159,12 +167,12 @@
                         <h6 class="product-section-title mb-3">Nội dung hiển thị</h6>
 
                         <div class="row g-3">
+
                             <div class="col-md-12">
-                                <x-textarea-field
-                                    name="description"
-                                    label="Mô tả ngắn"
-                                    rows="3"
-                                    :value="old('description')" />
+                                <x-ckeditor
+                                    name="golf_information"
+                                    label="Thông tin bảng sân golf"
+                                    :value="old('golf_information')" />
                             </div>
 
                             <div class="col-md-6">
@@ -182,10 +190,11 @@
                                     rows="4"
                                     :value="old('facility')" />
                             </div>
+
                         </div>
                     </div>
 
-                    {{-- ẢNH / VIDEO --}}
+
                     {{-- ẢNH / VIDEO --}}
                     <div class="product-section mb-4">
                         <h6 class="product-section-title mb-3">Hình ảnh & Video</h6>
@@ -247,6 +256,38 @@
                                 </div>
 
                                 @error('gallery_image_2')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Ảnh thư viện, tối đa 10 ảnh</label>
+
+                                <div class="product-gallery-upload">
+                                    <label
+                                        for="gallery_images"
+                                        class="product-gallery-upload-label">
+                                        Chọn tệp
+                                    </label>
+
+                                    <span
+                                        id="gallery-images-name"
+                                        class="product-gallery-upload-name">
+                                        Không có tệp nào được chọn
+                                    </span>
+
+                                    <input
+                                        id="gallery_images"
+                                        type="file"
+                                        name="gallery_images[]"
+                                        accept="image/*"
+                                        multiple>
+                                </div>
+
+                                @error('gallery_images')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+
+                                @error('gallery_images.*')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>

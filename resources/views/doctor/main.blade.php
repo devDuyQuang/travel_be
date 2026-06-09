@@ -1,5 +1,5 @@
 @extends('index')
-@section('title', 'Quản lý Bác sĩ')
+@section('title', 'Quản lý Nhân viên')
 
 @section('content')
 @php
@@ -25,25 +25,11 @@ const buildImageUrl = (raw) => {
 
   if (!value) return '';
 
-  if (/^https?:\/\//i.test(value)) {
-    return value;
-  }
-
-  if (value.startsWith('/storage/')) {
-    return window.location.origin + value;
-  }
-
-  if (value.startsWith('storage/')) {
-    return window.location.origin + '/' + value;
-  }
-
-  if (value.startsWith('/uploads/')) {
-    return window.location.origin + '/storage' + value;
-  }
-
-  if (value.startsWith('uploads/')) {
-    return window.location.origin + '/storage/' + value;
-  }
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.startsWith('/storage/')) return window.location.origin + value;
+  if (value.startsWith('storage/')) return window.location.origin + '/' + value;
+  if (value.startsWith('/uploads/')) return window.location.origin + '/storage' + value;
+  if (value.startsWith('uploads/')) return window.location.origin + '/storage/' + value;
 
   return window.location.origin + '/' + value.replace(/^\/+/, '');
 };
@@ -57,7 +43,7 @@ if (!src) {
 return '' +
   '<img ' +
     'src="' + esc(src) + '" ' +
-    'alt="' + esc(row?.name || 'Doctor') + '" ' +
+    'alt="' + esc(row?.name || 'Employee') + '" ' +
     'class="doctor-avatar" ' +
     'loading="lazy" ' +
     'onerror="this.style.display=\'none\'; this.insertAdjacentHTML(\'afterend\', \'<span class=&quot;text-muted&quot;>—</span>\');"' +
@@ -182,7 +168,7 @@ $options = [
   'pageLength' => 10,
   'pagingType' => 'full_numbers',
   'order' => [[1, 'asc']],
-  'searchPlaceholder' => 'Tìm kiếm bác sĩ...',
+  'searchPlaceholder' => 'Tìm kiếm nhân viên...',
 
   'language' => [
     'lengthMenu' => 'Hiển thị _MENU_ dòng',
@@ -200,10 +186,10 @@ $options = [
     ],
   ],
 
-'rendersByKey' => [
+  'rendersByKey' => [
     'image' => $imageRenderByKey,
     'socials' => $socialsRenderByKey,
-    'creator' => $metaRenderByKey,
+    'meta' => $metaRenderByKey,
     'actions' => $actionsRenderByKey,
 ],
 
@@ -214,7 +200,7 @@ $options = [
     ['targets' => 3, 'className' => 'text-center text-nowrap doctor-birth-col'],
     ['targets' => 4, 'className' => 'text-start text-nowrap doctor-phone-col'],
     ['targets' => 5, 'orderable' => false, 'searchable' => false, 'className' => 'text-center text-nowrap doctor-social-col'],
-    ['targets' => 6, 'orderable' => false, 'searchable' => false, 'className' => 'text-center text-nowrap doctor-meta-col'],
+   ['targets' => 6, 'orderable' => false, 'searchable' => false, 'className' => 'text-center text-nowrap doctor-meta-col'],
     ['targets' => 7, 'orderable' => false, 'searchable' => false, 'className' => 'text-center text-nowrap doctor-action-col'],
   ],
 ];
@@ -226,7 +212,7 @@ $options = [
   <div class="main-content">
     <div class="doctor-page-header">
       <h5 class="doctor-page-title">
-        <span class="material-icons-outlined">medical_services</span>
+        <span class="material-icons-outlined">badge</span>
         Danh sách Nhân Viên
       </h5>
 
@@ -239,16 +225,16 @@ $options = [
     <div class="doctor-table-card">
       <x-data-table
         id="reload-table"
-        :columns="[
-          ['key' => 'image', 'title' => 'Ảnh'],
-          ['key' => 'name', 'title' => 'Tên nhân viên'],
-          ['key' => 'specialty', 'title' => 'Chuyên ngành'],
-          ['key' => 'birth_year', 'title' => 'Năm sinh'],
-          ['key' => 'phone', 'title' => 'Số điện thoại'],
-          ['key' => 'socials', 'title' => 'Mạng xã hội'],
-          ['key' => 'creator', 'title' => ''],
-        ['key' => 'actions', 'title' => 'Hành động'],
-        ]"
+:columns="[
+  ['key' => 'image', 'title' => 'Ảnh'],
+  ['key' => 'name', 'title' => 'Tên nhân viên'],
+  ['key' => 'specialty', 'title' => 'Chuyên ngành'],
+  ['key' => 'birth_year', 'title' => 'Năm sinh'],
+  ['key' => 'phone', 'title' => 'Số điện thoại'],
+  ['key' => 'socials', 'title' => 'Mạng xã hội'],
+  ['key' => 'meta', 'title' => ''],
+  ['key' => 'actions', 'title' => 'Hành động'],
+]"
         ajax-url="{{ panel_route(module().'.datatable') }}"
         :options="$options"
       />

@@ -17,7 +17,7 @@ class ProductController extends Controller
                 'name',
                 'slug',
                 'category_id',
-
+                'golf_information',
                 'image',
                 'image_original_name',
                 'gallery_image_1',
@@ -25,7 +25,7 @@ class ProductController extends Controller
                 'gallery_image_2',
                 'gallery_image_2_original_name',
                 'video_url',
-
+                'star_rating',
                 'description',
                 'location',
                 'duration',
@@ -41,9 +41,14 @@ class ProductController extends Controller
                 'sort',
                 'order_position',
                 'created_at',
+                'badge_text',
             ])
-            ->with('category:id,name,slug,type')
+            ->with([
+                'category:id,name,slug,type',
+                'images',
+            ])
             ->where('status', 1);
+
 
         if ($request->filled('category')) {
             $category = $request->get('category');
@@ -75,7 +80,8 @@ class ProductController extends Controller
                 'name',
                 'slug',
                 'category_id',
-
+                'star_rating',
+                'golf_information',
                 'image',
                 'image_original_name',
                 'gallery_image_1',
@@ -83,7 +89,7 @@ class ProductController extends Controller
                 'gallery_image_2',
                 'gallery_image_2_original_name',
                 'video_url',
-
+                'badge_text',
                 'description',
                 'location',
                 'duration',
@@ -100,7 +106,10 @@ class ProductController extends Controller
                 'order_position',
                 'created_at',
             ])
-            ->with('category:id,name,slug,type')
+            ->with([
+                'category:id,name,slug,type',
+                'images',
+            ])
             ->where('status', 1)
             ->where(function ($query) use ($slug) {
                 $query->where('slug', $slug);
@@ -132,15 +141,22 @@ class ProductController extends Controller
             'highlight' => $item->highlight,
             'facility' => $item->facility,
             'content' => $item->content,
-
+            'star_rating' => $item->star_rating,
             'image' => $item->image ? Storage::url($item->image) : null,
             'image_original_name' => $item->image_original_name,
-
+            'badge_text' => $item->badge_text,
             'gallery_image_1' => $item->gallery_image_1 ? Storage::url($item->gallery_image_1) : null,
             'gallery_image_1_original_name' => $item->gallery_image_1_original_name,
-
+            'golf_information' => $item->golf_information,
             'gallery_image_2' => $item->gallery_image_2 ? Storage::url($item->gallery_image_2) : null,
             'gallery_image_2_original_name' => $item->gallery_image_2_original_name,
+            'gallery_images' => $item->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'image' => Storage::url($image->image),
+                    'original_name' => $image->original_name,
+                ];
+            })->values(),
 
             'video_url' => $item->video_url,
 

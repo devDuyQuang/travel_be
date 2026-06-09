@@ -17,7 +17,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -66,7 +66,7 @@
 
 .comment-list-page .dataTables_length label,
 .comment-list-page .dataTables_filter label {
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 15px;
   font-weight: 600;
 }
@@ -77,9 +77,9 @@
   min-height: 40px;
   border-radius: 9px;
   font-size: 15px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid var(--cms-border);
   box-shadow: none;
 }
 
@@ -111,13 +111,13 @@
 
 .comment-list-page #reload-table thead th {
   padding: 15px 12px;
-  color: #f8fafc !important;
+  color: var(--cms-heading) !important;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: .03em;
   text-transform: uppercase;
-  border-top: 1px solid rgba(255, 255, 255, .12);
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  border-top: 1px solid var(--cms-border);
+  border-bottom: 1px solid var(--cms-border);
   border-left: 0 !important;
   border-right: 0 !important;
   background: transparent !important;
@@ -126,11 +126,11 @@
 
 .comment-list-page #reload-table tbody td {
   padding: 16px 12px;
-  color: #e5e7eb !important;
+  color: var(--cms-text) !important;
   font-size: 15px;
   font-weight: 500;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, .075);
+  border-bottom: 1px solid var(--cms-border-soft);
   border-left: 0 !important;
   border-right: 0 !important;
   background: transparent !important;
@@ -138,7 +138,7 @@
 }
 
 .comment-list-page #reload-table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, .035) !important;
+  background-color: var(--cms-hover-bg) !important;
 }
 
 /* Bỏ icon sort */
@@ -174,7 +174,7 @@
 .comment-content-text {
   display: inline-block;
   max-width: 100%;
-  color: #e5e7eb;
+  color: var(--cms-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -224,7 +224,7 @@
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 9px;
   background: rgba(255, 255, 255, .03);
-  color: #e5e7eb;
+  color: var(--cms-text);
   box-shadow: none;
 }
 
@@ -246,7 +246,7 @@
 }
 
 .comment-list-page .dropdown-item {
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 14px;
   font-weight: 600;
 }
@@ -264,7 +264,7 @@
 .comment-modal .modal-content {
   border: 1px solid rgba(255, 255, 255, .10);
   background: #1f2937;
-  color: #e5e7eb;
+  color: var(--cms-text);
 }
 
 .comment-modal .modal-header,
@@ -274,7 +274,7 @@
 
 .comment-modal .form-control,
 .comment-modal textarea {
-  color: #f8fafc;
+  color: var(--cms-heading);
   background-color: transparent;
   border-color: rgba(255, 255, 255, .16);
 }
@@ -293,7 +293,7 @@
 /* Info + pagination */
 .comment-list-page .dataTables_info,
 .comment-list-page .dt-info {
-  color: rgba(255, 255, 255, .58) !important;
+  color: var(--cms-muted) !important;
   font-size: 15px !important;
   font-weight: 500 !important;
 }
@@ -318,7 +318,7 @@
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
-  color: rgba(255, 255, 255, .72) !important;
+  color: var(--cms-muted) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;

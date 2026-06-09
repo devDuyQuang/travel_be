@@ -32,7 +32,7 @@
   function initPopovers() {
     if (typeof bootstrap === 'undefined' || !bootstrap.Popover) return;
 
-    document.querySelectorAll('.menu-meta-trigger').forEach(function(el) {
+    document.querySelectorAll('.category-meta-trigger').forEach(function(el) {
       var oldInstance = bootstrap.Popover.getInstance(el);
       if (oldInstance) oldInstance.dispose();
 
@@ -49,7 +49,7 @@
   function disposePopovers() {
     if (typeof bootstrap === 'undefined' || !bootstrap.Popover) return;
 
-    document.querySelectorAll('.menu-meta-trigger').forEach(function(el) {
+    document.querySelectorAll('.category-meta-trigger').forEach(function(el) {
       var instance = bootstrap.Popover.getInstance(el);
       if (instance) instance.dispose();
     });

@@ -31,12 +31,19 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard/export-posts', [Dashboard::class, 'exportPosts'])->name('dashboard.export-posts');
 
     Route::prefix('product')->name('product.')->group(function () {
+
         Route::get('/', [ProductController::class, 'index'])->name('index');
         Route::get('/datatable', [ProductController::class, 'datatable'])->name('datatable');
         Route::get('/create', [ProductController::class, 'create'])->name('create');
         Route::post('/', [ProductController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [ProductController::class, 'edit'])->name('edit');
         Route::put('/{id}', [ProductController::class, 'update'])->name('update');
+
+        Route::delete(
+            '/gallery-image/{image}',
+            [ProductController::class, 'destroyGalleryImage']
+        )->name('gallery-image.destroy');
+
         Route::patch('/{id}/status', [ProductController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
     });

@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 11px 14px;
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 14px;
   font-weight: 700;
   border-bottom: 1px solid rgba(255, 255, 255, .08);
@@ -31,7 +31,7 @@
   padding: 14px 16px;
   max-height: 300px;
   overflow: auto;
-  color: #f8fafc;
+  color: var(--cms-heading);
   background: rgba(15, 23, 42, .50);
   font-size: 13px;
   line-height: 1.55;

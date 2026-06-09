@@ -88,6 +88,7 @@ class DoctorController extends Controller
                 'birth_year' => $item->birth_year,
                 'phone' => $item->phone,
                 'socials' => $socials,
+                'meta' => '',
                 'linkedin' => $item->linkedin,
                 'facebook' => $item->facebook,
                 'twitter' => $item->twitter,

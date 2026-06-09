@@ -18,7 +18,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -72,7 +72,7 @@
 
 .role-list-page .dataTables_length label,
 .role-list-page .dataTables_filter label {
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 15px;
   font-weight: 600;
 }
@@ -83,9 +83,9 @@
   min-height: 40px;
   border-radius: 9px;
   font-size: 15px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid var(--cms-border);
   box-shadow: none;
 }
 
@@ -116,13 +116,13 @@
 
 .role-list-page #reload-table thead th {
   padding: 15px 14px;
-  color: #f8fafc !important;
+  color: var(--cms-heading) !important;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: .03em;
   text-transform: uppercase;
-  border-top: 1px solid rgba(255, 255, 255, .12);
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  border-top: 1px solid var(--cms-border);
+  border-bottom: 1px solid var(--cms-border);
   border-left: 0 !important;
   border-right: 0 !important;
   background: transparent !important;
@@ -131,18 +131,18 @@
 
 .role-list-page #reload-table tbody td {
   padding: 16px 14px;
-  color: #e5e7eb !important;
+  color: var(--cms-text) !important;
   font-size: 15px;
   font-weight: 500;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, .075);
+  border-bottom: 1px solid var(--cms-border-soft);
   border-left: 0 !important;
   border-right: 0 !important;
   background: transparent !important;
 }
 
 .role-list-page #reload-table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, .035) !important;
+  background-color: var(--cms-hover-bg) !important;
 }
 
 .role-list-page #reload-table thead th::before,
@@ -222,7 +222,7 @@
 
 .role-list-page .dataTables_info,
 .role-list-page .dt-info {
-  color: rgba(255, 255, 255, .58) !important;
+  color: var(--cms-muted) !important;
   font-size: 15px !important;
   font-weight: 500 !important;
 }

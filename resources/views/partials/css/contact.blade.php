@@ -16,7 +16,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -45,29 +45,29 @@
 
 .contact-table thead th {
   padding: 15px 12px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 15px;
   font-weight: 800;
   letter-spacing: .03em;
   text-transform: uppercase;
-  border-top: 1px solid rgba(255, 255, 255, .12);
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  border-top: 1px solid var(--cms-border);
+  border-bottom: 1px solid var(--cms-border);
   background: transparent;
   white-space: nowrap;
 }
 
 .contact-table tbody td {
   padding: 16px 12px;
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 15px;
   font-weight: 500;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, .075);
+  border-bottom: 1px solid var(--cms-border-soft);
   background: transparent;
 }
 
 .contact-table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, .035);
+  background-color: var(--cms-hover-bg);
 }
 
 .contact-index-col {
@@ -122,12 +122,12 @@
 }
 
 .contact-date strong {
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-weight: 800;
 }
 
 .contact-date small {
-  color: rgba(255, 255, 255, .58);
+  color: var(--cms-muted);
 }
 
 .contact-empty-row {
@@ -153,11 +153,11 @@
 .contact-modal-message {
   white-space: pre-wrap;
   line-height: 1.7;
-  color: #e5e7eb;
+  color: var(--cms-text);
 }
 
 .contact-modal-meta {
-  color: #e5e7eb;
+  color: var(--cms-text);
   line-height: 1.8;
 }
 

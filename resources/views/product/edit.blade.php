@@ -59,6 +59,13 @@
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="col-md-6">
+                                <x-input-field
+                                    name="badge_text"
+                                    label="Nhãn hiển thị"
+                                    :value="old('badge_text', $item->badge_text)"
+                                    placeholder="VD: New" />
+                            </div>
                         </div>
                     </div>
 
@@ -68,7 +75,25 @@
 
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label for="price" class="form-label">Giá</label>
+                                <label for="star_rating" class="form-label">Số sao hiển thị</label>
+                                <input
+                                    type="number"
+                                    name="star_rating"
+                                    id="star_rating"
+                                    class="form-control"
+                                    min="0"
+                                    max="5"
+                                    step="0.1"
+                                    value="{{ old('star_rating', $item->star_rating ?? 4.4) }}"
+                                    placeholder="VD: 4.4">
+
+                                @error('star_rating')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="price" class="form-label">Giá hiển thị</label>
                                 <input
                                     type="text"
                                     name="price"
@@ -76,25 +101,9 @@
                                     class="form-control"
                                     inputmode="decimal"
                                     value="{{ old('price', $item->price) }}"
-                                    placeholder="VD: 154.90">
+                                    placeholder="VD: 59.00">
 
                                 @error('price')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="price_discount" class="form-label">Giá khuyến mãi</label>
-                                <input
-                                    type="text"
-                                    name="price_discount"
-                                    id="price_discount"
-                                    class="form-control"
-                                    inputmode="decimal"
-                                    value="{{ old('price_discount', $item->price_discount) }}"
-                                    placeholder="VD: 117.65">
-
-                                @error('price_discount')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -159,11 +168,10 @@
 
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <x-textarea-field
-                                    name="description"
-                                    label="Mô tả ngắn"
-                                    rows="3"
-                                    :value="old('description', $item->description)" />
+                                <x-ckeditor
+                                    name="golf_information"
+                                    label="Thông tin bảng sân golf"
+                                    :value="old('golf_information', $item->golf_information)" />
                             </div>
 
                             <div class="col-md-6">
@@ -204,14 +212,9 @@
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="custom-file-btn">
+                                        <label class="btn btn-primary custom-file-btn">
                                             Chọn tệp
-                                            <input
-                                                type="file"
-                                                name="image"
-                                                class="custom-file-input"
-                                                accept="image/*"
-                                                hidden>
+                                            <input type="file" name="image" class="custom-file-input" accept="image/*" hidden>
                                         </label>
 
                                         <span class="custom-file-name">
@@ -250,14 +253,9 @@
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="custom-file-btn">
+                                        <label class="btn btn-primary custom-file-btn">
                                             Chọn tệp
-                                            <input
-                                                type="file"
-                                                name="gallery_image_1"
-                                                class="custom-file-input"
-                                                accept="image/*"
-                                                hidden>
+                                            <input type="file" name="gallery_image_1" class="custom-file-input" accept="image/*" hidden>
                                         </label>
 
                                         <span class="custom-file-name">
@@ -282,20 +280,66 @@
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="custom-file-btn">
+                                        <label class="btn btn-primary custom-file-btn">
                                             Chọn tệp
-                                            <input
-                                                type="file"
-                                                name="gallery_image_2"
-                                                class="custom-file-input"
-                                                accept="image/*"
-                                                hidden>
+                                            <input type="file" name="gallery_image_2" class="custom-file-input" accept="image/*" hidden>
                                         </label>
 
                                         <span class="custom-file-name">
                                             {{ !empty($item->gallery_image_2) ? basename($item->gallery_image_2) : 'Không có tệp nào được chọn' }}
                                         </span>
                                     </div>
+                                </div>
+                            </div>
+
+                            {{-- Ảnh thư viện --}}
+                            <div class="col-md-12">
+                                <div class="product-media-card">
+                                    <label class="form-label fw-semibold">Ảnh thư viện, tối đa 10 ảnh</label>
+
+                                    @if($item->images && $item->images->count())
+                                    <div class="product-gallery-preview mb-3">
+                                        @foreach($item->images as $galleryImage)
+                                        <div class="product-gallery-preview-item">
+                                            <img
+                                                src="{{ Storage::url($galleryImage->image) }}"
+                                                alt="{{ $galleryImage->original_name ?? 'Gallery image' }}">
+
+                                            <button
+                                                type="button"
+                                                class="product-gallery-delete-btn"
+                                                onclick="if(confirm('Xóa ảnh này?')) document.getElementById('delete-gallery-image-{{ $galleryImage->id }}').submit();">
+                                                ×
+                                            </button>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    @endif
+
+                                    <div class="custom-file-row">
+                                        <label class="btn btn-primary custom-file-btn">
+                                            Chọn tệp
+                                            <input
+                                                type="file"
+                                                name="gallery_images[]"
+                                                class="custom-file-input"
+                                                accept="image/*"
+                                                multiple
+                                                hidden>
+                                        </label>
+
+                                        <span class="custom-file-name">
+                                            Không có tệp nào được chọn
+                                        </span>
+                                    </div>
+
+                                    @error('gallery_images')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+
+                                    @error('gallery_images.*')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -347,6 +391,19 @@
                     submit-text="Cập nhật"
                     cancel-text="Thoát" />
             </x-tab-form>
+            @if($item->images && $item->images->count())
+            @foreach($item->images as $galleryImage)
+            <form
+                id="delete-gallery-image-{{ $galleryImage->id }}"
+                action="{{ panel_route('product.gallery-image.destroy', ['image' => $galleryImage->id]) }}"
+                method="POST"
+                style="display:none;">
+                @csrf
+                @method('DELETE')
+            </form>
+            @endforeach
+            @endif
+
         </div>
     </div>
     <style>
@@ -404,5 +461,22 @@
             }
         }
     });
+</script>
+<script>
+    const galleryInput = document.getElementById('gallery_images');
+
+    if (galleryInput) {
+        galleryInput.addEventListener('change', function() {
+            const label = document.getElementById('gallery-images-name');
+
+            if (!this.files.length) {
+                label.textContent = 'Không có tệp nào được chọn';
+                return;
+            }
+
+            label.textContent =
+                this.files.length + ' ảnh đã được chọn';
+        });
+    }
 </script>
 @endsection

@@ -20,7 +20,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -78,7 +78,7 @@
 
 .degree-list-page .dataTables_length label,
 .degree-list-page .dataTables_filter label {
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 15px;
   font-weight: 600;
 }
@@ -89,9 +89,9 @@
   min-height: 40px;
   border-radius: 9px;
   font-size: 15px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid var(--cms-border);
   box-shadow: none;
 }
 
@@ -122,13 +122,13 @@
 
 .degree-list-page #reload-table thead th {
   padding: 15px 14px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 15.5px;
   font-weight: 800;
   letter-spacing: .035em;
   text-transform: uppercase;
-  border-top: 1px solid rgba(255, 255, 255, .12);
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  border-top: 1px solid var(--cms-border);
+  border-bottom: 1px solid var(--cms-border);
   border-left: 0;
   border-right: 0;
   background: transparent;
@@ -137,11 +137,11 @@
 
 .degree-list-page #reload-table tbody td {
   padding: 16px 14px;
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 16px;
   font-weight: 500;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, .075);
+  border-bottom: 1px solid var(--cms-border-soft);
   border-left: 0;
   border-right: 0;
   background: transparent;
@@ -149,7 +149,7 @@
 }
 
 .degree-list-page #reload-table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, .035);
+  background-color: var(--cms-hover-bg);
 }
 
 /* Column widths */
@@ -200,7 +200,7 @@
 
 /* Meta */
 .degree-meta-trigger {
-  color: rgba(255, 255, 255, .65);
+  color: var(--cms-muted);
   box-shadow: none;
 }
 
@@ -346,7 +346,7 @@
 .degree-form-title {
   margin-bottom: 28px;
   padding-left: 0;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -367,7 +367,7 @@
 .degree-form-page input[type="file"] {
   width: 100%;
   height: 42px;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid var(--cms-border);
   border-radius: 6px;
   background: transparent;
   color: var(--bs-body-color);

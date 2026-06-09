@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Models\ProductImage;
 
 class ProductController extends Controller
 {
@@ -41,6 +42,7 @@ class ProductController extends Controller
                 'image',
                 'description',
                 'location',
+                'star_rating',
                 'review_rating',
                 'review_count',
                 'established_year',
@@ -51,6 +53,8 @@ class ProductController extends Controller
                 'status',
                 'created_at',
                 'created_by',
+                'golf_information',
+                'badge_text',
             ])
             ->with([
                 'category:id,name',
@@ -85,6 +89,7 @@ class ProductController extends Controller
                 'description' => Str::limit((string) $item->description, 60),
                 'location' => $item->location,
                 'review_rating' => $item->review_rating,
+                'star_rating' => $item->star_rating,
                 'review_count' => $item->review_count,
                 'established_year' => $item->established_year,
                 'highlight' => Str::limit((string) $item->highlight, 80),
@@ -95,6 +100,7 @@ class ProductController extends Controller
                 'creator' => optional($item->creator)->name ?? '—',
                 'created_at' => $item->created_at ? $item->created_at->toISOString() : null,
                 '__details' => '',
+                'badge_text' => $item->badge_text,
             ];
         })->values();
 
@@ -133,7 +139,9 @@ class ProductController extends Controller
             $data['created_by'] = Auth::id();
             $data['order_position'] = (int) Product::max('order_position') + 1;
 
-            $this->model->create($data);
+            $product = $this->model->create($data);
+
+            $this->uploadProductGalleryImages($request, $product);
 
             $msg = __('messages.data_saved') ?: 'Thêm mới thành công';
 
@@ -160,7 +168,7 @@ class ProductController extends Controller
 
     public function edit(Request $request, $domain, $id)
     {
-        $item = $this->model->findOrFail($id);
+        $item = $this->model->with('images')->findOrFail($id);
         $categories = $this->getCategoryOptions();
 
         $currentImageUrl = $item->image ? Storage::url($item->image) : null;
@@ -212,7 +220,7 @@ class ProductController extends Controller
             $data['updated_by'] = Auth::id();
 
             $item->update($data);
-
+            $this->uploadProductGalleryImages($request, $item);
             foreach ($oldPathsToDelete as $oldPath) {
                 if ($oldPath && Storage::disk('public')->exists($oldPath)) {
                     Storage::disk('public')->delete($oldPath);
@@ -259,10 +267,18 @@ class ProductController extends Controller
 
     public function destroy(Request $request, $domain, $id)
     {
-        $item = $this->model->findOrFail($id);
+        $item = $this->model->with('images')->findOrFail($id);
 
-        if ($item->image && Storage::disk('public')->exists($item->image)) {
-            Storage::disk('public')->delete($item->image);
+        foreach (['image', 'gallery_image_1', 'gallery_image_2'] as $field) {
+            if ($item->{$field} && Storage::disk('public')->exists($item->{$field})) {
+                Storage::disk('public')->delete($item->{$field});
+            }
+        }
+
+        foreach ($item->images as $galleryImage) {
+            if ($galleryImage->image && Storage::disk('public')->exists($galleryImage->image)) {
+                Storage::disk('public')->delete($galleryImage->image);
+            }
         }
 
         $item->delete();
@@ -312,15 +328,19 @@ class ProductController extends Controller
             'image_original_name' => ['nullable', 'string', 'max:255'],
             'gallery_image_1_original_name' => ['nullable', 'string', 'max:255'],
             'gallery_image_2_original_name' => ['nullable', 'string', 'max:255'],
+            'gallery_images' => ['nullable', 'array', 'max:10'],
+            'gallery_images.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
             'video_url' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'location' => ['nullable', 'string', 'max:255'],
             'review_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'star_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'review_count' => ['nullable', 'string', 'max:255'],
             'established_year' => ['nullable', 'integer', 'min:1800', 'max:' . ((int) date('Y') + 1)],
             'highlight' => ['nullable', 'string'],
             'facility' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
+            'golf_information' => ['nullable', 'string'],
             'title_seo' => ['nullable', 'string', 'max:255'],
             'canonical_url' => ['nullable', 'string', 'max:255'],
             'description_seo' => ['nullable', 'string'],
@@ -330,6 +350,7 @@ class ProductController extends Controller
             'price_discount' => ['nullable', 'numeric', 'min:0'],
             'status' => ['nullable', 'integer', 'in:0,1'],
             'sort' => ['nullable', 'integer', 'min:0'],
+            'badge_text' => ['nullable', 'string', 'max:50'],
         ], [
             'name.required' => 'Vui lòng nhập tên sản phẩm.',
             'name.string' => 'Tên sản phẩm không hợp lệ.',
@@ -376,6 +397,11 @@ class ProductController extends Controller
 
             'highlight.string' => 'Điểm nổi bật không hợp lệ.',
             'facility.string' => 'Dịch vụ tiện ích không hợp lệ.',
+            'star_rating.numeric' => 'Số sao được phép là số bất kỳ.',
+            'star_rating.min' => 'Số sao không được nhỏ hơn 0.',
+            'star_rating.max' => 'Số sao không được lớn hơn 5.',
+            'badge_text.string' => 'Nhãn hiển thị không hợp lệ.',
+            'badge_text.max' => 'Nhãn hiển thị không được vượt quá 20 ký tự.',
         ]);
     }
 
@@ -404,5 +430,48 @@ class ProductController extends Controller
             . $request->file($field)->getClientOriginalExtension();
 
         return $request->file($field)->storeAs($uploadDir, $filename, 'public');
+    }
+
+    private function uploadProductGalleryImages(Request $request, Product $product): void
+    {
+        if (!$request->hasFile('gallery_images')) {
+            return;
+        }
+
+        $currentCount = $product->images()->count();
+        $files = $request->file('gallery_images');
+
+        foreach ($files as $index => $file) {
+            if ($currentCount + $index >= 10) {
+                break;
+            }
+
+            $filename = Str::slug($product->name)
+                . '_gallery_'
+                . time()
+                . '_'
+                . uniqid()
+                . '.'
+                . $file->getClientOriginalExtension();
+
+            $path = $file->storeAs('products', $filename, 'public');
+
+            $product->images()->create([
+                'image' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'sort_order' => $currentCount + $index + 1,
+            ]);
+        }
+    }
+
+    public function destroyGalleryImage(Request $request, $domain, ProductImage $image)
+    {
+        if ($image->image && Storage::disk('public')->exists($image->image)) {
+            Storage::disk('public')->delete($image->image);
+        }
+
+        $image->delete();
+
+        return back()->with('success', 'Xóa ảnh thành công.');
     }
 }

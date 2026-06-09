@@ -84,7 +84,7 @@ $nameRender = <<<'JS'
 
   iconsHtml +=
     '<button type="button" ' +
-      'class="btn p-0 border-0 bg-transparent category-name-icon category-name-icon-info" ' +
+     'class="btn p-0 border-0 bg-transparent category-name-icon category-name-icon-info category-meta-trigger" ' +
       'data-bs-toggle="popover" ' +
       'data-bs-placement="left" ' +
       'data-bs-html="true" ' +

@@ -37,7 +37,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -102,7 +102,7 @@
 
 .product-list-page .dataTables_length label,
 .product-list-page .dataTables_filter label {
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 15px;
   font-weight: 600;
 }
@@ -113,9 +113,9 @@
   min-height: 40px;
   border-radius: 9px;
   font-size: 15px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid var(--cms-border);
   box-shadow: none;
 }
 
@@ -150,13 +150,13 @@
 
 .product-list-page #reload-table thead th {
   padding: 15px 10px;
-  color: #f8fafc !important;
+  color: var(--cms-heading) !important;
   font-size: 14.5px;
   font-weight: 800;
   letter-spacing: .025em;
   text-transform: uppercase;
-  border-top: 1px solid rgba(255, 255, 255, .12);
-  border-bottom: 1px solid rgba(255, 255, 255, .12);
+  border-top: 1px solid var(--cms-border);
+  border-bottom: 1px solid var(--cms-border);
   border-left: 0 !important;
   border-right: 0 !important;
   background: transparent !important;
@@ -166,11 +166,11 @@
 
 .product-list-page #reload-table tbody td {
   padding: 16px 10px;
-  color: #e5e7eb !important;
+  color: var(--cms-text) !important;
   font-size: 15px;
   font-weight: 500;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, .075);
+  border-bottom: 1px solid var(--cms-border-soft);
   border-left: 0 !important;
   border-right: 0 !important;
   background: transparent !important;
@@ -178,7 +178,7 @@
 }
 
 .product-list-page #reload-table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, .035) !important;
+  background-color: var(--cms-hover-bg) !important;
 }
 
 .product-list-page #reload-table thead th::before,
@@ -291,7 +291,7 @@
 }
 
 .product-name-icon-info {
-  color: rgba(255, 255, 255, .65) !important;
+  color: var(--cms-muted) !important;
 }
 
 .product-name-icon:hover {
@@ -421,7 +421,7 @@
 
 .product-list-page .dataTables_info,
 .product-list-page .dt-info {
-  color: rgba(255, 255, 255, .58) !important;
+  color: var(--cms-muted) !important;
   font-size: 15px !important;
   font-weight: 500 !important;
 }
@@ -446,7 +446,7 @@
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
-  color: rgba(255, 255, 255, .72) !important;
+  color: var(--cms-muted) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -465,7 +465,7 @@
 
 .product-form-title {
   margin-bottom: 20px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   font-size: 22px;
   font-weight: 700;
 }
@@ -485,7 +485,7 @@
 .product-form-page .product-file-field .form-label {
   display: block;
   margin-bottom: 8px;
-  color: #e5e7eb;
+  color: var(--cms-text);
   font-size: 15px;
   font-weight: 600;
 }
@@ -495,9 +495,9 @@
   width: 100%;
   min-height: 40px;
   padding: 7px 12px;
-  color: #e5e7eb;
+  color: var(--cms-text);
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid var(--cms-border);
   border-radius: 9px;
   font-size: 15px;
   line-height: 1.5;
@@ -507,7 +507,7 @@
 .product-form-page .product-file-field input[type="file"]::file-selector-button {
   margin-right: 12px;
   padding: 6px 14px;
-  color: #f8fafc;
+  color: var(--cms-heading);
   background: rgba(255, 255, 255, .08);
   border: 0;
   border-radius: 7px;
@@ -582,7 +582,58 @@
 .product-form-page .form-select {
     min-height: 42px;
 }
+/* ================================
+   Product Gallery Preview
+================================ */
 
+.product-form-page .product-gallery-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.product-form-page .product-gallery-preview-item {
+  position: relative;
+  width: 110px;
+  height: 76px;
+  flex: 0 0 110px;
+  overflow: visible;
+}
+
+.product-form-page .product-gallery-preview-item img {
+  display: block;
+  width: 110px;
+  height: 76px;
+  max-width: 110px;
+  max-height: 76px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--cms-border);
+}
+
+.product-form-page .product-gallery-delete-btn {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+
+  width: 22px;
+  height: 22px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
 /* ================================
    Responsive
 ================================ */
