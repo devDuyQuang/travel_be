@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use App\Models\ProductImage;
 
 class ProductController extends Controller
 {
@@ -35,6 +35,7 @@ class ProductController extends Controller
 
         $query = Product::query()
             ->select([
+                 'established_text',
                 'id',
                 'name',
                 'slug',
@@ -101,6 +102,7 @@ class ProductController extends Controller
                 'created_at' => $item->created_at ? $item->created_at->toISOString() : null,
                 '__details' => '',
                 'badge_text' => $item->badge_text,
+               'established_text' => $item->established_text,
             ];
         })->values();
 
@@ -126,20 +128,17 @@ class ProductController extends Controller
         $uploadedPaths = [];
 
         try {
-            foreach (['image', 'gallery_image_1', 'gallery_image_2'] as $field) {
-                $path = $this->uploadProductImage($request, $field, $data['name']);
-
-                if ($path) {
-                    $data[$field] = $path;
-                    $data[$field . '_original_name'] = $request->file($field)->getClientOriginalName();
-                    $uploadedPaths[] = $path;
-                }
-            }
+            $this->handleProductFixedImages(
+                request: $request,
+                product: null,
+                data: $data,
+                uploadedPaths: $uploadedPaths
+            );
 
             $data['created_by'] = Auth::id();
             $data['order_position'] = (int) Product::max('order_position') + 1;
 
-            $product = $this->model->create($data);
+            $product = Product::create($data);
 
             $this->uploadProductGalleryImages($request, $product);
 
@@ -152,13 +151,11 @@ class ProductController extends Controller
                 ])
                 : redirect()->to(panel_route(module() . '.index'))->with('success', $msg);
         } catch (\Throwable $e) {
-            foreach ($uploadedPaths as $path) {
-                if ($path && Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
-                }
-            }
+            $this->deleteFiles($uploadedPaths);
 
-            Log::error('Create product error: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Create product error: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
 
             return response()->json([
                 'message' => __('messages.unexpected_error') ?: 'Có lỗi xảy ra.',
@@ -168,7 +165,7 @@ class ProductController extends Controller
 
     public function edit(Request $request, $domain, $id)
     {
-        $item = $this->model->with('images')->findOrFail($id);
+        $item = Product::with('images')->findOrFail($id);
         $categories = $this->getCategoryOptions();
 
         $currentImageUrl = $item->image ? Storage::url($item->image) : null;
@@ -186,7 +183,7 @@ class ProductController extends Controller
 
     public function update(Request $request, $domain, $id)
     {
-        $item = $this->model->findOrFail($id);
+        $item = Product::findOrFail($id);
 
         $data = $this->validateProductData($request, $item->id);
 
@@ -194,38 +191,21 @@ class ProductController extends Controller
         $oldPathsToDelete = [];
 
         try {
-            foreach (['image', 'gallery_image_1', 'gallery_image_2'] as $field) {
-                $path = $this->uploadProductImage($request, $field, $data['name']);
-
-                if ($path) {
-                    $data[$field] = $path;
-                    $data[$field . '_original_name'] = $request->file($field)->getClientOriginalName();
-                    $uploadedPaths[] = $path;
-
-                    if (!empty($item->{$field})) {
-                        $oldPathsToDelete[] = $item->{$field};
-                    }
-                }
-            }
-
-            if ($request->boolean('remove_image')) {
-                if (!empty($item->image)) {
-                    $oldPathsToDelete[] = $item->image;
-                }
-
-                $data['image'] = null;
-                $data['image_original_name'] = null;
-            }
+            $this->handleProductFixedImages(
+                request: $request,
+                product: $item,
+                data: $data,
+                uploadedPaths: $uploadedPaths,
+                oldPathsToDelete: $oldPathsToDelete
+            );
 
             $data['updated_by'] = Auth::id();
 
             $item->update($data);
-            $this->uploadProductGalleryImages($request, $item);
-            foreach ($oldPathsToDelete as $oldPath) {
-                if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                    Storage::disk('public')->delete($oldPath);
-                }
-            }
+
+            $this->uploadProductGalleryImages($request, $item->fresh());
+
+            $this->deleteFiles($oldPathsToDelete);
 
             $msg = __('messages.data_saved') ?: 'Cập nhật thành công';
 
@@ -236,13 +216,11 @@ class ProductController extends Controller
                 ])
                 : redirect()->back()->with('success', $msg);
         } catch (\Throwable $e) {
-            foreach ($uploadedPaths as $path) {
-                if ($path && Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
-                }
-            }
+            $this->deleteFiles($uploadedPaths);
 
-            Log::error('Update product error: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Update product error: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
 
             return response()->json([
                 'message' => __('messages.unexpected_error') ?: 'Có lỗi xảy ra.',
@@ -252,7 +230,7 @@ class ProductController extends Controller
 
     public function toggleStatus(Request $request, $domain, $id)
     {
-        $item = $this->model->findOrFail($id);
+        $item = Product::findOrFail($id);
 
         $item->update([
             'status' => (int) $item->status === 1 ? 0 : 1,
@@ -267,25 +245,40 @@ class ProductController extends Controller
 
     public function destroy(Request $request, $domain, $id)
     {
-        $item = $this->model->with('images')->findOrFail($id);
+        $item = Product::with('images')->findOrFail($id);
+
+        $paths = [];
 
         foreach (['image', 'gallery_image_1', 'gallery_image_2'] as $field) {
-            if ($item->{$field} && Storage::disk('public')->exists($item->{$field})) {
-                Storage::disk('public')->delete($item->{$field});
+            if (!empty($item->{$field})) {
+                $paths[] = $item->{$field};
             }
         }
 
         foreach ($item->images as $galleryImage) {
-            if ($galleryImage->image && Storage::disk('public')->exists($galleryImage->image)) {
-                Storage::disk('public')->delete($galleryImage->image);
+            if (!empty($galleryImage->image)) {
+                $paths[] = $galleryImage->image;
             }
         }
 
         $item->delete();
 
+        $this->deleteFiles($paths);
+
         return $request->wantsJson()
             ? response()->json(['message' => 'Xóa thành công'])
             : redirect()->to(panel_route(module() . '.index'))->with('success', 'Xóa thành công');
+    }
+
+    public function destroyGalleryImage(Request $request, $domain, ProductImage $image)
+    {
+        $path = $image->image;
+
+        $image->delete();
+
+        $this->deleteFiles([$path]);
+
+        return back()->with('success', 'Xóa ảnh thành công.');
     }
 
     private function validateProductData(Request $request, ?int $id = null): array
@@ -297,6 +290,7 @@ class ProductController extends Controller
                 ]);
             }
         }
+
         $request->merge([
             'slug' => filled($request->slug)
                 ? Str::slug($request->slug)
@@ -322,20 +316,29 @@ class ProductController extends Controller
                     $query->whereRaw('LOWER(type) = ?', ['product']);
                 }),
             ],
+
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
             'gallery_image_1' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
             'gallery_image_2' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
+
             'image_original_name' => ['nullable', 'string', 'max:255'],
             'gallery_image_1_original_name' => ['nullable', 'string', 'max:255'],
             'gallery_image_2_original_name' => ['nullable', 'string', 'max:255'],
+
+            'remove_image' => ['nullable', 'boolean'],
+            'remove_gallery_image_1' => ['nullable', 'boolean'],
+            'remove_gallery_image_2' => ['nullable', 'boolean'],
+
             'gallery_images' => ['nullable', 'array', 'max:10'],
             'gallery_images.*' => ['image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
+
             'video_url' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'location' => ['nullable', 'string', 'max:255'],
             'review_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'star_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'review_count' => ['nullable', 'string', 'max:255'],
+            'established_text' => ['nullable', 'string', 'max:255'],
             'established_year' => ['nullable', 'integer', 'min:1800', 'max:' . ((int) date('Y') + 1)],
             'highlight' => ['nullable', 'string'],
             'facility' => ['nullable', 'string'],
@@ -344,7 +347,6 @@ class ProductController extends Controller
             'title_seo' => ['nullable', 'string', 'max:255'],
             'canonical_url' => ['nullable', 'string', 'max:255'],
             'description_seo' => ['nullable', 'string'],
-            'remove_image' => ['nullable', 'boolean'],
             'duration' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'price_discount' => ['nullable', 'numeric', 'min:0'],
@@ -366,6 +368,14 @@ class ProductController extends Controller
             'image.image' => 'File tải lên phải là hình ảnh.',
             'image.mimes' => 'Ảnh phải thuộc định dạng jpeg, png, jpg, gif, svg hoặc webp.',
             'image.max' => 'Dung lượng ảnh không được vượt quá 5MB.',
+
+            'gallery_image_1.image' => 'Ảnh phụ 1 phải là hình ảnh.',
+            'gallery_image_1.mimes' => 'Ảnh phụ 1 phải thuộc định dạng jpeg, png, jpg, gif, svg hoặc webp.',
+            'gallery_image_1.max' => 'Dung lượng ảnh phụ 1 không được vượt quá 5MB.',
+
+            'gallery_image_2.image' => 'Ảnh phụ 2 phải là hình ảnh.',
+            'gallery_image_2.mimes' => 'Ảnh phụ 2 phải thuộc định dạng jpeg, png, jpg, gif, svg hoặc webp.',
+            'gallery_image_2.max' => 'Dung lượng ảnh phụ 2 không được vượt quá 5MB.',
 
             'description.string' => 'Mô tả không hợp lệ.',
             'content.string' => 'Nội dung không hợp lệ.',
@@ -397,39 +407,76 @@ class ProductController extends Controller
 
             'highlight.string' => 'Điểm nổi bật không hợp lệ.',
             'facility.string' => 'Dịch vụ tiện ích không hợp lệ.',
+
             'star_rating.numeric' => 'Số sao được phép là số bất kỳ.',
             'star_rating.min' => 'Số sao không được nhỏ hơn 0.',
             'star_rating.max' => 'Số sao không được lớn hơn 5.',
+
             'badge_text.string' => 'Nhãn hiển thị không hợp lệ.',
-            'badge_text.max' => 'Nhãn hiển thị không được vượt quá 20 ký tự.',
+            'badge_text.max' => 'Nhãn hiển thị không được vượt quá 50 ký tự.',
         ]);
     }
 
-    private function getCategoryOptions(): array
-    {
-        return Category::query()
-            ->where('status', 1)
-            ->whereRaw('LOWER(type) = ?', ['product'])
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->toArray();
+    private function handleProductFixedImages(
+        Request $request,
+        ?Product $product,
+        array &$data,
+        array &$uploadedPaths,
+        array &$oldPathsToDelete = []
+    ): void {
+        $slug = $data['slug'] ?? Str::slug($data['name']);
+
+        foreach (['image', 'gallery_image_1', 'gallery_image_2'] as $field) {
+            $uploaded = $this->uploadProductImage($request, $field, $slug);
+
+            if ($uploaded !== null) {
+                $data[$field] = $uploaded['path'];
+                $data[$field . '_original_name'] = $uploaded['original_name'];
+                $uploadedPaths[] = $uploaded['path'];
+
+                if ($product && !empty($product->{$field})) {
+                    $oldPathsToDelete[] = $product->{$field};
+                }
+            }
+
+            $removeField = 'remove_' . $field;
+
+            if ($product && $request->boolean($removeField)) {
+                if (!empty($product->{$field})) {
+                    $oldPathsToDelete[] = $product->{$field};
+                }
+
+                $data[$field] = null;
+                $data[$field . '_original_name'] = null;
+            }
+        }
     }
-    private function uploadProductImage(Request $request, string $field, string $name): ?string
+
+    private function uploadProductImage(Request $request, string $field, string $slug): ?array
     {
         if (!$request->hasFile($field)) {
             return null;
         }
 
-        $uploadDir = 'products';
+        $file = $request->file($field);
 
-        $filename = Str::slug($name)
+        if (!$file || !$file->isValid()) {
+            return null;
+        }
+
+        $filename = $slug
             . '_' . $field
-            . '_' . time()
-            . '_' . uniqid()
+            . '_' . now()->timestamp
+            . '_' . Str::random(12)
             . '.'
-            . $request->file($field)->getClientOriginalExtension();
+            . strtolower($file->getClientOriginalExtension());
 
-        return $request->file($field)->storeAs($uploadDir, $filename, 'public');
+        $path = $file->storeAs('products', $filename, 'public');
+
+        return [
+            'path' => $path,
+            'original_name' => $file->getClientOriginalName(),
+        ];
     }
 
     private function uploadProductGalleryImages(Request $request, Product $product): void
@@ -438,21 +485,30 @@ class ProductController extends Controller
             return;
         }
 
-        $currentCount = $product->images()->count();
         $files = $request->file('gallery_images');
+
+        if (!is_array($files)) {
+            return;
+        }
+
+        $currentCount = $product->images()->count();
 
         foreach ($files as $index => $file) {
             if ($currentCount + $index >= 10) {
                 break;
             }
 
+            if (!$file || !$file->isValid()) {
+                continue;
+            }
+
             $filename = Str::slug($product->name)
                 . '_gallery_'
-                . time()
+                . now()->timestamp
                 . '_'
-                . uniqid()
+                . Str::random(12)
                 . '.'
-                . $file->getClientOriginalExtension();
+                . strtolower($file->getClientOriginalExtension());
 
             $path = $file->storeAs('products', $filename, 'public');
 
@@ -464,14 +520,22 @@ class ProductController extends Controller
         }
     }
 
-    public function destroyGalleryImage(Request $request, $domain, ProductImage $image)
+    private function deleteFiles(array $paths): void
     {
-        if ($image->image && Storage::disk('public')->exists($image->image)) {
-            Storage::disk('public')->delete($image->image);
+        foreach (array_unique(array_filter($paths)) as $path) {
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
         }
+    }
 
-        $image->delete();
-
-        return back()->with('success', 'Xóa ảnh thành công.');
+    private function getCategoryOptions(): array
+    {
+        return Category::query()
+            ->where('status', 1)
+            ->whereRaw('LOWER(type) = ?', ['product'])
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
     }
 }

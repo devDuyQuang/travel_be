@@ -80,6 +80,10 @@
               <option value="product" @selected(old('type', strtolower($item->type ?? 'post')) === 'product')>
                 PRODUCT
               </option>
+
+              <option value="service" @selected(old('type', strtolower($item->type ?? 'post')) === 'service')>
+                SERVICE
+              </option>
             </select>
 
             <div class="invalid-feedback" id="error-type">

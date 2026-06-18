@@ -319,9 +319,8 @@ class PostController extends Controller
         DB::beginTransaction();
 
         try {
-            if (empty($data['slug']) && !empty($data['name'])) {
-                $data['slug'] = $this->generateUniqueSlug($data['name'], $id);
-            }
+            $baseSlug = ! empty($data['slug']) ? $data['slug'] : $data['name'];
+            $data['slug'] = $this->generateUniqueSlug($baseSlug, $id);
 
             $post->fill($data)->save();
 
@@ -394,66 +393,65 @@ class PostController extends Controller
         ]);
     }
 
-  public function destroy(Request $request, $domain, $id)
-{
-    DB::beginTransaction();
+    public function destroy(Request $request, $domain, $id)
+    {
+        DB::beginTransaction();
 
-    try {
-        $post = $this->model->findOrFail($id);
+        try {
+            $post = $this->model->findOrFail($id);
 
-        $imagePath = $post->image;
+            $imagePath = $post->image;
 
-        // Xoá liên kết danh mục trước, tránh lỗi khóa ngoại category_post
-        if (method_exists($post, 'categories')) {
-            $post->categories()->detach();
-        }
-
-        // Xoá ảnh nếu có
-        if (!empty($imagePath)) {
-            $domainSlug = $this->sanitizeDomain($domain ?? 'default');
-            $expectedPrefix = "uploads/{$domainSlug}/";
-
-            if (
-                str_starts_with($imagePath, $expectedPrefix)
-                && Storage::disk('public')->exists($imagePath)
-            ) {
-                Storage::disk('public')->delete($imagePath);
+            // Xoá liên kết danh mục trước, tránh lỗi khóa ngoại category_post
+            if (method_exists($post, 'categories')) {
+                $post->categories()->detach();
             }
+
+            // Xoá ảnh nếu có
+            if (!empty($imagePath)) {
+                $domainSlug = $this->sanitizeDomain($domain ?? 'default');
+                $expectedPrefix = "uploads/{$domainSlug}/";
+
+                if (
+                    str_starts_with($imagePath, $expectedPrefix)
+                    && Storage::disk('public')->exists($imagePath)
+                ) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+            }
+
+            // Không có SoftDeletes thì delete() là xoá thật khỏi DB
+            $post->delete();
+
+            DB::commit();
+
+            $msg = 'Xóa dịch vụ thành công.';
+
+            return $request->ajax() || $request->wantsJson()
+                ? response()->json([
+                    'success' => true,
+                    'message' => $msg,
+                ])
+                : redirect()->to(panel_route(module() . '.index'))->with('success', $msg);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error('Delete post error: ' . $e->getMessage(), [
+                'post_id' => $id,
+                'domain' => $domain,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $msg = 'Có lỗi xảy ra khi xóa: ' . $e->getMessage();
+
+            return $request->ajax() || $request->wantsJson()
+                ? response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 500)
+                : redirect()->back()->with('error', $msg);
         }
-
-        // Không có SoftDeletes thì delete() là xoá thật khỏi DB
-        $post->delete();
-
-        DB::commit();
-
-        $msg = 'Xóa dịch vụ thành công.';
-
-        return $request->ajax() || $request->wantsJson()
-            ? response()->json([
-                'success' => true,
-                'message' => $msg,
-            ])
-            : redirect()->to(panel_route(module() . '.index'))->with('success', $msg);
-
-    } catch (\Throwable $e) {
-        DB::rollBack();
-
-        Log::error('Delete post error: ' . $e->getMessage(), [
-            'post_id' => $id,
-            'domain' => $domain,
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        $msg = 'Có lỗi xảy ra khi xóa: ' . $e->getMessage();
-
-        return $request->ajax() || $request->wantsJson()
-            ? response()->json([
-                'success' => false,
-                'message' => $msg,
-            ], 500)
-            : redirect()->back()->with('error', $msg);
     }
-}
 
     private function generateUniqueSlug($baseSlug, $excludeId = null)
     {
@@ -461,11 +459,47 @@ class PostController extends Controller
         $original = $slug;
         $count = 1;
 
-        while (Post::where('slug', $slug)->where('id', '!=', $excludeId ?? 0)->exists()) {
+        while ($this->slugExistsGlobally($slug, $excludeId)) {
             $slug = $original . '-' . $count++;
         }
 
         return $slug;
+    }
+
+    private function slugExistsGlobally(string $slug, $excludePostId = null): bool
+    {
+        $reservedSlugs = [
+            'admin',
+            'cms',
+            'api',
+            'login',
+            'logout',
+            'register',
+            'contact',
+            'lien-he',
+            'tin-tuc',
+            'dich-vu',
+            've-golfnity',
+            'cart',
+            'checkout',
+        ];
+
+        if (in_array($slug, $reservedSlugs, true)) {
+            return true;
+        }
+
+        $postExists = Post::query()
+            ->where('slug', $slug)
+            ->when($excludePostId, fn($q) => $q->where('id', '!=', $excludePostId))
+            ->exists();
+
+        if ($postExists) {
+            return true;
+        }
+
+        return Category::query()
+            ->where('slug', $slug)
+            ->exists();
     }
 
     private function sanitizeDomain($domain)

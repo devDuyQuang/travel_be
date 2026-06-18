@@ -5,12 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Support\PublicUrl;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -18,12 +17,12 @@ class CategoryController extends Controller
 
     public function __construct()
     {
-        $this->model = new Category();
+        $this->model = new Category;
     }
 
     public function index()
     {
-        return view(module() . '.main');
+        return view(module().'.main');
     }
 
     public function datatable(Request $request)
@@ -48,7 +47,7 @@ class CategoryController extends Controller
             ->with('creator:id,name');
 
         if ($search !== '') {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         $total = Category::count();
@@ -61,7 +60,7 @@ class CategoryController extends Controller
         $filtered = $allItems->count();
         $byId = $allItems->keyBy('id');
 
-        $byParent = $allItems->groupBy(fn($item) => $item->parent_id);
+        $byParent = $allItems->groupBy(fn ($item) => $item->parent_id);
         $sorted = collect();
 
         $buildTree = function ($parentId, $depth) use (&$buildTree, $byParent, &$sorted) {
@@ -96,20 +95,20 @@ class CategoryController extends Controller
             $fullSlug = implode('/', array_reverse(array_filter($slugs)));
 
             return [
-                'id'           => $c->id,
-                'drag_handle'  => '',
-                'name'         => $c->name ?? '—',
-                'slug'         => $c->slug ?? '',
-                'type'         => $c->type ?? '—',
+                'id' => $c->id,
+                'drag_handle' => '',
+                'name' => $c->name ?? '—',
+                'slug' => $c->slug ?? '',
+                'type' => $c->type ?? '—',
                 'parent_id' => $c->parent_id,
-                'depth'        => $entry['depth'],
-                'status'       => (int) $c->status,
-                'home'         => (int) $c->home,
-                'created_at'   => $c->created_at ? $c->created_at->format('d/m/Y H:i') : '',
+                'depth' => $entry['depth'],
+                'status' => (int) $c->status,
+                'home' => (int) $c->home,
+                'created_at' => $c->created_at ? $c->created_at->format('d/m/Y H:i') : '',
                 'creator_name' => $c->creator ? $c->creator->name : '—',
-                'full_slug'    => $fullSlug,
-                'public_url'   => PublicUrl::category($c),
-                'actions'      => null,
+                'full_slug' => $fullSlug,
+                'public_url' => PublicUrl::category($c),
+                'actions' => null,
 
             ];
         })->values();
@@ -137,15 +136,15 @@ class CategoryController extends Controller
 
         $items = $this->model::select('id', 'name', 'parent_id')
             ->where('status', 1)
-            ->when($type, fn($q) => $q->where('type', $type))
+            ->when($type, fn ($q) => $q->where('type', $type))
             ->orderBy('parent_id')
             ->orderBy('name')
             ->get();
 
         $parents = recursive($items);
 
-        return view(module() . '.create', [
-            'items'   => $items,
+        return view(module().'.create', [
+            'items' => $items,
             'parents' => $parents,
         ]);
     }
@@ -156,16 +155,16 @@ class CategoryController extends Controller
 
         $type = request('type', $item->type ?? null);
 
-        $excludeIds   = $this->descendantIds($item->id);
+        $excludeIds = $this->descendantIds($item->id);
         $excludeIds[] = (int) $item->id;
 
         $candidates = $this->model::select('id', 'name', 'parent_id', 'status')
-            ->when($type, fn($q) => $q->where('type', $type))
+            ->when($type, fn ($q) => $q->where('type', $type))
             ->whereNotIn('id', $excludeIds)
             ->where(function ($q) use ($item) {
                 $q->where('status', 1);
 
-                if (!empty($item->parent_id)) {
+                if (! empty($item->parent_id)) {
                     $q->orWhere('id', $item->parent_id);
                 }
             })
@@ -189,13 +188,13 @@ class CategoryController extends Controller
             module()
         );
 
-        return view(module() . '.edit', [
-            'item'             => $item,
-            'items'            => $candidates,
-            'parents'          => $parents,
+        return view(module().'.edit', [
+            'item' => $item,
+            'items' => $candidates,
+            'parents' => $parents,
             'selectedParentId' => old('parent_id', $item->parent_id),
-            'currentImageUrl'  => $currentImageUrl,
-            'currentIconUrl'   => $currentIconUrl,
+            'currentImageUrl' => $currentImageUrl,
+            'currentIconUrl' => $currentIconUrl,
         ]);
     }
 
@@ -204,7 +203,7 @@ class CategoryController extends Controller
         $desc = [];
         $queue = [$rootId];
 
-        while (!empty($queue)) {
+        while (! empty($queue)) {
             $parentIds = $queue;
             $queue = [];
 
@@ -214,7 +213,7 @@ class CategoryController extends Controller
                 ->all();
 
             foreach ($children as $cid) {
-                if (!in_array($cid, $desc, true)) {
+                if (! in_array($cid, $desc, true)) {
                     $desc[] = (int) $cid;
                     $queue[] = (int) $cid;
                 }
@@ -227,18 +226,18 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name'            => "required|string|max:255|unique:{$this->model->table},name",
-            'slug'            => "required|string|max:255|unique:{$this->model->table},slug",
-            'parent_id'       => "nullable|integer|exists:{$this->model->table},id",
-            'type' => ['required', 'string', Rule::in(['post', 'product'])],
-            'description'     => 'nullable|string',
-            'content'         => 'nullable|string',
-            'file'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'icon_file'       => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
-            'title_seo'       => 'nullable|string|max:255',
+            'name' => "required|string|max:255|unique:{$this->model->table},name",
+            'slug' => "required|string|max:255|unique:{$this->model->table},slug",
+            'parent_id' => "nullable|integer|exists:{$this->model->table},id",
+            'type' => ['required', 'string', Rule::in(['post', 'product', 'service'])],
+            'description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'icon_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'title_seo' => 'nullable|string|max:255',
             'description_seo' => 'nullable|string',
-            'canonical_seo'   => 'nullable|string|max:255',
-            'status'          => 'nullable|boolean',
+            'canonical_seo' => 'nullable|string|max:255',
+            'status' => 'nullable|boolean',
         ]);
 
         DB::beginTransaction();
@@ -280,14 +279,14 @@ class CategoryController extends Controller
 
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = $category->slug . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filename = $category->slug.'_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
                 $newPath = $file->storeAs($uploadDir, $filename, 'public');
                 $category->image = $newPath;
             }
 
             if ($request->hasFile('icon_file')) {
                 $iconFile = $request->file('icon_file');
-                $iconFilename = $category->slug . '_icon_' . time() . '_' . uniqid() . '.' . $iconFile->getClientOriginalExtension();
+                $iconFilename = $category->slug.'_icon_'.time().'_'.uniqid().'.'.$iconFile->getClientOriginalExtension();
                 $newIconPath = $iconFile->storeAs($uploadDir, $iconFilename, 'public');
                 $category->icon = $newIconPath;
             }
@@ -299,20 +298,20 @@ class CategoryController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => __('messages.data_saved'),
-                'redirect_url' => panel_route(module() . '.index'),
+                'redirect_url' => panel_route(module().'.index'),
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            if (!empty($newPath) && Storage::disk('public')->exists($newPath)) {
+            if (! empty($newPath) && Storage::disk('public')->exists($newPath)) {
                 Storage::disk('public')->delete($newPath);
             }
 
-            if (!empty($newIconPath) && Storage::disk('public')->exists($newIconPath)) {
+            if (! empty($newIconPath) && Storage::disk('public')->exists($newIconPath)) {
                 Storage::disk('public')->delete($newIconPath);
             }
 
-            Log::error('Error inserting ' . module() . ': ' . $e->getMessage(), [
+            Log::error('Error inserting '.module().': '.$e->getMessage(), [
                 'exception' => $e,
             ]);
 
@@ -328,24 +327,24 @@ class CategoryController extends Controller
         $item = $this->model->findOrFail($id);
 
         $data = $request->validate([
-            'name'            => ['required', 'string', 'max:255'],
-            'slug'            => ['required', 'string', 'max:255', Rule::unique($this->model->table, 'slug')->ignore($id)],
-            'parent_id'       => ['nullable', 'integer', Rule::exists($this->model->table, 'id')],
-            'type' => ['required', 'string', Rule::in(['post', 'product'])],
-            'description'     => ['nullable', 'string'],
-            'content'         => ['nullable', 'string'],
-            'title_seo'       => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['required', 'string', 'max:255', Rule::unique($this->model->table, 'slug')->ignore($id)],
+            'parent_id' => ['nullable', 'integer', Rule::exists($this->model->table, 'id')],
+            'type' => ['required', 'string', Rule::in(['post', 'product', 'service'])],
+            'description' => ['nullable', 'string'],
+            'content' => ['nullable', 'string'],
+            'title_seo' => ['nullable', 'string', 'max:255'],
             'description_seo' => ['nullable', 'string'],
-            'canonical_seo'   => ['nullable', 'string', 'max:255'],
-            'file'            => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
-            'remove_file'     => ['nullable', 'boolean'],
-            'icon_file'       => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif,svg', 'max:5120'],
-            'remove_icon'     => ['nullable', 'boolean'],
+            'canonical_seo' => ['nullable', 'string', 'max:255'],
+            'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            'remove_file' => ['nullable', 'boolean'],
+            'icon_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,gif,svg', 'max:5120'],
+            'remove_icon' => ['nullable', 'boolean'],
         ]);
         $data['type'] = strtolower($data['type']);
         $data['slug'] = Str::slug($data['slug']);
 
-        if (!empty($data['parent_id']) && (int) $data['parent_id'] === (int) $id) {
+        if (! empty($data['parent_id']) && (int) $data['parent_id'] === (int) $id) {
             return response()->json([
                 'message' => 'Không thể chọn chính nó làm cha.',
             ], 422);
@@ -367,24 +366,24 @@ class CategoryController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $baseSlug = isset($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name'] ?? 'file');
-            $filename = $baseSlug . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = $baseSlug.'_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
             $newPath = $file->storeAs($uploadDir, $filename, 'public');
             $data['image'] = $newPath;
         }
 
-        if ($wantRemove && !$newPath) {
+        if ($wantRemove && ! $newPath) {
             $data['image'] = null;
         }
 
         if ($request->hasFile('icon_file')) {
             $iconFile = $request->file('icon_file');
             $baseSlug = isset($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name'] ?? 'icon');
-            $iconFilename = $baseSlug . '_icon_' . time() . '_' . uniqid() . '.' . $iconFile->getClientOriginalExtension();
+            $iconFilename = $baseSlug.'_icon_'.time().'_'.uniqid().'.'.$iconFile->getClientOriginalExtension();
             $newIconPath = $iconFile->storeAs($uploadDir, $iconFilename, 'public');
             $data['icon'] = $newIconPath;
         }
 
-        if ($wantRemoveIcon && !$newIconPath) {
+        if ($wantRemoveIcon && ! $newIconPath) {
             $data['icon'] = null;
         }
 
@@ -437,8 +436,8 @@ class CategoryController extends Controller
             DB::commit();
 
             return response()->json([
-                'message'  => __('messages.data_saved') ?: 'Đã lưu dữ liệu.',
-                'redirect' => panel_route(module() . '.index'),
+                'message' => __('messages.data_saved') ?: 'Đã lưu dữ liệu.',
+                'redirect' => panel_route(module().'.index'),
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -451,7 +450,7 @@ class CategoryController extends Controller
                 Storage::disk('public')->delete($newIconPath);
             }
 
-            Log::error('Error updating ' . module() . ': ' . $e->getMessage(), [
+            Log::error('Error updating '.module().': '.$e->getMessage(), [
                 'exception' => $e,
             ]);
 
@@ -470,7 +469,7 @@ class CategoryController extends Controller
         ]);
 
         $items = $request->input('items', []);
-        $idsInOrder = array_map(fn($i) => (int) $i['id'], $items);
+        $idsInOrder = array_map(fn ($i) => (int) $i['id'], $items);
         $categories = $this->model::whereIn('id', $idsInOrder)->get()->keyBy('id');
 
         $sorted = [];
@@ -486,7 +485,7 @@ class CategoryController extends Controller
 
                 $cat = $categories->get($id);
 
-                if (!$cat) {
+                if (! $cat) {
                     continue;
                 }
 
@@ -497,7 +496,7 @@ class CategoryController extends Controller
                 }
             }
 
-            if (!$found) {
+            if (! $found) {
                 break;
             }
         }
@@ -520,7 +519,7 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'items' => ['required', 'array'],
-            'items.*.id' => ["required", "integer", "exists:{$this->model->table},id"],
+            'items.*.id' => ['required', 'integer', "exists:{$this->model->table},id"],
             'items.*.order_position' => ['required', 'integer', 'min:1'],
         ]);
 
@@ -562,15 +561,15 @@ class CategoryController extends Controller
                 ], 422);
             }
 
-            if (!empty($row->image)) {
+            if (! empty($row->image)) {
                 $img = $row->image;
-                $path = str_contains($img, '/') ? $img : ('uploads/' . module() . '/' . $img);
+                $path = str_contains($img, '/') ? $img : ('uploads/'.module().'/'.$img);
                 Storage::disk('public')->delete($path);
             }
 
-            if (!empty($row->icon)) {
+            if (! empty($row->icon)) {
                 $icon = $row->icon;
-                $iconPath = str_contains($icon, '/') ? $icon : ('uploads/' . module() . '/' . $icon);
+                $iconPath = str_contains($icon, '/') ? $icon : ('uploads/'.module().'/'.$icon);
                 Storage::disk('public')->delete($iconPath);
             }
 
@@ -578,9 +577,9 @@ class CategoryController extends Controller
 
             return request()->ajax() || request()->wantsJson()
                 ? response()->json(['message' => 'Xoá thành công.'])
-                : redirect()->to(panel_route(module() . '.index'))->with('success', 'Xoá thành công.');
+                : redirect()->to(panel_route(module().'.index'))->with('success', 'Xoá thành công.');
         } catch (\Throwable $e) {
-            Log::error('Delete ' . module() . ' error: ' . $e->getMessage());
+            Log::error('Delete '.module().' error: '.$e->getMessage());
 
             $msg = 'Có lỗi xảy ra khi xoá.';
 

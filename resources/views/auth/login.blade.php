@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="vi" data-bs-theme="blue-theme">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +21,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  
+
   <!--main css-->
   <link href="{{ asset('vertical-menu/assets/css/bootstrap-extended.css') }}" rel="stylesheet">
   <link href="{{ asset('vertical-menu/sass/main.css') }}" rel="stylesheet">
@@ -40,7 +41,7 @@
             <img src="{{ asset('vertical-menu/assets/images/logo1.png') }}" class="mb-4" width="145" alt="">
             <h4 class="fw-bold">Bắt đầu ngay</h4>
             <p class="mb-0">Nhập thông tin đăng nhập để truy cập tài khoản</p>
-            
+
             <div class="form-body mt-4">
               <form id="formAuthentication" class="row g-3" action="{{ panel_route('auth.login') }}" method="POST">
                 @csrf
@@ -50,12 +51,24 @@
 
                 <div class="col-12">
                   <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" value="admin@example.com">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Nhập email"
+                    value="admin@example.com">
                 </div>
                 <div class="col-12">
                   <label for="password" class="form-label">Mật khẩu</label>
                   <div class="input-group" id="show_hide_password">
-                    <input type="password" class="form-control border-end-0" id="password" name="password" value="secret12345" placeholder="Nhập mật khẩu">
+                    <input
+                      type="password"
+                      class="form-control border-end-0"
+                      id="password"
+                      name="password"
+                      value="secret12345"
+                      placeholder="Nhập mật khẩu">
                     <a href="javascript:;" class="input-group-text bg-transparent" id="togglePassword"><i class="bi bi-eye-slash-fill"></i></a>
                   </div>
                 </div>
@@ -91,7 +104,7 @@
   <script>
     $(function() {
       // Toggle password
-      $("#show_hide_password a").on('click', function (event) {
+      $("#show_hide_password a").on('click', function(event) {
         event.preventDefault();
         var $passInput = $('#show_hide_password input');
         var $icon = $('#show_hide_password i');
@@ -216,4 +229,5 @@
     });
   </script>
 </body>
+
 </html>

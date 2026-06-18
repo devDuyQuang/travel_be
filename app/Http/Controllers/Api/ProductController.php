@@ -42,6 +42,7 @@ class ProductController extends Controller
                 'order_position',
                 'created_at',
                 'badge_text',
+                'established_text',
             ])
             ->with([
                 'category:id,name,slug,type',
@@ -105,6 +106,7 @@ class ProductController extends Controller
                 'sort',
                 'order_position',
                 'created_at',
+                'established_text',
             ])
             ->with([
                 'category:id,name,slug,type',
@@ -131,7 +133,7 @@ class ProductController extends Controller
             'id' => $item->id,
             'name' => $item->name,
             'slug' => $item->slug,
-
+            'established_text' => $item->established_text,
             'description' => $item->description,
             'location' => $item->location,
             'duration' => $item->duration,

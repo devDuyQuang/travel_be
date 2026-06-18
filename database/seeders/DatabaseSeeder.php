@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             RolePermissionSeeder::class,
             ProductSeeder::class,
+            GolfnityMenuSeeder::class,
         ]);
     }
 }

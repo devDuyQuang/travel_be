@@ -74,7 +74,7 @@
                         <h6 class="product-section-title mb-3">Giá & thông tin hiển thị</h6>
 
                         <div class="row g-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="star_rating" class="form-label">Số sao hiển thị</label>
                                 <input
                                     type="number"
@@ -92,30 +92,15 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
-                                <label for="price" class="form-label">Giá hiển thị</label>
-                                <input
-                                    type="text"
-                                    name="price"
-                                    id="price"
-                                    class="form-control"
-                                    inputmode="decimal"
-                                    value="{{ old('price', $item->price) }}"
-                                    placeholder="VD: 59.00">
 
-                                @error('price')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <x-input-field
                                     name="location"
                                     label="Địa điểm"
                                     :value="old('location', $item->location)" />
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <x-input-field
                                     name="duration"
                                     label="Thời lượng"
@@ -129,35 +114,19 @@
                         <h6 class="product-section-title mb-3">Thông tin sân golf</h6>
 
                         <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="review_rating" class="form-label">Google reviews rating</label>
-                                <input
-                                    type="text"
-                                    name="review_rating"
-                                    id="review_rating"
-                                    class="form-control"
-                                    inputmode="decimal"
-                                    value="{{ old('review_rating', $item->review_rating) }}"
-                                    placeholder="VD: 4.4 hoặc 4,4">
-
-                                @error('review_rating')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <x-input-field
                                     name="review_count"
                                     label="Google reviews count"
-                                    :value="old('review_count', $item->review_count)" />
+                                    :value="old('review_count', $item->review_count ?? '')" />
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <x-input-field
-                                    name="established_year"
-                                    label="Established year"
-                                    type="number"
-                                    :value="old('established_year', $item->established_year)" />
+                                    name="established_text"
+                                    label="Established text"
+                                    :value="old('established_text', $item->established_text ?? '')"
+                                    placeholder="VD: Established : 2018" />
                             </div>
                         </div>
                     </div>
@@ -174,7 +143,7 @@
                                     :value="old('golf_information', $item->golf_information)" />
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <x-textarea-field
                                     name="highlight"
                                     label="Điểm nổi bật của sân"
@@ -182,13 +151,7 @@
                                     :value="old('highlight', $item->highlight)" />
                             </div>
 
-                            <div class="col-md-6">
-                                <x-textarea-field
-                                    name="facility"
-                                    label="Dịch vụ tiện ích của sân"
-                                    rows="4"
-                                    :value="old('facility', $item->facility)" />
-                            </div>
+
                         </div>
                     </div>
 
@@ -207,19 +170,17 @@
                                         <img
                                             src="{{ Storage::url($item->image) }}"
                                             alt="Ảnh đại diện"
-                                            style="width: 220px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                                            class="product-media-preview">
                                     </div>
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="btn btn-primary custom-file-btn">
+                                        <label class="custom-file-btn">
                                             Chọn tệp
                                             <input type="file" name="image" class="custom-file-input" accept="image/*" hidden>
                                         </label>
 
-                                        <span class="custom-file-name">
-                                            {{ !empty($item->image) ? basename($item->image) : 'Không có tệp nào được chọn' }}
-                                        </span>
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -248,19 +209,17 @@
                                         <img
                                             src="{{ Storage::url($item->gallery_image_1) }}"
                                             alt="Ảnh phụ 1"
-                                            style="width: 220px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                                            class="product-media-preview">
                                     </div>
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="btn btn-primary custom-file-btn">
+                                        <label class="custom-file-btn">
                                             Chọn tệp
                                             <input type="file" name="gallery_image_1" class="custom-file-input" accept="image/*" hidden>
                                         </label>
 
-                                        <span class="custom-file-name">
-                                            {{ !empty($item->gallery_image_1) ? basename($item->gallery_image_1) : 'Không có tệp nào được chọn' }}
-                                        </span>
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -275,19 +234,17 @@
                                         <img
                                             src="{{ Storage::url($item->gallery_image_2) }}"
                                             alt="Ảnh phụ 2"
-                                            style="width: 220px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #444;">
+                                            class="product-media-preview">
                                     </div>
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="btn btn-primary custom-file-btn">
+                                        <label class="custom-file-btn">
                                             Chọn tệp
                                             <input type="file" name="gallery_image_2" class="custom-file-input" accept="image/*" hidden>
                                         </label>
 
-                                        <span class="custom-file-name">
-                                            {{ !empty($item->gallery_image_2) ? basename($item->gallery_image_2) : 'Không có tệp nào được chọn' }}
-                                        </span>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -317,7 +274,7 @@
                                     @endif
 
                                     <div class="custom-file-row">
-                                        <label class="btn btn-primary custom-file-btn">
+                                        <label class="custom-file-btn">
                                             Chọn tệp
                                             <input
                                                 type="file"
@@ -328,9 +285,7 @@
                                                 hidden>
                                         </label>
 
-                                        <span class="custom-file-name">
-                                            Không có tệp nào được chọn
-                                        </span>
+                                    
                                     </div>
 
                                     @error('gallery_images')
@@ -429,12 +384,6 @@
         .custom-file-btn:hover {
             background: #3b4046;
         }
-
-        .custom-file-name {
-            color: #d6d6d6;
-            font-size: 14px;
-            word-break: break-all;
-        }
     </style>
 
 </main>
@@ -447,36 +396,108 @@
             return;
         }
 
-        const fileName = input.files && input.files.length > 0 ?
-            input.files[0].name :
-            'Không có tệp nào được chọn';
+        const file = input.files && input.files[0] ? input.files[0] : null;
+        const fileName = file ? file.name : 'Không có tệp nào được chọn';
 
         const wrapper = input.closest('.custom-file-row');
 
-        if (wrapper) {
-            const fileNameElement = wrapper.querySelector('.custom-file-name');
-
-            if (fileNameElement) {
-                fileNameElement.textContent = fileName;
-            }
+        if (!file || !file.type.startsWith('image/')) {
+            return;
         }
+
+        const mediaCard = input.closest('.product-media-card');
+
+        if (!mediaCard) {
+            return;
+        }
+
+        let img = mediaCard.querySelector('img');
+
+        if (!img) {
+            img = document.createElement('img');
+            img.style.width = '220px';
+            img.style.height = '130px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '8px';
+            img.style.border = '1px solid #444';
+
+            const previewWrapper = document.createElement('div');
+            previewWrapper.className = 'mb-2';
+            previewWrapper.appendChild(img);
+
+            mediaCard.insertBefore(previewWrapper, mediaCard.querySelector('.custom-file-row'));
+        }
+
+        img.src = URL.createObjectURL(file);
     });
 </script>
-<script>
-    const galleryInput = document.getElementById('gallery_images');
 
-    if (galleryInput) {
-        galleryInput.addEventListener('change', function() {
-            const label = document.getElementById('gallery-images-name');
-
-            if (!this.files.length) {
-                label.textContent = 'Không có tệp nào được chọn';
-                return;
-            }
-
-            label.textContent =
-                this.files.length + ' ảnh đã được chọn';
-        });
+<style>
+    .product-form-page .cke {
+        width: 100% !important;
     }
-</script>
+
+    .product-form-page .cke_contents {
+        min-height: 430px !important;
+    }
+
+    .product-form-page .cke_wysiwyg_frame,
+    .product-form-page .cke_wysiwyg_div {
+        min-height: 430px !important;
+    }
+
+    .product-form-page .cke_editable {
+        font-size: 15px !important;
+        line-height: 1.7 !important;
+        padding: 18px !important;
+    }
+
+    .product-form-page table {
+        width: 100% !important;
+    }
+
+    .product-form-page table td,
+    .product-form-page table th {
+        padding: 8px 12px !important;
+        vertical-align: top;
+    }
+
+    .product-media-preview {
+    width: 260px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+}
+
+.custom-file-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1px solid #111827 !important;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.custom-file-btn:hover,
+.custom-file-btn:focus,
+.custom-file-btn:active {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border-color: #111827 !important;
+    box-shadow: none !important;
+}
+
+.custom-file-btn * {
+    color: inherit !important;
+}
+</style>
+
+
 @endsection

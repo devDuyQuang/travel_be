@@ -20,6 +20,76 @@ class PostController extends Controller
      * - /post?category_slug=gay-xuong
      * - /post?category_id=14
      */
+
+    public function resolve(Request $request, $domain, string $slug)
+    {
+        try {
+            $post = Post::query()
+                ->with(['categories:id,name,slug,type,parent_id'])
+                ->where('slug', $slug)
+                ->where('status', 1)
+                ->select([
+                    'id',
+                    'name',
+                    'slug',
+                    'description',
+                    'content',
+                    'image',
+                    'title_seo',
+                    'description_seo',
+                    'canonical_seo',
+                    'created_at',
+                    'updated_at',
+                    'views',
+                    'favorites',
+                    'created_by',
+                    'updated_by',
+                ])
+                ->first();
+
+            if (! $post) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('messages.no_data_found'),
+                    'type' => null,
+                    'data' => null,
+                ], 404);
+            }
+
+            $tocData = $this->buildTocFromHtml($post->content ?? '');
+
+            $post->content = $tocData['content'];
+            $post->setAttribute('toc', $tocData['toc']);
+
+            $mainCategory = $post->categories->first();
+            $post->setAttribute('breadcrumbs', $this->buildPostBreadcrumbs($mainCategory, $post));
+
+            $module = strtolower((string) ($mainCategory?->type ?? 'post'));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OK',
+                'type' => 'post',
+                'module' => $module,
+                'category' => $mainCategory,
+                'data' => $post,
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error('Post API resolve error', [
+                'slug' => $slug,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.server_error'),
+                'type' => null,
+                'data' => null,
+            ], 500);
+        }
+    }
     public function index(Request $request)
     {
         try {
@@ -462,8 +532,8 @@ class PostController extends Controller
 
             $breadcrumbs[] = [
                 'name' => $post->name,
-                'slug' => $prefix ? $prefix . '/' . $post->slug : $post->slug,
-                'url' => '/' . ($prefix ? $prefix . '/' . $post->slug : $post->slug),
+                'slug' => $post->slug,
+                'url' => '/' . $post->slug,
                 'active' => true,
             ];
 

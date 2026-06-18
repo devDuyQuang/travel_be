@@ -19,6 +19,8 @@ Route::get('/degrees', [ApiDegreeController::class, 'index']);
 Route::apiResource('menu', MenuController::class)->only(['index', 'show']);
 Route::apiResource('category', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('post', PostController::class)->only(['index', 'show']);
+Route::get('/resolve/{slug}', [PostController::class, 'resolve'])
+    ->where('slug', '[A-Za-z0-9\-]+');
 
 Route::get('/product-test/{slug}', function ($slug) {
     return response()->json([

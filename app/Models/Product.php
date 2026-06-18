@@ -11,8 +11,18 @@ class Product extends Model
     protected $fillable = [
         'name',
         'slug',
+        'badge_text',
         'category_id',
+
         'image',
+        'image_original_name',
+        'gallery_image_1',
+        'gallery_image_1_original_name',
+        'gallery_image_2',
+        'gallery_image_2_original_name',
+        'gallery_image_3',
+        'video_url',
+
         'description',
         'location',
         'duration',
@@ -27,8 +37,15 @@ class Product extends Model
         'price_discount',
         'status',
         'golf_information',
-        'badge_text',
-        // ...
+
+        'title_seo',
+        'canonical_url',
+        'description_seo',
+        'established_text',
+        'sort',
+        'order_position',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
