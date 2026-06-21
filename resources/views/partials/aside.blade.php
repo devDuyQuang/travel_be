@@ -23,8 +23,6 @@
             'tabler-news' => 'article',
             'tabler-table' => 'table_view',
             'tabler-category' => 'category',
-            'tabler-brand-feedly' => 'medical_information',
-            'tabler-stethoscope' => 'medical_services',
             'tabler-award' => 'workspace_premium',
             'tabler-brand-hipchat' => 'forum',
             'tabler-message' => 'chat',

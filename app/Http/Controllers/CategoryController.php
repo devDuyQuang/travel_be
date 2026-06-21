@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Support\PublicUrl;
+use App\Support\ServiceLayout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -36,6 +37,7 @@ class CategoryController extends Controller
                 'name',
                 'slug',
                 'type',
+                'layout_key',
                 'parent_id',
                 'status',
                 'home',
@@ -100,6 +102,8 @@ class CategoryController extends Controller
                 'name' => $c->name ?? '—',
                 'slug' => $c->slug ?? '',
                 'type' => $c->type ?? '—',
+                'layout_key' => $c->layout_key,
+                'layout_label' => ServiceLayout::label($c->layout_key),
                 'parent_id' => $c->parent_id,
                 'depth' => $entry['depth'],
                 'status' => (int) $c->status,
@@ -146,6 +150,7 @@ class CategoryController extends Controller
         return view(module().'.create', [
             'items' => $items,
             'parents' => $parents,
+            'layoutOptions' => ServiceLayout::options(),
         ]);
     }
 
@@ -195,6 +200,7 @@ class CategoryController extends Controller
             'selectedParentId' => old('parent_id', $item->parent_id),
             'currentImageUrl' => $currentImageUrl,
             'currentIconUrl' => $currentIconUrl,
+            'layoutOptions' => ServiceLayout::options(),
         ]);
     }
 
@@ -229,7 +235,13 @@ class CategoryController extends Controller
             'name' => "required|string|max:255|unique:{$this->model->table},name",
             'slug' => "required|string|max:255|unique:{$this->model->table},slug",
             'parent_id' => "nullable|integer|exists:{$this->model->table},id",
-            'type' => ['required', 'string', Rule::in(['post', 'product', 'service'])],
+            'type' => ['required', 'string', Rule::in(['post', 'service'])],
+            'layout_key' => [
+                Rule::requiredIf(fn () => strtolower((string) $request->input('type')) === 'service'),
+                'nullable',
+                'string',
+                Rule::in(ServiceLayout::keys()),
+            ],
             'description' => 'nullable|string',
             'content' => 'nullable|string',
             'file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
@@ -265,6 +277,9 @@ class CategoryController extends Controller
             $category->order_position = $newOrderPos;
             $category->slug = Str::slug($validatedData['slug']);
             $category->type = strtolower($validatedData['type']);
+            $category->layout_key = $category->type === 'service'
+                ? ($validatedData['layout_key'] ?? null)
+                : null;
             $category->status = 1;
 
             if (auth()->check()) {
@@ -330,7 +345,13 @@ class CategoryController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', Rule::unique($this->model->table, 'slug')->ignore($id)],
             'parent_id' => ['nullable', 'integer', Rule::exists($this->model->table, 'id')],
-            'type' => ['required', 'string', Rule::in(['post', 'product', 'service'])],
+            'type' => ['required', 'string', Rule::in(['post', 'service'])],
+            'layout_key' => [
+                Rule::requiredIf(fn () => strtolower((string) $request->input('type')) === 'service'),
+                'nullable',
+                'string',
+                Rule::in(ServiceLayout::keys()),
+            ],
             'description' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'title_seo' => ['nullable', 'string', 'max:255'],
@@ -342,6 +363,9 @@ class CategoryController extends Controller
             'remove_icon' => ['nullable', 'boolean'],
         ]);
         $data['type'] = strtolower($data['type']);
+        $data['layout_key'] = $data['type'] === 'service'
+            ? ($data['layout_key'] ?? null)
+            : null;
         $data['slug'] = Str::slug($data['slug']);
 
         if (! empty($data['parent_id']) && (int) $data['parent_id'] === (int) $id) {

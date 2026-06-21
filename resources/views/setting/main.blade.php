@@ -9,19 +9,6 @@
 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
   <h5 class="mb-0 d-flex align-items-center gap-2 flex-wrap"> <i class="icon-base ti tabler-settings"></i>{{ page_title() }}</h5>
 
-
-  <div class="d-flex align-items-center gap-2">
-    <span class="small text-muted">Loại domain:</span>
-    <div class="btn-group" role="group" aria-label="Chọn loại domain">
-      @foreach(['clinic' => 'clinic', 'rac' => 'RAC'] as $typeKey => $typeLabel)
-        <a href="{{ panel_route(module().'.index') . '?type=' . $typeKey . '&tab=' . request('tab', 'config') }}"
-           class="btn btn-sm setting-type-switch {{ (isset($settingType) ? $settingType : 'clinic') === $typeKey ? 'btn-primary' : 'btn-outline-primary' }}"
-           data-type="{{ $typeKey }}">
-          {{ $typeLabel }}
-        </a>
-      @endforeach
-    </div>
-  </div>
 </div>
 
 @php
@@ -134,36 +121,6 @@
            style="text-align: left !important; justify-content: flex-start !important;">
           <span class="me-1 text-muted">8.</span>Ý kiến khách hàng
         </a>
-        <a href="#main-section-doctor"
-           class="nav-link text-start {{ request('tab') === 'doctor' ? 'active' : '' }} rounded mb-1 small"
-           id="main-tab-doctor"
-           data-bs-toggle="pill"
-           role="tab"
-           aria-controls="main-section-doctor"
-           aria-selected="{{ request('tab') === 'doctor' ? 'true' : 'false' }}"
-           style="text-align: left !important; justify-content: flex-start !important;">
-          <span class="me-1 text-muted">9.</span>Bác sĩ
-        </a>
-        <a href="#main-section-specialists"
-           class="nav-link text-start {{ request('tab') === 'specialists' ? 'active' : '' }} rounded mb-1 small"
-           id="main-tab-specialists"
-           data-bs-toggle="pill"
-           role="tab"
-           aria-controls="main-section-specialists"
-           aria-selected="{{ request('tab') === 'specialists' ? 'true' : 'false' }}"
-           style="text-align: left !important; justify-content: flex-start !important;">
-          <span class="me-1 text-muted">10.</span>Đội ngũ bác sĩ
-        </a>
-        <a href="#main-section-appointment"
-           class="nav-link text-start {{ request('tab') === 'appointment' ? 'active' : '' }} rounded mb-1 small"
-           id="main-tab-appointment"
-           data-bs-toggle="pill"
-           role="tab"
-           aria-controls="main-section-appointment"
-           aria-selected="{{ request('tab') === 'appointment' ? 'true' : 'false' }}"
-           style="text-align: left !important; justify-content: flex-start !important;">
-          <span class="me-1 text-muted">11.</span>Form đặt lịch hẹn
-        </a>
         <a href="#main-section-faq"
            class="nav-link text-start {{ request('tab') === 'faq' ? 'active' : '' }} rounded mb-1 small"
            id="main-tab-faq"
@@ -172,7 +129,7 @@
            aria-controls="main-section-faq"
            aria-selected="{{ request('tab') === 'faq' ? 'true' : 'false' }}"
            style="text-align: left !important; justify-content: flex-start !important;">
-          <span class="me-1 text-muted">12.</span>Hỏi đáp
+          <span class="me-1 text-muted">9.</span>Hỏi đáp
         </a>
       </div>
     </div>
@@ -1159,32 +1116,6 @@
             @includeIf('setting.home.sections.utilities', $utilitiesTabData)
         </div>
 
-        {{-- Tab: B\u00e1c s\u0129 --}}
-        <div class="tab-pane fade {{ request('tab') === 'doctor' ? 'show active' : '' }}" id="main-section-doctor" role="tabpanel" aria-labelledby="main-tab-doctor">
-            <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">9. Bác Sĩ</h5>
-            @php
-                $doctorTabData = $doctorTabData ?? [];
-            @endphp
-            @includeIf('setting.home.sections.doctor', $doctorTabData)
-        </div>
-
-        {{-- Tab: \u0110\u1ed9i ng\u0169 b\u00e1c s\u0129 --}}
-        <div class="tab-pane fade {{ request('tab') === 'specialists' ? 'show active' : '' }}" id="main-section-specialists" role="tabpanel" aria-labelledby="main-tab-specialists">
-            <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">10. Đội Ngũ Bác Sĩ</h5>
-            @php
-                $specialistsTabData = $specialistsTabData ?? [];
-            @endphp
-            @includeIf('setting.home.sections.specialists', $specialistsTabData)
-        </div>
-
-        {{-- Tab: Form đặt lịch hẹn --}}
-        <div class="tab-pane fade {{ request('tab') === 'appointment' ? 'show active' : '' }}" id="main-section-appointment" role="tabpanel" aria-labelledby="main-tab-appointment">
-            <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">11. Form Đặt Lịch Hẹn</h5>
-            @php
-                $appointmentTabData = array_merge($appointmentTabData ?? [], ['settingType' => $settingType ?? 'clinic']);
-            @endphp
-            @includeIf('setting.home.sections.appointment', $appointmentTabData)
-        </div>
       </div>
 
       <div id="home-json-wrapper" class="border rounded mt-3 p-2 bg-dark-subtle" data-section="{{ request('tab', 'config') }}" data-type="{{ $settingType ?? 'clinic' }}" style="display: none;">

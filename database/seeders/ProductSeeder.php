@@ -12,11 +12,11 @@ class ProductSeeder extends Seeder
     {
         $category = Category::updateOrCreate(
             [
-                'slug' => 'golf-course-booking',
-                'type' => 'product',
+                'slug' => 'dat-tee-time',
             ],
             [
-                'name' => 'Golf Course Booking',
+                'name' => 'Đặt tee time',
+                'type' => 'service',
                 'status' => 1,
                 'sort' => 0,
                 'order_position' => 1,

@@ -11,17 +11,21 @@ use Illuminate\Support\Str;
 
 class SettingController extends Controller
 {
+    private array $publicDefaultKeys = [
+        'site',
+        'site_assets_clinic',
+        'topbar_info_clinic',
+        'floating_info_clinic',
+    ];
+
     private array $typedHomeKeys = [
         'hero_home',
         'utilities_home',
         'stats_home',
         'services_home',
-        'appointment_home',
         'why_choose_us_home',
-        'specialists_home',
         'testimonials_home',
         'how_it_work_home',
-        'doctor_home',
         'faq_home',
         'awards_home',
         'blogs_home',
@@ -33,7 +37,9 @@ class SettingController extends Controller
     {
         try {
             $keys = $request->input('keys');
-            $keys = $keys ? array_values(array_filter(array_map('trim', explode(',', $keys)))) : null;
+            $keys = $keys
+                ? array_values(array_filter(array_map('trim', explode(',', $keys))))
+                : $this->publicDefaultKeys;
             $settingType = $this->resolveSettingTypeFromHost($request);
             $queryKeys = $keys;
 
@@ -83,7 +89,7 @@ class SettingController extends Controller
 
     private function resolveSettingTypeFromHost(Request $request): ?string
     {
-        return 'clinic';
+        return null;
     }
 
     private function aliasTypedHomeSettings(array $data, ?string $type, ?array $requestedKeys = null): array

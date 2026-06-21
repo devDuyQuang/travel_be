@@ -37,7 +37,7 @@ class CategoryController extends Controller
                     $q->where('home', (int) $home);
                 })
 
-                ->select(['id', 'name', 'slug', 'parent_id', 'sort', 'type', 'image', 'icon'])
+                ->select(['id', 'name', 'slug', 'parent_id', 'sort', 'type', 'layout_key', 'image', 'icon'])
 
                 ->orderBy($sortName, $sortBy)
                 ->get();
@@ -57,6 +57,7 @@ class CategoryController extends Controller
                         'name'  => $c->name,
                         'slug'  => $c->slug,
                         'type'  => $c->type,
+                        'layout_key' => $c->layout_key,
                         'image' => $c->image,
                         'icon'  => $c->icon,
                     ];
@@ -97,6 +98,7 @@ class CategoryController extends Controller
                 'name',
                 'slug',
                 'type',
+                'layout_key',
                 'image',
                 'description',
                 'content',
@@ -114,7 +116,7 @@ class CategoryController extends Controller
 
             // Dù FE truyền fields hay không, vẫn cần id + parent_id để xử lý logic.
             if (!empty($fields)) {
-                foreach (['id', 'parent_id', 'slug', 'name', 'type'] as $requiredField) {
+                foreach (['id', 'parent_id', 'slug', 'name', 'type', 'layout_key'] as $requiredField) {
                     if (!in_array($requiredField, $fields, true)) {
                         $fields[] = $requiredField;
                     }
@@ -220,7 +222,7 @@ class CategoryController extends Controller
                 }
 
                 $current = Category::query()
-                    ->select(['id', 'name', 'slug', 'type', 'parent_id'])
+                    ->select(['id', 'name', 'slug', 'type', 'layout_key', 'parent_id'])
                     ->where('status', 1)
                     ->find($current->parent_id);
             }
@@ -307,6 +309,7 @@ class CategoryController extends Controller
                     'name' => $c->name,
                     'slug' => $c->slug,
                     'type' => $c->type,
+                    'layout_key' => $c->layout_key,
                     'image' => $c->image,
                     'icon' => $c->icon,
                 ];

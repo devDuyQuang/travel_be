@@ -84,10 +84,6 @@ class SettingController extends Controller
 
         // Extra tabs moved from Trang Chủ to Cấu Hình Chung
         $utilitiesTabData = $this->getHomeSectionData('utilities', $settingType);
-        $doctorTabData    = $this->getHomeSectionData('doctor', $settingType);
-        $specialistsTabData = $this->getHomeSectionData('specialists', $settingType);
-        $appointmentTabData = $this->getHomeSectionData('appointment', $settingType);
-
         return view(module() . '.main', compact(
             'item',
             'currentLogoUrl',
@@ -108,10 +104,7 @@ class SettingController extends Controller
             'whyChooseUsV',
             'testimonialsV',
             'faqV',
-            'utilitiesTabData',
-            'doctorTabData',
-            'specialistsTabData',
-            'appointmentTabData'
+            'utilitiesTabData'
         ));
     }
 

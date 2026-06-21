@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Post;
 
@@ -22,6 +24,7 @@ class Category extends Model
         'image',
         'icon',
         'type',
+        'layout_key',
         'sort',
         'order_position',
         'parent_id',
@@ -75,6 +78,11 @@ class Category extends Model
     public function posts()
     {
         return $this->belongsToMany(Post::class, 'category_post', 'category_id', 'post_id');
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 
     public function scopeActive($query)

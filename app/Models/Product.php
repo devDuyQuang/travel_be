@@ -32,10 +32,12 @@ class Product extends Model
         'established_year',
         'highlight',
         'facility',
+        'attributes',
         'content',
         'price',
         'price_discount',
         'status',
+        'is_featured',
         'golf_information',
 
         'title_seo',
@@ -54,6 +56,8 @@ class Product extends Model
         'review_rating' => 'decimal:1',
         'established_year' => 'integer',
         'status' => 'integer',
+        'is_featured' => 'boolean',
+        'attributes' => 'array',
         'sort' => 'integer',
         'order_position' => 'integer',
     ];

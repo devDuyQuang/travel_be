@@ -70,87 +70,28 @@ class AppServiceProvider extends ServiceProvider
                 'route' => 'product.index',
                 'url'   => '/product',
                 'icon'  => 'tabler-package',
-                'label' => 'Quản lý sân golf',
+                'label' => 'Quản Lý Sản Phẩm',
             ],
-
-            // [
-            //     'route' => 'doctor.index',
-            //     'url'   => '/doctor',
-            //     'icon'  => 'tabler-brand-feedly',
-            //     'label' => 'Thông Tin Nhân Viên',
-            //     'childrens' => [
-            //         [
-            //             'route' => 'doctor.index',
-            //             'url'   => '/doctor',
-            //             'icon'  => 'tabler-stethoscope',
-            //             'label' => 'Nhân Viên',
-            //         ],
-            //         [
-            //             'route' => 'degree.index',
-            //             'url'   => '/degree',
-            //             'icon'  => 'tabler-award',
-            //             'label' => 'Bằng Cấp',
-            //         ],
-            //     ],
-            // ],
-
-            // [
-            //     'route' => 'comment.index',
-            //     'url'   => '/comment',
-            //     'icon'  => 'tabler-brand-hipchat',
-            //     'label' => 'Thông Tin Liên Hệ',
-            //     'childrens' => [
-            //         [
-            //             'route' => 'comment.index',
-            //             'url'   => '/comment',
-            //             'icon'  => 'tabler-message',
-            //             'label' => 'Bình Luận',
-            //         ],
-            //         [
-            //             'route' => 'service-registrations.index',
-            //             'url'   => '/service-registrations',
-            //             'icon'  => 'tabler-package',
-            //             'label' => 'Gói Dịch Vụ',
-            //         ],
-            //         [
-            //             'route' => 'appointment.index',
-            //             'url'   => '/appointment',
-            //             'icon'  => 'tabler-calendar-time',
-            //             'label' => 'Đặt Lịch Hẹn',
-            //         ],
-            //         [
-            //             'route' => 'contact.index',
-            //             'url'   => '/contact',
-            //             'icon'  => 'tabler-mail',
-            //             'label' => 'Liên Hệ',
-            //         ],
-            //     ],
-            // ],
-
-            // [
-            //     'route' => 'user.index',
-            //     'url'   => '/user',
-            //     'icon'  => 'tabler-id',
-            //     'label' => 'Quản Lý Tài Khoản',
-            //     'roles' => ['admin'],
-            //     'childrens' => [
-            //         [
-            //             'route' => 'user.index',
-            //             'url'   => '/user',
-            //             'icon'  => 'tabler-users',
-            //             'label' => 'Thành Viên',
-            //             'roles' => ['admin'],
-            //         ],
-            //         [
-            //             'route' => 'role.index',
-            //             'url'   => '/role',
-            //             'icon'  => 'tabler-user-check',
-            //             'label' => 'Vai Trò',
-            //             'roles' => ['admin'],
-            //         ],
-            //     ],
-            // ],
-
+              [
+                'route' => 'user.index',
+                'url'   => '/user',
+                'icon'  => 'tabler-id',
+                'label' => 'Quản Lý Tài Khoản',
+                'childrens' => [
+                    [
+                        'route' => 'user.index',
+                        'url'   => '/user',
+                        'icon'  => 'tabler-users',
+                        'label' => 'Thành Viên',
+                    ],
+                    [
+                        'route' => 'role.index',
+                        'url'   => '/role',
+                        'icon'  => 'tabler-user-check',
+                        'label' => 'Vai Trò',
+                    ],
+                ],
+            ],
             [
                 'route' => null,
                 'url'   => null,
@@ -172,38 +113,38 @@ class AppServiceProvider extends ServiceProvider
                 ],
             ],
 
-            // [
-            //     'route' => null,
-            //     'url'   => null,
-            //     'icon'  => 'tabler-file-description',
-            //     'label' => 'Quản Lý Page',
-            //     'childrens' => [
-            //         [
-            //             'route' => 'setting.home',
-            //             'url'   => '/setting/home',
-            //             'icon'  => 'tabler-home',
-            //             'label' => 'Trang Chủ',
-            //         ],
-            //         [
-            //             'route' => 'setting.service',
-            //             'url'   => '/setting/service',
-            //             'icon'  => 'tabler-server-spark',
-            //             'label' => 'Dịch Vụ',
-            //         ],
-            //         [
-            //             'route' => 'setting.contactPage',
-            //             'url'   => '/setting/contact-page',
-            //             'icon'  => 'tabler-mail',
-            //             'label' => 'Liên Hệ',
-            //         ],
-            //         [
-            //             'route' => 'setting.aboutPage',
-            //             'url'   => '/setting/about-page',
-            //             'icon'  => 'tabler-user-screen',
-            //             'label' => 'Giới Thiệu',
-            //         ],
-            //     ],
-            // ],
+            [
+                'route' => null,
+                'url'   => null,
+                'icon'  => 'tabler-file-description',
+                'label' => 'Quản Lý Page',
+                'childrens' => [
+                    [
+                        'route' => 'setting.home',
+                        'url'   => '/setting/home',
+                        'icon'  => 'tabler-home',
+                        'label' => 'Trang Chủ',
+                    ],
+                    [
+                        'route' => 'setting.service',
+                        'url'   => '/setting/service',
+                        'icon'  => 'tabler-server-spark',
+                        'label' => 'Dịch Vụ',
+                    ],
+                    [
+                        'route' => 'setting.contactPage',
+                        'url'   => '/setting/contact-page',
+                        'icon'  => 'tabler-mail',
+                        'label' => 'Liên Hệ',
+                    ],
+                    [
+                        'route' => 'setting.aboutPage',
+                        'url'   => '/setting/about-page',
+                        'icon'  => 'tabler-user-screen',
+                        'label' => 'Giới Thiệu',
+                    ],
+                ],
+            ],
         ];
     }
 }

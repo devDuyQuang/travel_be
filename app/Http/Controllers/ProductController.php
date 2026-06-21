@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Support\ServiceProductAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +33,7 @@ class ProductController extends Controller
         $start = (int) $request->get('start', 0);
         $length = (int) $request->get('length', 10);
         $searchValue = $request->input('search.value', '');
+        $categoryId = $request->integer('category_id');
 
         $query = Product::query()
             ->select([
@@ -43,7 +45,6 @@ class ProductController extends Controller
                 'image',
                 'description',
                 'location',
-                'star_rating',
                 'review_rating',
                 'review_count',
                 'established_year',
@@ -53,6 +54,7 @@ class ProductController extends Controller
                 'price_discount',
                 'status',
                 'created_at',
+                'updated_at',
                 'created_by',
                 'golf_information',
                 'badge_text',
@@ -61,6 +63,10 @@ class ProductController extends Controller
                 'category:id,name',
                 'creator:id,name',
             ]);
+
+        if ($categoryId > 0) {
+            $query->where('category_id', $categoryId);
+        }
 
         if ($searchValue !== '') {
             $query->where(function ($builder) use ($searchValue) {
@@ -72,7 +78,9 @@ class ProductController extends Controller
         }
 
         $recordsTotal = Product::count();
-        $recordsFiltered = $searchValue !== '' ? (clone $query)->count() : $recordsTotal;
+        $recordsFiltered = ($searchValue !== '' || $categoryId > 0)
+            ? (clone $query)->count()
+            : $recordsTotal;
 
         $items = (clone $query)
             ->orderByDesc('id')
@@ -90,7 +98,6 @@ class ProductController extends Controller
                 'description' => Str::limit((string) $item->description, 60),
                 'location' => $item->location,
                 'review_rating' => $item->review_rating,
-                'star_rating' => $item->star_rating,
                 'review_count' => $item->review_count,
                 'established_year' => $item->established_year,
                 'highlight' => Str::limit((string) $item->highlight, 80),
@@ -99,7 +106,12 @@ class ProductController extends Controller
                 'price_discount' => $item->price_discount,
                 'status' => (int) $item->status,
                 'creator' => optional($item->creator)->name ?? '—',
-                'created_at' => $item->created_at ? $item->created_at->toISOString() : null,
+                'created_at' => $item->created_at
+                    ? $item->created_at->format('d/m/Y H:i')
+                    : null,
+                'updated_at' => $item->updated_at
+                    ? $item->updated_at->format('d/m/Y H:i')
+                    : null,
                 '__details' => '',
                 'badge_text' => $item->badge_text,
                'established_text' => $item->established_text,
@@ -117,8 +129,10 @@ class ProductController extends Controller
     public function create()
     {
         $categories = $this->getCategoryOptions();
+        $categoryLayouts = $this->getCategoryLayouts();
+        $attributeGroups = ServiceProductAttributes::groups();
 
-        return view('product.create', compact('categories'));
+        return view('product.create', compact('categories', 'categoryLayouts', 'attributeGroups'));
     }
 
     public function store(Request $request)
@@ -136,7 +150,9 @@ class ProductController extends Controller
             );
 
             $data['created_by'] = Auth::id();
-            $data['order_position'] = (int) Product::max('order_position') + 1;
+            if (! array_key_exists('order_position', $data) || $data['order_position'] === null) {
+                $data['order_position'] = (int) Product::max('order_position') + 1;
+            }
 
             $product = Product::create($data);
 
@@ -167,6 +183,8 @@ class ProductController extends Controller
     {
         $item = Product::with('images')->findOrFail($id);
         $categories = $this->getCategoryOptions();
+        $categoryLayouts = $this->getCategoryLayouts();
+        $attributeGroups = ServiceProductAttributes::groups();
 
         $currentImageUrl = $item->image ? Storage::url($item->image) : null;
         $currentGalleryImage1Url = $item->gallery_image_1 ? Storage::url($item->gallery_image_1) : null;
@@ -175,6 +193,8 @@ class ProductController extends Controller
         return view('product.edit', compact(
             'item',
             'categories',
+            'categoryLayouts',
+            'attributeGroups',
             'currentImageUrl',
             'currentGalleryImage1Url',
             'currentGalleryImage2Url',
@@ -186,6 +206,10 @@ class ProductController extends Controller
         $item = Product::findOrFail($id);
 
         $data = $this->validateProductData($request, $item->id);
+        $data['attributes'] = array_merge(
+            is_array($item->attributes) ? $item->attributes : [],
+            $data['attributes'] ?? []
+        );
 
         $uploadedPaths = [];
         $oldPathsToDelete = [];
@@ -299,6 +323,9 @@ class ProductController extends Controller
             'category_id' => filled($request->category_id) && is_numeric($request->category_id)
                 ? (int) $request->category_id
                 : null,
+            'is_featured' => $request->boolean('is_featured'),
+            'status' => $request->boolean('status'),
+            'attributes' => $this->normalizeAttributes($request->input('attributes', [])),
         ]);
 
         return $request->validate([
@@ -310,10 +337,12 @@ class ProductController extends Controller
                 Rule::unique('products', 'slug')->ignore($id),
             ],
             'category_id' => [
-                'nullable',
+                'required',
                 'integer',
                 Rule::exists('categories', 'id')->where(function ($query) {
-                    $query->whereRaw('LOWER(type) = ?', ['product']);
+                    $query
+                        ->where('status', 1)
+                        ->whereRaw('LOWER(type) = ?', ['service']);
                 }),
             ],
 
@@ -336,7 +365,6 @@ class ProductController extends Controller
             'description' => ['nullable', 'string'],
             'location' => ['nullable', 'string', 'max:255'],
             'review_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
-            'star_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'review_count' => ['nullable', 'string', 'max:255'],
             'established_text' => ['nullable', 'string', 'max:255'],
             'established_year' => ['nullable', 'integer', 'min:1800', 'max:' . ((int) date('Y') + 1)],
@@ -351,8 +379,11 @@ class ProductController extends Controller
             'price' => ['nullable', 'numeric', 'min:0'],
             'price_discount' => ['nullable', 'numeric', 'min:0'],
             'status' => ['nullable', 'integer', 'in:0,1'],
-            'sort' => ['nullable', 'integer', 'min:0'],
+            'is_featured' => ['nullable', 'boolean'],
+            'order_position' => ['nullable', 'integer', 'min:0'],
             'badge_text' => ['nullable', 'string', 'max:50'],
+            'attributes' => ['nullable', 'array'],
+            ...ServiceProductAttributes::validationRules(),
         ], [
             'name.required' => 'Vui lòng nhập tên sản phẩm.',
             'name.string' => 'Tên sản phẩm không hợp lệ.',
@@ -362,8 +393,9 @@ class ProductController extends Controller
             'slug.unique' => 'Slug này đã tồn tại.',
             'slug.max' => 'Slug không được vượt quá 255 ký tự.',
 
+            'category_id.required' => 'Vui lòng chọn danh mục dịch vụ.',
             'category_id.integer' => 'Danh mục không hợp lệ.',
-            'category_id.exists' => 'Danh mục không tồn tại.',
+            'category_id.exists' => 'Danh mục dịch vụ không tồn tại hoặc đã bị ẩn.',
 
             'image.image' => 'File tải lên phải là hình ảnh.',
             'image.mimes' => 'Ảnh phải thuộc định dạng jpeg, png, jpg, gif, svg hoặc webp.',
@@ -388,8 +420,8 @@ class ProductController extends Controller
             'status.integer' => 'Trạng thái không hợp lệ.',
             'status.in' => 'Trạng thái không hợp lệ.',
 
-            'sort.integer' => 'Thứ tự phải là số.',
-            'sort.min' => 'Thứ tự không được nhỏ hơn 0.',
+            'order_position.integer' => 'Thứ tự hiển thị phải là số.',
+            'order_position.min' => 'Thứ tự hiển thị không được nhỏ hơn 0.',
 
             'location.string' => 'Vị trí không hợp lệ.',
             'location.max' => 'Vị trí không được vượt quá 255 ký tự.',
@@ -407,10 +439,6 @@ class ProductController extends Controller
 
             'highlight.string' => 'Điểm nổi bật không hợp lệ.',
             'facility.string' => 'Dịch vụ tiện ích không hợp lệ.',
-
-            'star_rating.numeric' => 'Số sao được phép là số bất kỳ.',
-            'star_rating.min' => 'Số sao không được nhỏ hơn 0.',
-            'star_rating.max' => 'Số sao không được lớn hơn 5.',
 
             'badge_text.string' => 'Nhãn hiển thị không hợp lệ.',
             'badge_text.max' => 'Nhãn hiển thị không được vượt quá 50 ký tự.',
@@ -533,9 +561,48 @@ class ProductController extends Controller
     {
         return Category::query()
             ->where('status', 1)
-            ->whereRaw('LOWER(type) = ?', ['product'])
+            ->whereRaw('LOWER(type) = ?', ['service'])
+            ->orderBy('order_position')
             ->orderBy('name')
             ->pluck('name', 'id')
             ->toArray();
+    }
+
+    private function getCategoryLayouts(): array
+    {
+        return Category::query()
+            ->where('status', 1)
+            ->whereRaw('LOWER(type) = ?', ['service'])
+            ->pluck('layout_key', 'id')
+            ->toArray();
+    }
+
+    private function normalizeAttributes(mixed $attributes): array
+    {
+        if (! is_array($attributes)) {
+            return [];
+        }
+
+        $booleanKeys = ['driver_included'];
+        $normalized = [];
+
+        foreach ($attributes as $key => $value) {
+            if (in_array($key, $booleanKeys, true)) {
+                if ($value !== null && $value !== '') {
+                    $normalized[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                }
+                continue;
+            }
+
+            if (is_string($value)) {
+                $value = trim($value);
+            }
+
+            if ($value !== null && $value !== '') {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 }

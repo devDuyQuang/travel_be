@@ -213,7 +213,14 @@ class PostController extends Controller
             'file'             => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'status'           => ['nullable', 'boolean'],
             'category_ids'     => ['nullable', 'array'],
-            'category_ids.*'   => ['integer', 'exists:categories,id'],
+            'category_ids.*'   => [
+                'integer',
+                Rule::exists('categories', 'id')->where(
+                    fn ($query) => $query
+                        ->where('status', 1)
+                        ->whereRaw('LOWER(type) = ?', ['post'])
+                ),
+            ],
         ]);
 
         DB::beginTransaction();
@@ -288,7 +295,14 @@ class PostController extends Controller
             'remove_file'      => ['nullable', 'boolean'],
             'status'           => ['nullable', 'boolean'],
             'category_ids'     => ['nullable', 'array'],
-            'category_ids.*'   => ['integer', 'exists:categories,id'],
+            'category_ids.*'   => [
+                'integer',
+                Rule::exists('categories', 'id')->where(
+                    fn ($query) => $query
+                        ->where('status', 1)
+                        ->whereRaw('LOWER(type) = ?', ['post'])
+                ),
+            ],
         ]);
 
         $data['status'] = $request->boolean('status', true) ? 1 : 0;
@@ -359,11 +373,7 @@ class PostController extends Controller
     {
         $items = Category::query()
             ->where('status', 1)
-            ->where(function ($q) {
-                $q->whereIn(DB::raw('LOWER(type)'), ['post', 'service'])
-                    ->orWhereNull('type')
-                    ->orWhere('type', '');
-            })
+            ->whereRaw('LOWER(type) = ?', ['post'])
             ->select('id', 'name', 'parent_id')
             ->orderByRaw('parent_id IS NOT NULL')
             ->orderBy('parent_id')

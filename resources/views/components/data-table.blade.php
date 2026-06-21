@@ -27,6 +27,9 @@
   $dataSrcOpt = array_key_exists('dataSrc', $options) ? $options['dataSrc'] : 'data';
   $pageLengthOpt = isset($options['pageLength']) ? (int) $options['pageLength'] : null;
   $extraColumnDefs = $options['columnDefs'] ?? [];
+  $languageOpt = $options['language'] ?? [];
+  $autoWidthOpt = array_key_exists('autoWidth', $options) ? (bool) $options['autoWidth'] : null;
+  $scrollXOpt = array_key_exists('scrollX', $options) ? (bool) $options['scrollX'] : null;
 @endphp
 
 <div class="px-3 pb-3">
@@ -64,6 +67,9 @@
   const pageLengthOpt = @json($pageLengthOpt);
   const columnKeys = @json($columnKeys);
   const extraColumnDefs = @json($extraColumnDefs);
+  const languageOpt = @json($languageOpt);
+  const autoWidthOpt = @json($autoWidthOpt);
+  const scrollXOpt = @json($scrollXOpt);
 
   const indexOfKey = function (key) {
     const index = columnKeys.indexOf(key);
@@ -102,6 +108,24 @@
 
   if (pageLengthOpt > 0) {
     base.pageLength = pageLengthOpt;
+  }
+
+  if (autoWidthOpt !== null) {
+    base.autoWidth = autoWidthOpt;
+  }
+
+  if (scrollXOpt !== null) {
+    base.scrollX = scrollXOpt;
+  }
+
+  if (languageOpt && typeof languageOpt === 'object') {
+    base.language = Object.assign({}, base.language, languageOpt, {
+      paginate: Object.assign(
+        {},
+        base.language.paginate || {},
+        languageOpt.paginate || {}
+      )
+    });
   }
 
   @if(!empty($ajaxUrl))

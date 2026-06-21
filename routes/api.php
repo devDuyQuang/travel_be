@@ -22,12 +22,6 @@ Route::apiResource('post', PostController::class)->only(['index', 'show']);
 Route::get('/resolve/{slug}', [PostController::class, 'resolve'])
     ->where('slug', '[A-Za-z0-9\-]+');
 
-Route::get('/product-test/{slug}', function ($slug) {
-    return response()->json([
-        'ok' => true,
-        'slug' => $slug,
-    ]);
-});
 Route::get('/product', [ProductController::class, 'index'])->name('api.product.index');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('api.product.show');
 
