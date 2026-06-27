@@ -32,12 +32,19 @@ class CategoryController extends Controller
                 ->when($type, function ($q) use ($type) {
                     $q->where('type', $type);
                 })
+                ->when($type === 'post', function ($q) {
+                    $q->withCount([
+                        'posts as posts_count' => function ($postQuery) {
+                            $postQuery->where('status', 1);
+                        },
+                    ]);
+                })
 
                 ->when($home !== null, function ($q) use ($home) {
                     $q->where('home', (int) $home);
                 })
 
-                ->select(['id', 'name', 'slug', 'parent_id', 'sort', 'type', 'layout_key', 'image', 'icon'])
+                ->select(['id', 'name', 'slug', 'parent_id', 'sort', 'type', 'layout_key', 'image', 'icon', 'description'])
 
                 ->orderBy($sortName, $sortBy)
                 ->get();
@@ -54,12 +61,14 @@ class CategoryController extends Controller
             if ($home !== null) {
                 $tree = $categories->map(function ($c) {
                     return [
+                        'id' => $c->id,
                         'name'  => $c->name,
                         'slug'  => $c->slug,
                         'type'  => $c->type,
                         'layout_key' => $c->layout_key,
                         'image' => $c->image,
                         'icon'  => $c->icon,
+                        'description' => $c->description,
                     ];
                 })->values()->all();
             } else {
@@ -306,12 +315,14 @@ class CategoryController extends Controller
         $make = function ($parentId) use (&$make, $byParent) {
             return ($byParent[$parentId] ?? collect())->map(function ($c) use ($make) {
                 $node = [
+                    'id' => $c->id,
                     'name' => $c->name,
                     'slug' => $c->slug,
                     'type' => $c->type,
                     'layout_key' => $c->layout_key,
                     'image' => $c->image,
                     'icon' => $c->icon,
+                    'description' => $c->description,
                 ];
                 $children = $make($c->id);
                 if ($children) {

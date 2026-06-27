@@ -20,7 +20,7 @@ class PublicUrl
 
         return match ($type) {
             'service' => '/dich-vu/' . $slug,
-            'post'    => '/bai-viet/' . $slug,
+            'post'    => '/tin-tuc?category=' . $slug,
             default   => '/danh-muc/' . $slug,
         };
     }
@@ -31,9 +31,7 @@ class PublicUrl
             return null;
         }
 
-        // Project hiện tại đang dùng post detail ở root slug.
-        // Ví dụ: /bien-chung-sau-mo-day-chang-cheo-truoc
-        return '/' . ltrim((string) $post->slug, '/');
+        return '/tin-tuc/' . ltrim((string) $post->slug, '/');
     }
 
     public static function menu(

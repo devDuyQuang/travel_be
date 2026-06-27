@@ -128,6 +128,15 @@
                                 </div>
 
                                 <div class="col-12">
+                                    <label for="post-tag_ids" class="form-label">Thẻ bài viết</label>
+                                    <select name="tag_ids[]" id="post-tag_ids" class="select2 form-select" multiple>
+                                        @foreach($tags ?? [] as $id => $name)
+                                            <option value="{{ $id }}" @selected(in_array($id, old('tag_ids', [])))>{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
                                     <x-textarea-field
                                         name="description"
                                         label="Mô tả ngắn"
@@ -206,6 +215,7 @@
 
         var $ = window.jQuery;
         var $categorySelect = $('#post-category_ids');
+        var $tagSelect = $('#post-tag_ids');
 
         if (
             $categorySelect.length &&
@@ -215,6 +225,18 @@
             $categorySelect.select2({
                 width: '100%',
                 placeholder: 'Chọn danh mục',
+                closeOnSelect: false
+            });
+        }
+
+        if (
+            $tagSelect.length &&
+            typeof $.fn.select2 === 'function' &&
+            !$tagSelect.hasClass('select2-hidden-accessible')
+        ) {
+            $tagSelect.select2({
+                width: '100%',
+                placeholder: 'Chọn thẻ bài viết',
                 closeOnSelect: false
             });
         }

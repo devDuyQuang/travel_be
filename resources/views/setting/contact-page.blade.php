@@ -7,8 +7,8 @@
 <main class="main-wrapper setting-page">
   <div class="main-content">
 @php
-  $settingType = $settingType ?? 'clinic';
-  $settingTypes = $settingTypes ?? ['clinic' => 'clinic', 'rac' => 'RAC'];
+  $settingType = 'travel';
+  $settingTypes = ['travel' => 'Travel'];
   $baseContactUrl = panel_route('setting.contactPage');
 @endphp
 
@@ -118,7 +118,7 @@
     const btn = document.getElementById('btn-clear-json');
     const wrapper = document.getElementById('home-json-wrapper');
     const section = wrapper ? wrapper.getAttribute('data-section') : null;
-    const type = wrapper ? (wrapper.getAttribute('data-type') || 'clinic') : 'clinic';
+    const type = wrapper ? (wrapper.getAttribute('data-type') || 'travel') : 'travel';
     let storageKey = section ? `contact_json_${type}_${section}` : `contact_json_${type}_preview`;
     const forms = document.querySelectorAll('#contact-sections-tabContent form.ajax-form');
     const typeLinks = document.querySelectorAll('.setting-type-switch[data-type]');
@@ -136,7 +136,7 @@
 
     function updateTypeLinks(sectionKey) {
       typeLinks.forEach(link => {
-        const linkType = link.getAttribute('data-type') || 'clinic';
+        const linkType = link.getAttribute('data-type') || 'travel';
         link.setAttribute('href', `{{ $baseContactUrl }}?type=${linkType}&section=${sectionKey || 'hero'}`);
       });
     }

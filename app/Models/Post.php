@@ -51,6 +51,11 @@ class Post extends Model
         return $this->belongsToMany(\App\Models\Category::class, 'category_post', 'post_id', 'category_id');
     }
 
+    public function tags()
+    {
+        return $this->belongsToMany(\App\Models\Tag::class, 'post_tag', 'post_id', 'tag_id')->withTimestamps();
+    }
+
     // Scope: chỉ lấy bài viết active (status = 1)
     public function scopeActive($query)
     {

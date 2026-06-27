@@ -18,7 +18,7 @@
             <div class="tab-pane fade show active" id="hero-main" role="tabpanel" aria-labelledby="hero-main-tab">
               <div class="row g-3">
                 <div class="col-md-12">
-                   <x-file-input label="Banner Header" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" />
+                   <x-file-input label="Banner Header" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" remove-name="remove_banner_hero_file" />
                 </div>
               </div>
             </div>

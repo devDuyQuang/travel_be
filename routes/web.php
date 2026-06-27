@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\PostController;
@@ -12,14 +11,19 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SitemapDownloadController;
 
-use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DomainController;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\DegreeController;
 use App\Http\Controllers\ServiceRegistrationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\HomepageSettingController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\TeamMemberController;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\PageSettingController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\OrderController;
 
 
 Route::get('/', fn() => redirect()->to(panel_route('login')));
@@ -48,6 +52,23 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('booking')->name('booking.')->group(function () {
+        Route::get('/', [BookingController::class, 'index'])->name('index');
+        Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
+        Route::patch('/{booking}/status', [BookingController::class, 'updateStatus'])->name('status');
+        Route::patch('/{booking}/internal-note', [BookingController::class, 'updateInternalNote'])->name('internal-note');
+        Route::patch('/{booking}/payment', [BookingController::class, 'updatePayment'])->name('payment');
+        Route::patch('/{booking}/quote', [BookingController::class, 'updateQuote'])->name('quote');
+    });
+
+    Route::prefix('order')->name('order.')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])->name('status');
+        Route::patch('/{order}/internal-note', [OrderController::class, 'updateInternalNote'])->name('internal-note');
+        Route::patch('/{order}/payment', [OrderController::class, 'updatePayment'])->name('payment');
+    });
+
 
 
     Route::get('/contact', [ContactController::class, 'index'])
@@ -65,6 +86,10 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::patch('/{id}/status', [PostController::class, 'toggleStatus'])->name('toggle-status');
     });
 
+    Route::resource('tag', TagController::class)->except(['show']);
+    Route::resource('team-member', TeamMemberController::class)->parameters(['team-member' => 'teamMember'])->except(['show']);
+    Route::resource('faq', FaqController::class)->except(['show']);
+
     Route::prefix('category')->name('category.')->group(function () {
         Route::patch('/{id}/home', [CategoryController::class, 'toggleHome'])
             ->name('toggle-home');
@@ -80,16 +105,6 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::post('/update-order', [CategoryController::class, 'updateOrder'])->name('update-order');
     });
 
-    Route::prefix('doctor')->name('doctor.')->group(function () {
-        Route::get('/',            [DoctorController::class, 'index'])->name('index');
-        Route::get('/datatable',   [DoctorController::class, 'datatable'])->name('datatable');
-        Route::get('/create',      [DoctorController::class, 'create'])->name('create');
-        Route::post('/',            [DoctorController::class, 'store'])->name('store');
-        Route::get('/edit/{id}',   [DoctorController::class, 'edit'])->name('edit');
-        Route::put('/{id}',        [DoctorController::class, 'update'])->name('update');
-        Route::delete('/{id}',        [DoctorController::class, 'destroy'])->name('destroy');
-    });
-
     Route::prefix('domain')->name('domain.')->group(function () {
         Route::get('/',            [DomainController::class, 'index'])->name('index');
         Route::get('/datatable',   [DomainController::class, 'datatable'])->name('datatable');
@@ -99,16 +114,6 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/{id}',        [DomainController::class, 'update'])->name('update');
         Route::patch('/{id}/status', [DomainController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{id}',        [DomainController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('appointment')->name('appointment.')->group(function () {
-        Route::get('/',            [AppointmentController::class, 'index'])->name('index');
-        Route::get('/datatable',   [AppointmentController::class, 'datatable'])->name('datatable');
-        Route::get('/create',      [AppointmentController::class, 'create'])->name('create');
-        Route::post('/',            [AppointmentController::class, 'store'])->name('store');
-        Route::get('/edit/{id}',   [AppointmentController::class, 'edit'])->name('edit');
-        Route::put('/{id}',        [AppointmentController::class, 'update'])->name('update');
-        Route::delete('/{id}',        [AppointmentController::class, 'destroy'])->name('destroy');
     });
 
 
@@ -131,52 +136,12 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/logo-favicon', [SettingController::class, 'updateLogoFavicon'])->name('updateLogoFavicon');
         Route::put('/topbar',      [SettingController::class, 'updateTopbar'])->name('updateTopbar');
         Route::put('/floating',    [SettingController::class, 'updateFloating'])->name('updateFloating');
-        Route::get('/home',        [SettingController::class, 'home'])->name('home');
+        Route::get('/home',        [HomepageSettingController::class, 'index'])->name('home');
+        Route::put('/home/{section}', [HomepageSettingController::class, 'update'])->name('home.update');
         Route::get('/service',     [SettingController::class, 'service'])->name('service');
-        Route::get('/hero',        [SettingController::class, 'hero'])->name('hero');
-        Route::get('/utilities',   [SettingController::class, 'utilities'])->name('utilities');
-        Route::put('/hero/{id}',   [SettingController::class, 'updateHero'])->name('updateHero');
         Route::put('/service-hero', [SettingController::class, 'updateServiceHero'])->name('updateServiceHero');
         Route::put('/service-features', [SettingController::class, 'updateServiceFeatures'])->name('updateServiceFeatures');
         Route::put('/service-plans', [SettingController::class, 'updateServicePlans'])->name('updateServicePlans');
-        Route::put('/utilities', [SettingController::class, 'updateUtilities'])->name('updateUtilities');
-        Route::get('/stats',       [SettingController::class, 'stats'])->name('stats');
-        Route::put('/stats',       [SettingController::class, 'updateStats'])->name('updateStats');
-        Route::delete('/stats/avatar/{index}', [SettingController::class, 'removeStatAvatar'])->name('removeStatAvatar');
-
-        Route::get('/services',    [SettingController::class, 'services'])->name('services');
-        Route::put('/services',    [SettingController::class, 'updateServices'])->name('updateServices');
-
-        Route::get('/appointment', [SettingController::class, 'appointment'])->name('appointment');
-        Route::put('/appointment', [SettingController::class, 'updateAppointment'])->name('updateAppointment');
-
-        Route::get('/why-choose-us', [SettingController::class, 'whyChooseUs'])->name('whyChooseUs');
-        Route::put('/why-choose-us', [SettingController::class, 'updateWhyChooseUs'])->name('updateWhyChooseUs');
-
-        Route::get('/specialists', [SettingController::class, 'specialists'])->name('specialists');
-        Route::put('/specialists', [SettingController::class, 'updateSpecialists'])->name('updateSpecialists');
-
-        Route::get('/testimonials', [SettingController::class, 'testimonials'])->name('testimonials');
-        Route::put('/testimonials', [SettingController::class, 'updateTestimonials'])->name('updateTestimonials');
-
-        Route::get('/how-it-work', [SettingController::class, 'howItWork'])->name('howItWork');
-        Route::put('/how-it-work', [SettingController::class, 'updateHowItWork'])->name('updateHowItWork');
-
-        Route::get('/doctor',      [SettingController::class, 'doctor'])->name('doctor');
-        Route::put('/doctor',      [SettingController::class, 'updateDoctor'])->name('updateDoctor');
-
-        Route::get('/faq',         [SettingController::class, 'faq'])->name('faq');
-        Route::put('/faq',         [SettingController::class, 'updateFaq'])->name('updateFaq');
-
-        Route::get('/awards',      [SettingController::class, 'awards'])->name('awards');
-        Route::put('/awards',      [SettingController::class, 'updateAwards'])->name('updateAwards');
-
-        Route::get('/blogs',       [SettingController::class, 'blogs'])->name('blogs');
-        Route::put('/blogs',       [SettingController::class, 'updateBlogs'])->name('updateBlogs');
-
-        Route::get('/contact',     [SettingController::class, 'contact'])->name('contact');
-        Route::put('/contact',     [SettingController::class, 'updateContact'])->name('updateContact');
-
         Route::get('/contact-page',           [SettingController::class, 'contactPage'])->name('contactPage');
         Route::put('/contact-hero',           [SettingController::class, 'updateContactHero'])->name('updateContactHero');
         Route::put('/contact-info',           [SettingController::class, 'updateContactInfo'])->name('updateContactInfo');
@@ -186,12 +151,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/about-hero',              [SettingController::class, 'updateAboutHero'])->name('updateAboutHero');
         Route::put('/about-gallery',           [SettingController::class, 'updateAboutGallery'])->name('updateAboutGallery');
         Route::delete('/about-gallery-image',     [SettingController::class, 'removeAboutGalleryImage'])->name('removeAboutGalleryImage');
-        Route::put('/about-vision-mission',    [SettingController::class, 'updateAboutVisionMission'])->name('updateAboutVisionMission');
+        Route::put('/about-intro',             [SettingController::class, 'updateAboutIntro'])->name('updateAboutIntro');
+        Route::put('/about-values',            [SettingController::class, 'updateAboutValues'])->name('updateAboutValues');
         Route::put('/about-consultation',      [SettingController::class, 'updateAboutConsultation'])->name('updateAboutConsultation');
-        Route::put('/about-insurance',         [SettingController::class, 'updateAboutInsurance'])->name('updateAboutInsurance');
-        Route::delete('/about-insurance-logo',     [SettingController::class, 'removeAboutInsuranceLogo'])->name('removeAboutInsuranceLogo');
-
-
+        Route::get('/page/{page}', [PageSettingController::class, 'edit'])->name('page.edit');
+        Route::put('/page/{page}', [PageSettingController::class, 'update'])->name('page.update');
         Route::put('/{id}',        [SettingController::class, 'update'])->name('update');
     });
 
@@ -236,16 +200,6 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 
 
-
-    Route::prefix('degree')->name('degree.')->group(function () {
-        Route::get('/', [DegreeController::class, 'index'])->name('index');
-        Route::get('/datatable', [DegreeController::class, 'datatable'])->name('datatable');
-        Route::get('/create', [DegreeController::class, 'create'])->name('create');
-        Route::post('/', [DegreeController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [DegreeController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [DegreeController::class, 'update'])->name('update');
-        Route::delete('/{id}', [DegreeController::class, 'destroy'])->name('destroy');
-    });
 
     Route::prefix('comment')->name('comment.')->group(function () {
         Route::get('/',            [CommentController::class, 'index'])->name('index');

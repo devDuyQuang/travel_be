@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;       // ✅ import base Controller
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\MedicalLeadMail;
+use App\Mail\ContactLeadMail;
 
 class MailController extends Controller
 {
@@ -35,7 +35,7 @@ class MailController extends Controller
 
         try {
             // Gửi mail
-            Mail::to($recipient)->send(new MedicalLeadMail(
+            Mail::to($recipient)->send(new ContactLeadMail(
                 fullName: $fullName,
                 phone: $phone,
                 note: $note,

@@ -49,16 +49,16 @@
                   <td class="py-1 px-2 cell-time">{{ $loc['service_time'] ?? '' }}</td>
                   <td class="py-1 px-2 text-center">
                     <div class="d-flex gap-1 justify-content-center">
-                      <button type="button" class="btn btn-xs btn-outline-primary btn-edit-location btn-action-icon" title="Sửa"><i class="ti tabler-pencil"></i></button>
-                      <button type="button" class="btn btn-xs btn-outline-danger btn-remove-location btn-action-icon" title="Xoá"><i class="ti tabler-trash"></i></button>
+                      <button type="button" class="btn btn-xs btn-outline-primary btn-edit-location btn-action-icon" title="Sửa" aria-label="Sửa vị trí"><span class="material-icons-outlined" aria-hidden="true">edit</span></button>
+                      <button type="button" class="btn btn-xs btn-outline-danger btn-remove-location btn-action-icon" title="Xoá" aria-label="Xoá vị trí"><span class="material-icons-outlined" aria-hidden="true">delete</span></button>
                     </div>
+                    {{-- Hidden inputs must stay inside a table cell so the browser does not move them out of the row. --}}
+                    <input type="hidden" name="items[{{ $idx }}][name]" value="{{ e($loc['name'] ?? '') }}">
+                    <input type="hidden" name="items[{{ $idx }}][address]" value="{{ e($loc['address'] ?? '') }}">
+                    <input type="hidden" name="items[{{ $idx }}][service_time]" value="{{ e($loc['service_time'] ?? '') }}">
+                    <input type="hidden" name="items[{{ $idx }}][google_link]" value="{{ e($loc['google_link'] ?? '') }}">
+                    <input type="hidden" name="items[{{ $idx }}][map_iframe]" value="{{ e($loc['map_iframe'] ?? '') }}">
                   </td>
-                  {{-- Hidden inputs --}}
-                  <input type="hidden" name="items[{{ $idx }}][name]" value="{{ e($loc['name'] ?? '') }}">
-                  <input type="hidden" name="items[{{ $idx }}][address]" value="{{ e($loc['address'] ?? '') }}">
-                  <input type="hidden" name="items[{{ $idx }}][service_time]" value="{{ e($loc['service_time'] ?? '') }}">
-                  <input type="hidden" name="items[{{ $idx }}][google_link]" value="{{ e($loc['google_link'] ?? '') }}">
-                  <input type="hidden" name="items[{{ $idx }}][map_iframe]" value="{{ e($loc['map_iframe'] ?? '') }}">
                 </tr>
                 @endforeach
               </tbody>
@@ -119,6 +119,7 @@
 <style>
   #locations-table td, #locations-table th { padding: 0.4rem 0.6rem !important; vertical-align: middle !important; }
   .btn-action-icon { width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .btn-action-icon .material-icons-outlined { font-size: 18px; line-height: 1; }
 </style>
 <script>
 (function () {
@@ -193,14 +194,15 @@
       + '<td class="py-1 px-2 cell-address text-muted">' + esc(d.address) + '</td>'
       + '<td class="py-1 px-2 cell-time">' + esc(d.service_time) + '</td>'
       + '<td class="py-1 px-2 text-center"><div class="d-flex gap-1 justify-content-center">'
-      + '<button type="button" class="btn btn-xs btn-outline-primary btn-edit-location btn-action-icon" title="Sửa"><i class="ti tabler-pencil"></i></button>'
-      + '<button type="button" class="btn btn-xs btn-outline-danger btn-remove-location btn-action-icon" title="Xoá"><i class="ti tabler-trash"></i></button>'
-      + '</div></td>'
+      + '<button type="button" class="btn btn-xs btn-outline-primary btn-edit-location btn-action-icon" title="Sửa" aria-label="Sửa vị trí"><span class="material-icons-outlined" aria-hidden="true">edit</span></button>'
+      + '<button type="button" class="btn btn-xs btn-outline-danger btn-remove-location btn-action-icon" title="Xoá" aria-label="Xoá vị trí"><span class="material-icons-outlined" aria-hidden="true">delete</span></button>'
+      + '</div>'
       + '<input type="hidden" name="items[' + i + '][name]" value="' + esc(d.name) + '">'
       + '<input type="hidden" name="items[' + i + '][address]" value="' + esc(d.address) + '">'
       + '<input type="hidden" name="items[' + i + '][service_time]" value="' + esc(d.service_time) + '">'
       + '<input type="hidden" name="items[' + i + '][google_link]" value="' + esc(d.google_link) + '">'
       + '<input type="hidden" name="items[' + i + '][map_iframe]" value="' + esc(d.map_iframe) + '">'
+      + '</td>'
       + '</tr>';
   }
 

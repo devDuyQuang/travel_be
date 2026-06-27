@@ -13,24 +13,35 @@ class SettingController extends Controller
 {
     private array $publicDefaultKeys = [
         'site',
-        'site_assets_clinic',
-        'topbar_info_clinic',
-        'floating_info_clinic',
+        'site_assets_travel',
+        'topbar_info_travel',
+        'floating_info_travel',
     ];
 
     private array $typedHomeKeys = [
-        'hero_home',
         'utilities_home',
         'stats_home',
         'services_home',
-        'why_choose_us_home',
-        'testimonials_home',
         'how_it_work_home',
         'faq_home',
         'awards_home',
-        'blogs_home',
         'contact_home',
         'floating_info',
+        'service_hero',
+        'service_features',
+        'service_plans',
+        'contact_page_hero',
+        'contact_page_info',
+        'contact_page_locations',
+        'about_page_hero',
+        'about_page_gallery',
+        'about_page_intro',
+        'about_page_values',
+        'about_page_vision_mission',
+        'about_page_consultation',
+        'blog_page',
+        'shop_page',
+        'faq_page',
     ];
 
     public function index(Request $request, $domain = null)
@@ -89,7 +100,7 @@ class SettingController extends Controller
 
     private function resolveSettingTypeFromHost(Request $request): ?string
     {
-        return null;
+        return 'travel';
     }
 
     private function aliasTypedHomeSettings(array $data, ?string $type, ?array $requestedKeys = null): array

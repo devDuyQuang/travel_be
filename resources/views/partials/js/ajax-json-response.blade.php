@@ -92,8 +92,12 @@
 
             if (!(form instanceof HTMLFormElement)) return;
 
+            // form.ajax-form đã được xử lý đầy đủ trong partials/script.blade.php
+            // (normalize checkbox, hiển thị validation và JSON debug). Không gửi
+            // lần thứ hai ở đây vì sẽ tạo payload checkbox trùng 0/1.
+            if (form.classList.contains('ajax-form')) return;
+
             const isAjaxForm =
-                form.classList.contains('ajax-form') ||
                 form.dataset.ajax === 'true' ||
                 form.closest('.product-form-page, .post-form-page, .category-form-page, .menu-form-page, .setting-page');
 

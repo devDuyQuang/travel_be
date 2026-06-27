@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\AppointmentApiController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\MenuController;
@@ -10,15 +9,21 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\MailController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\Api\DegreeController as ApiDegreeController;
 use App\Http\Controllers\Api\ServiceRegistrationApiController;
 use App\Http\Controllers\Api\ProductController;
-
-Route::get('/degrees', [ApiDegreeController::class, 'index']);
+use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\TeamMemberController;
+use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\OrderController;
 
 Route::apiResource('menu', MenuController::class)->only(['index', 'show']);
 Route::apiResource('category', CategoryController::class)->only(['index', 'show']);
 Route::apiResource('post', PostController::class)->only(['index', 'show']);
+Route::get('/tags', [TagController::class, 'index'])->name('api.tags.index');
+Route::get('/team-members', [TeamMemberController::class, 'index'])->name('api.team-members.index');
+Route::get('/team-members/{slug}', [TeamMemberController::class, 'show'])->name('api.team-members.show');
+Route::get('/faqs', [FaqController::class, 'index'])->name('api.faqs.index');
 Route::get('/resolve/{slug}', [PostController::class, 'resolve'])
     ->where('slug', '[A-Za-z0-9\-]+');
 
@@ -29,11 +34,11 @@ Route::get('post/{id}/related', [PostController::class, 'relatedPosts']);
 Route::apiResource('setting', SettingController::class)->only(['index']);
 
 Route::post('/register-service', [ServiceRegistrationApiController::class, 'store']);
+Route::post('/bookings', [BookingController::class, 'store'])->middleware('throttle:transaction-create');
+Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:transaction-create');
 
 Route::get('/comments', [CommentController::class, 'index']);
 Route::post('/comments', [CommentController::class, 'store']);
-
-Route::post('/appointments', [AppointmentApiController::class, 'store']);
 
 Route::post('/sendmail', [MailController::class, 'sendMail']);
 

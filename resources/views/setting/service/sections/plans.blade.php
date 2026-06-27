@@ -1,7 +1,7 @@
 <form action="{{ panel_route('setting.updateServicePlans') }}" method="POST" class="ajax-form" enctype="multipart/form-data">
   @csrf
   @method('PUT')
-  <input type="hidden" name="type" value="{{ $settingType ?? 'clinic' }}">
+  <input type="hidden" name="type" value="travel">
   <input type="hidden" name="tab" value="plans">
 
   <div class="card mb-4 shadow-none border">
@@ -97,6 +97,8 @@
                         </div>
                         <input type="hidden" name="items[{{ $index }}][name]" value="{{ e($item['name'] ?? '') }}">
                         <input type="hidden" name="items[{{ $index }}][image_url]" value="{{ $item['image_url'] ?? '' }}">
+                        <input type="hidden" name="items[{{ $index }}][original_image_url]" value="{{ $item['image_url'] ?? '' }}">
+                        <input type="hidden" name="items[{{ $index }}][remove_image]" value="0">
                         <!-- Container chứa input file sẽ được clone vào đây -->
                         <div class="file-input-wrapper" style="display:none"></div>
                       </td>
@@ -227,12 +229,15 @@
                   <i class="ti tabler-upload d-block d-sm-none"></i>
                   <input type="file" id="modal-plan-image-input" class="account-file-input" hidden accept="image/png, image/jpeg">
                 </label>
-                <button type="button" class="btn btn-sm btn-outline-secondary mb-2" id="reset-modal-image">
-                  <i class="ti tabler-refresh-dot"></i>
+                <button type="button" class="btn btn-sm btn-outline-danger mb-2" id="reset-modal-image">
+                  <i class="ti tabler-trash"></i>
+                  Xóa ảnh
                 </button>
                 <div class="text-muted small">JPG, PNG, SVG hoặc WEBP. Tối đa 800K</div>
                 <!-- Input ẩn để giữ URL ảnh cũ khi sửa -->
                 <input type="hidden" id="modal-plan-image-url">
+                <input type="hidden" id="modal-plan-original-image-url">
+                <input type="hidden" id="modal-plan-remove-image" value="0">
               </div>
             </div>
           </div>
@@ -613,6 +618,8 @@
 
                     <input type="hidden" name="items[${index}][name]" value="${esc(data.name)}">
                     <input type="hidden" name="items[${index}][image_url]" value="${esc(data.image_url)}">
+                    <input type="hidden" name="items[${index}][original_image_url]" value="${esc(data.original_image_url)}">
+                    <input type="hidden" name="items[${index}][remove_image]" value="${data.remove_image ? 1 : 0}">
                     <div class="file-input-wrapper" style="display:none"></div>
                 </td>
 
@@ -720,6 +727,8 @@
       $('#modal-plan-btn-text').val('');
       $('#modal-plan-btn-link').val('');
       $('#modal-plan-image-url').val('');
+      $('#modal-plan-original-image-url').val('');
+      $('#modal-plan-remove-image').val('0');
       $('#modal-preview-image').attr('src', DEFAULT_IMG);
       $('#modal-plan-image-input').val('');
 
@@ -734,7 +743,15 @@
     $('#modal-plan-image-input').on('change', function() {
       if (this.files && this.files[0]) {
         $('#modal-preview-image').attr('src', URL.createObjectURL(this.files[0]));
+        $('#modal-plan-remove-image').val('0');
       }
+    });
+
+    $('#reset-modal-image').on('click', function() {
+      $('#modal-plan-image-input').val('');
+      $('#modal-plan-image-url').val('');
+      $('#modal-plan-remove-image').val('1');
+      $('#modal-preview-image').attr('src', DEFAULT_IMG);
     });
 
     $(document).on('click', '.edit-plan-item', function() {
@@ -748,10 +765,14 @@
       $('#modal-plan-btn-link').val(editingPlanRow.find('input[name*="[btn_link]"]').val());
 
       var currentImg = editingPlanRow.find('input[name*="[image_url]"]').val();
+      var originalImg = editingPlanRow.find('input[name*="[original_image_url]"]').val() || currentImg;
+      var removeImage = editingPlanRow.find('input[name*="[remove_image]"]').val() === '1';
       var currentPreviewSrc = editingPlanRow.find('.cell-img-preview').attr('src');
 
       $('#modal-plan-image-url').val(currentImg);
-      $('#modal-preview-image').attr('src', currentPreviewSrc || DEFAULT_IMG);
+      $('#modal-plan-original-image-url').val(originalImg);
+      $('#modal-plan-remove-image').val(removeImage ? '1' : '0');
+      $('#modal-preview-image').attr('src', removeImage ? DEFAULT_IMG : (currentPreviewSrc || DEFAULT_IMG));
       $('#modal-plan-image-input').val('');
 
       var checkedFeatures = [];
@@ -776,6 +797,8 @@
         btn_text: $('#modal-plan-btn-text').val(),
         btn_link: $('#modal-plan-btn-link').val(),
         image_url: $('#modal-plan-image-url').val(),
+        original_image_url: $('#modal-plan-original-image-url').val(),
+        remove_image: $('#modal-plan-remove-image').val() === '1',
         features: $('.feature-checkbox:checked').map(function() {
           return $(this).val();
         }).get(),

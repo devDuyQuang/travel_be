@@ -13,6 +13,8 @@ class Product extends Model
         'slug',
         'badge_text',
         'category_id',
+        'product_type',
+        'sku',
 
         'image',
         'image_original_name',
@@ -36,6 +38,11 @@ class Product extends Model
         'content',
         'price',
         'price_discount',
+        'regular_price',
+        'sale_price',
+        'stock_quantity',
+        'manage_stock',
+        'stock_status',
         'status',
         'is_featured',
         'golf_information',
@@ -53,6 +60,10 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'price_discount' => 'decimal:2',
+        'regular_price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'stock_quantity' => 'integer',
+        'manage_stock' => 'boolean',
         'review_rating' => 'decimal:1',
         'established_year' => 'integer',
         'status' => 'integer',
@@ -80,5 +91,15 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'service_product_id');
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

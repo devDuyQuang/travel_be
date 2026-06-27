@@ -25,7 +25,7 @@ class PostController extends Controller
     {
         try {
             $post = Post::query()
-                ->with(['categories:id,name,slug,type,parent_id'])
+                ->with(['categories:id,name,slug,type,parent_id', 'tags:id,name,slug'])
                 ->where('slug', $slug)
                 ->where('status', 1)
                 ->select([
@@ -106,7 +106,7 @@ class PostController extends Controller
 
             $query = Post::query()
                 ->where('status', 1)
-                ->with(['categories:id,name,slug,type,parent_id']);
+                ->with(['categories:id,name,slug,type,parent_id', 'tags:id,name,slug']);
 
             if (!empty($type)) {
                 $query->whereHas('categories', function ($q) use ($type) {
@@ -115,6 +115,13 @@ class PostController extends Controller
             }
             if ($name = $request->input('name')) {
                 $query->where('name', 'LIKE', "%{$name}%");
+            }
+
+            if ($tag = $request->input('tag')) {
+                $query->whereHas('tags', function ($q) use ($tag) {
+                    $q->where('slug', $tag)
+                        ->where('is_active', 1);
+                });
             }
 
             if (!empty($categorySlug)) {
@@ -157,6 +164,7 @@ class PostController extends Controller
                     'created_at',
                     'views',
                     'favorites',
+                    'created_by',
                 ])
                 ->paginate($limit);
 
@@ -184,7 +192,7 @@ class PostController extends Controller
     {
         try {
             $post = Post::query()
-                ->with(['categories:id,name,slug,type'])
+                ->with(['categories:id,name,slug,type', 'tags:id,name,slug'])
                 ->when(
                     is_numeric($id),
                     fn($q) => $q->where('id', (int) $id),
@@ -309,7 +317,7 @@ class PostController extends Controller
     {
         try {
             $posts = Post::query()
-                ->with(['categories:id,name,slug,type'])
+                ->with(['categories:id,name,slug,type', 'tags:id,name,slug'])
                 ->select([
                     'id',
                     'name',
@@ -404,7 +412,7 @@ class PostController extends Controller
                         $q2->whereIn('categories.id', $categoryIds);
                     });
                 })
-                ->with(['categories:id,name,slug,type'])
+                ->with(['categories:id,name,slug,type', 'tags:id,name,slug'])
                 ->select([
                     'id',
                     'name',

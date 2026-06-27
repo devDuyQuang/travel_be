@@ -225,6 +225,7 @@
                                         name="file"
                                         :multiple="false"
                                         :current-url="$currentImageUrl ?? null"
+                                        remove-name="remove_file"
                                     />
                                 </div>
 
@@ -234,6 +235,7 @@
                                         name="icon_file"
                                         :multiple="false"
                                         :current-url="$currentIconUrl ?? null"
+                                        remove-name="remove_icon"
                                     />
                                 </div>
 

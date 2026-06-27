@@ -7,14 +7,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Intervention\Image\Modifiers\ScaleDownModifier;
 
 class SettingController extends Controller
 {
     private string $key = 'site';
     private array $homeSettingTypes = [
-        'clinic' => 'clinic',
-        'rac' => 'RAC',
+        'travel' => 'Travel',
     ];
 
     public function index(Request $request)
@@ -47,64 +47,14 @@ class SettingController extends Controller
         $currentFaviconUrl   = $normalize($assetsV['favicon'] ?? null);
 
 
-        // Các banner
-        $currentBannerSlideUrl = $normalize($v['banner_slide'] ?? null);
-        $currentBannerScheduleUrl = $normalize($v['banner_schedule'] ?? null);
-        $currentBannerAppointmentUrl = $normalize($v['banner_appointment'] ?? null);
-        $currentBannerWhyUsUrl = $normalize($v['banner_why_us'] ?? null);
-        $currentBannerPatientsUrl = $normalize($v['banner_patients'] ?? null);
-        $currentBannerWorkUrl = $normalize($v['banner_work'] ?? null);
-        $currentBannerDoctorUrl = $normalize($v['banner_doctor'] ?? null);
-        $currentBannerFaqUrl = $normalize($v['banner_faq'] ?? null);
-
-        $servicesItem = $this->firstOrCreateHomeSetting('services_home', $settingType);
-        $servicesV = $servicesItem->value ?? [];
-        if (!isset($servicesV['items']) || !is_array($servicesV['items'])) {
-            $servicesV['items'] = [];
-        }
-
-        $whyItem = $this->firstHomeSetting('why_choose_us_home', $settingType);
-        $whyChooseUsV = $whyItem ? $whyItem->value : [];
-        if (!isset($whyChooseUsV['items']) || !is_array($whyChooseUsV['items'])) {
-            $whyChooseUsV['items'] = [];
-        }
-        $whyChooseUsV['currentImageUrl'] = !empty($whyChooseUsV['image']) ? asset($whyChooseUsV['image']) : null;
-
-        $testimonialsItem = $this->firstHomeSetting('testimonials_home', $settingType);
-        $testimonialsV = $testimonialsItem ? $testimonialsItem->value : [];
-        if (!isset($testimonialsV['items']) || !is_array($testimonialsV['items'])) {
-            $testimonialsV['items'] = [];
-        }
-
-        $faqItem = $this->firstHomeSetting('faq_home', $settingType);
-        $faqV = $faqItem ? $faqItem->value : [];
-        if (!isset($faqV['items']) || !is_array($faqV['items'])) {
-            $faqV['items'] = [];
-        }
-
-        // Extra tabs moved from Trang Chủ to Cấu Hình Chung
-        $utilitiesTabData = $this->getHomeSectionData('utilities', $settingType);
         return view(module() . '.main', compact(
             'item',
             'currentLogoUrl',
             'currentLogoBlackUrl',
             'currentFaviconUrl',
-            'currentBannerSlideUrl',
-            'currentBannerScheduleUrl',
-            'currentBannerAppointmentUrl',
-            'currentBannerWhyUsUrl',
-            'currentBannerPatientsUrl',
-            'currentBannerWorkUrl',
-            'currentBannerDoctorUrl',
-            'currentBannerFaqUrl',
             'settingType',
             'topbarV',
-            'floatingV',
-            'servicesV',
-            'whyChooseUsV',
-            'testimonialsV',
-            'faqV',
-            'utilitiesTabData'
+            'floatingV'
         ));
     }
 
@@ -133,6 +83,7 @@ class SettingController extends Controller
             'description'           => ['nullable', 'string'],
             'copyright'             => ['nullable', 'string'],
             'map'                   => ['nullable', 'string'],
+            'website'               => ['nullable', 'string', 'max:500'],
             // Email group
             'email_icon'            => ['nullable', 'string'],
             'email_title'           => ['nullable', 'string'],
@@ -177,6 +128,7 @@ class SettingController extends Controller
             'description'           => $data['description'] ?? $v['description'] ?? null,
             'copyright'             => $data['copyright'] ?? $v['copyright'] ?? null,
             'map'                   => $data['map'] ?? $v['map'] ?? null,
+            'website'               => $data['website'] ?? $v['website'] ?? null,
             // Email group
             'email_icon'            => $data['email_icon'] ?? $v['email_icon'] ?? null,
             'email_title'           => $data['email_title'] ?? $v['email_title'] ?? null,
@@ -370,7 +322,7 @@ class SettingController extends Controller
             'items'             => ['nullable', 'array'],
             'items.*.title'     => ['nullable', 'string'],
             'items.*.description' => ['nullable', 'string'],
-            'items.*.doctor_text' => ['nullable', 'string'],
+            'items.*.support_text' => ['nullable', 'string'],
             'items.*.link'      => ['nullable', 'string'],
         ]);
 
@@ -383,13 +335,13 @@ class SettingController extends Controller
 
         if (!empty($data['items']) && is_array($data['items'])) {
             foreach ($data['items'] as $itemData) {
-                if (empty($itemData['title']) && empty($itemData['description']) && empty($itemData['doctor_text']) && empty($itemData['link'])) {
+                if (empty($itemData['title']) && empty($itemData['description']) && empty($itemData['support_text']) && empty($itemData['link'])) {
                     continue;
                 }
                 $payload['items'][] = [
                     'title'       => $itemData['title'] ?? '',
                     'description' => $itemData['description'] ?? '',
-                    'doctor_text' => $itemData['doctor_text'] ?? '',
+                    'support_text' => $itemData['support_text'] ?? '',
                     'link'        => $itemData['link'] ?? '',
                 ];
             }
@@ -503,8 +455,8 @@ class SettingController extends Controller
             'percent'           => ['nullable', 'string'],
             'percent_text'      => ['nullable', 'string'],
             'percent_link'      => ['nullable', 'string'],
-            'patient_title'     => ['nullable', 'string'],
-            'patient_des'       => ['nullable', 'string'],
+            'traveler_title'    => ['nullable', 'string'],
+            'traveler_des'      => ['nullable', 'string'],
             'banner_hero_file'  => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:10240'],
             'remove_banner_hero_file' => ['nullable', 'boolean'],
         ]);
@@ -522,8 +474,8 @@ class SettingController extends Controller
             'percent'           => $data['percent'] ?? null,
             'percent_text'      => $data['percent_text'] ?? null,
             'percent_link'      => $data['percent_link'] ?? null,
-            'patient_title'     => $data['patient_title'] ?? null,
-            'patient_des'       => $data['patient_des'] ?? null,
+            'traveler_title'    => $data['traveler_title'] ?? null,
+            'traveler_des'      => $data['traveler_des'] ?? null,
         ]);
 
         // Handle file upload
@@ -840,11 +792,11 @@ class SettingController extends Controller
 
         // Ensure we always have 8 items for the view, even if empty
         if (!isset($v['items']) || !is_array($v['items'])) {
-            $v['items'] = array_fill(0, 8, ['title' => '', 'description' => '', 'doctor_text' => '', 'link' => '']);
+            $v['items'] = array_fill(0, 8, ['title' => '', 'description' => '', 'support_text' => '', 'link' => '']);
         } else {
             // Pad to 8 items if fewer exist
             while (count($v['items']) < 8) {
-                $v['items'][] = ['title' => '', 'description' => '', 'doctor_text' => '', 'link' => ''];
+                $v['items'][] = ['title' => '', 'description' => '', 'support_text' => '', 'link' => ''];
             }
         }
 
@@ -1037,7 +989,7 @@ class SettingController extends Controller
         $savedItem = $this->updateOrCreateHomeSetting('specialists_home', $payload, $settingType);
 
         return response()->json([
-            'message' => 'Đã lưu cài đặt bác sĩ.',
+            'message' => 'Đã lưu cài đặt chuyên gia.',
             'key'     => $savedItem->key,
             'value'   => $payload,
         ]);
@@ -1254,106 +1206,6 @@ class SettingController extends Controller
 
         return response()->json([
             'message' => 'Đã lưu cài đặt cách thức hoạt động.',
-            'key'     => $savedItem->key,
-            'value'   => $payload,
-        ]);
-    }
-
-    public function doctor()
-    {
-        $item = Setting::where('key', 'doctor_home')->first();
-        $v = $item ? $item->value : [];
-
-        if (!isset($v['skills']) || !is_array($v['skills'])) {
-            $v['skills'] = [];
-        }
-        if (!isset($v['achievements']) || !is_array($v['achievements'])) {
-            $v['achievements'] = [];
-        }
-
-        return view('setting.doctor', compact('v'));
-    }
-
-    public function updateDoctor(Request $request)
-    {
-        $settingType = $this->resolveHomeSettingType($request->input('type'));
-        $data = $request->validate([
-            'title'             => ['nullable', 'string'],
-            'doctor_name'       => ['nullable', 'string'],
-            'description'       => ['nullable', 'string'],
-            'skills_header'     => ['nullable', 'string'],
-            'image_file'        => ['nullable', 'image', 'max:2048'],
-            // Experience
-            'experience.number' => ['nullable', 'string'],
-            'experience.label'  => ['nullable', 'string'],
-            // Dynamic Skills
-            'skills.*'          => ['nullable', 'string'],
-            // Dynamic Achievements
-            'achievements.*.title'       => ['nullable', 'string'],
-            'achievements.*.subtitle'    => ['nullable', 'string'],
-            'achievements.*.link_text'   => ['nullable', 'string'],
-            'achievement_images.*'       => ['nullable', 'image', 'max:2048'],
-        ]);
-
-        $item = $this->firstHomeSetting('doctor_home', $settingType);
-        $v = $item ? $item->value : [];
-
-        $payload = [
-            'title'         => $data['title'] ?? '',
-            'doctor_name'   => $data['doctor_name'] ?? '',
-            'description'   => $data['description'] ?? '',
-            'skills_header' => $data['skills_header'] ?? '',
-            'image'         => $v['image'] ?? '',
-            'experience'    => [
-                'number' => $data['experience']['number'] ?? '',
-                'label'  => $data['experience']['label'] ?? '',
-            ],
-            'skills'        => array_values($data['skills'] ?? []),
-            'achievements'  => []
-        ];
-
-        // Handle Main Image
-        if ($request->hasFile('image_file')) {
-            if (!empty($v['image']) && file_exists(public_path($v['image']))) {
-                @unlink(public_path($v['image']));
-            }
-            $file = $request->file('image_file');
-            $filename = 'doctor_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/settings'), $filename);
-            $payload['image'] = 'uploads/settings/' . $filename;
-        }
-
-        // Handle Dynamic Achievements
-        if (isset($request->achievements)) {
-            $imgs = $request->file('achievement_images') ?? [];
-            foreach ($request->achievements as $index => $ach) {
-                // Keep old image or get new one
-                $imgPath = $v['achievements'][$index]['image'] ?? '';
-
-                if (isset($imgs[$index])) {
-                    // Delete old
-                    if (!empty($imgPath) && file_exists(public_path($imgPath))) {
-                        @unlink(public_path($imgPath));
-                    }
-                    $file = $imgs[$index];
-                    $filename = 'achievement_' . $index . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('uploads/settings'), $filename);
-                    $imgPath = 'uploads/settings/' . $filename;
-                }
-
-                $payload['achievements'][] = [
-                    'image'     => $imgPath,
-                    'title'     => $ach['title'] ?? '',
-                    'subtitle'  => $ach['subtitle'] ?? '',
-                    'link_text' => $ach['link_text'] ?? '',
-                ];
-            }
-        }
-
-        $savedItem = $this->updateOrCreateHomeSetting('doctor_home', $payload, $settingType);
-
-        return response()->json([
-            'message' => 'Đã lưu cài đặt bác sĩ.',
             'key'     => $savedItem->key,
             'value'   => $payload,
         ]);
@@ -1613,8 +1465,8 @@ class SettingController extends Controller
             'time.label'           => ['nullable', 'string'],
             'time.value'           => ['nullable', 'string'],
             // Appointment
-            'appointment_btn.text' => ['nullable', 'string'],
-            'appointment_btn.link' => ['nullable', 'string'],
+            'contact_btn.text' => ['nullable', 'string'],
+            'contact_btn.link' => ['nullable', 'string'],
             // Map
             'map_iframe'           => ['nullable', 'string'],
         ]);
@@ -1638,9 +1490,9 @@ class SettingController extends Controller
                 'label' => $data['time']['label'] ?? '',
                 'value' => $data['time']['value'] ?? '',
             ],
-            'appointment_btn' => [
-                'text'  => $data['appointment_btn']['text'] ?? '',
-                'link'  => $data['appointment_btn']['link'] ?? '',
+            'contact_btn' => [
+                'text'  => $data['contact_btn']['text'] ?? '',
+                'link'  => $data['contact_btn']['link'] ?? '',
             ],
             'map_iframe'      => $data['map_iframe'] ?? '',
         ];
@@ -1760,25 +1612,28 @@ class SettingController extends Controller
     {
         $settingType = $this->resolveHomeSettingType($request->input('type'));
         $data = $request->validate([
+            'title' => ['nullable', 'string', 'max:255'],
+            'sub_title' => ['nullable', 'string', 'max:255'],
             'banner_hero_file' => ['nullable', 'image', 'max:5120'],
+            'remove_banner_hero_file' => ['nullable', 'boolean'],
         ]);
 
         $item = $this->firstOrCreateHomeSetting('service_hero', $settingType);
         $v = $item->value ?? [];
 
         $payload = [
+            'title' => $data['title'] ?? $v['title'] ?? '',
+            'sub_title' => $data['sub_title'] ?? $v['sub_title'] ?? '',
             'banner_hero' => $v['banner_hero'] ?? '',
         ];
 
-        if ($request->hasFile('banner_hero_file')) {
-            if (!empty($v['banner_hero']) && file_exists(public_path($v['banner_hero']))) {
-                @unlink(public_path($v['banner_hero']));
-            }
-            $file = $request->file('banner_hero_file');
-            $filename = 'service_hero_banner_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/settings'), $filename);
-            $payload['banner_hero'] = 'uploads/settings/' . $filename;
-        }
+        $payload['banner_hero'] = $this->updatePublicSettingImage(
+            $request,
+            'banner_hero_file',
+            'remove_banner_hero_file',
+            $v['banner_hero'] ?? '',
+            'service_hero_banner'
+        );
 
         $savedItem = $this->updateOrCreateHomeSetting('service_hero', $payload, $settingType);
 
@@ -1816,6 +1671,8 @@ class SettingController extends Controller
 
             'items.*.image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
             'items.*.image_url' => ['nullable', 'string'],
+            'items.*.original_image_url' => ['nullable', 'string'],
+            'items.*.remove_image' => ['nullable', 'boolean'],
         ]);
 
         $payload = [
@@ -1827,17 +1684,30 @@ class SettingController extends Controller
 
         foreach (($data['items'] ?? []) as $index => $it) {
             $imageUrl = $it['image_url'] ?? '';
+            $originalImageUrl = $it['original_image_url'] ?? '';
 
             if (!empty($imageUrl)) {
                 $parsedPath = parse_url($imageUrl, PHP_URL_PATH);
                 $imageUrl = ltrim($parsedPath, '/');
             }
 
-            if ($request->hasFile("items.$index.image")) {
-                if (!empty($imageUrl) && file_exists(public_path($imageUrl))) {
-                    @unlink(public_path($imageUrl));
-                }
+            if (!empty($originalImageUrl)) {
+                $originalImageUrl = ltrim((string) parse_url($originalImageUrl, PHP_URL_PATH), '/');
+            }
 
+            $shouldRemoveImage = (bool) ($it['remove_image'] ?? false);
+
+            if (($shouldRemoveImage || $request->hasFile("items.$index.image"))
+                && str_starts_with($originalImageUrl, 'uploads/')
+                && is_file(public_path($originalImageUrl))) {
+                unlink(public_path($originalImageUrl));
+            }
+
+            if ($shouldRemoveImage) {
+                $imageUrl = '';
+            }
+
+            if ($request->hasFile("items.$index.image")) {
                 $file = $request->file("items.$index.image");
                 $filename = 'plan_' . $index . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/settings'), $filename);
@@ -1888,9 +1758,9 @@ class SettingController extends Controller
      */
     private function resolveHomeSettingType(?string $type = null): string
     {
-        $resolved = strtolower(trim((string) ($type ?? request('type', 'clinic'))));
+        $resolved = strtolower(trim((string) ($type ?? request('type', 'travel'))));
 
-        return array_key_exists($resolved, $this->homeSettingTypes) ? $resolved : 'clinic';
+        return array_key_exists($resolved, $this->homeSettingTypes) ? $resolved : 'travel';
     }
 
     private function getTypedHomeSettingKey(string $baseKey, ?string $type = null): string
@@ -1913,7 +1783,15 @@ class SettingController extends Controller
             return $existing;
         }
 
-        $legacy = Setting::where('key', $baseKey)->first();
+        $legacy = Setting::whereIn('key', [
+            $baseKey,
+            $baseKey . '_golfnity',
+            $baseKey . '_clinic',
+            $baseKey . '_rac',
+        ])->orderByRaw(
+            "CASE WHEN `key` = ? THEN 0 WHEN `key` = ? THEN 1 ELSE 2 END",
+            [$baseKey, $baseKey . '_golfnity']
+        )->first();
 
         return Setting::create([
             'key' => $typedKey,
@@ -2029,8 +1907,8 @@ class SettingController extends Controller
                 }
                 return ['v' => $v];
 
-            case 'doctor':
-                $item = $this->firstHomeSetting('doctor_home', $type);
+            case 'expert':
+                $item = $this->firstHomeSetting('expert_home', $type);
                 $v = $item ? $item->value : [];
                 if (!isset($v['skills']) || !is_array($v['skills'])) {
                     $v['skills'] = [];
@@ -2159,25 +2037,28 @@ class SettingController extends Controller
     {
         $settingType = $this->resolveHomeSettingType($request->input('type'));
         $data = $request->validate([
+            'title' => ['nullable', 'string'],
+            'sub_title' => ['nullable', 'string'],
             'banner_hero_file' => ['nullable', 'image', 'max:5120'],
+            'remove_banner_hero_file' => ['nullable', 'boolean'],
         ]);
 
         $item = $this->firstOrCreateHomeSetting('contact_page_hero', $settingType);
         $v = $item->value ?? [];
 
         $payload = [
+            'title' => $data['title'] ?? '',
+            'sub_title' => $data['sub_title'] ?? '',
             'banner_hero' => $v['banner_hero'] ?? '',
         ];
 
-        if ($request->hasFile('banner_hero_file')) {
-            if (!empty($v['banner_hero']) && file_exists(public_path($v['banner_hero']))) {
-                @unlink(public_path($v['banner_hero']));
-            }
-            $file = $request->file('banner_hero_file');
-            $filename = 'contact_hero_banner_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/settings'), $filename);
-            $payload['banner_hero'] = 'uploads/settings/' . $filename;
-        }
+        $payload['banner_hero'] = $this->updatePublicSettingImage(
+            $request,
+            'banner_hero_file',
+            'remove_banner_hero_file',
+            $v['banner_hero'] ?? '',
+            'contact_hero_banner'
+        );
 
         $savedItem = $this->updateOrCreateHomeSetting('contact_page_hero', $payload, $settingType);
 
@@ -2192,6 +2073,8 @@ class SettingController extends Controller
     {
         $settingType = $this->resolveHomeSettingType($request->input('type'));
         $data = $request->validate([
+            'info_title'           => ['nullable', 'string'],
+            'info_description'     => ['nullable', 'string'],
             'title'                => ['nullable', 'string'],
             'description'          => ['nullable', 'string'],
             'address.label'        => ['nullable', 'string'],
@@ -2205,13 +2088,15 @@ class SettingController extends Controller
             'stats_text'           => ['nullable', 'string'],
             'rating.score'         => ['nullable', 'string'],
             'rating.text'          => ['nullable', 'string'],
-            'appointment_btn.text' => ['nullable', 'string'],
-            'appointment_btn.link' => ['nullable', 'string'],
+            'contact_btn.text' => ['nullable', 'string'],
+            'contact_btn.link' => ['nullable', 'string'],
             'form_title'           => ['nullable', 'string'],
             'form_subtitle'        => ['nullable', 'string'],
         ]);
 
         $payload = [
+            'info_title'      => $data['info_title'] ?? '',
+            'info_description' => $data['info_description'] ?? '',
             'title'           => $data['title'] ?? '',
             'description'     => $data['description'] ?? '',
             'address'         => ['label' => $data['address']['label'] ?? '', 'value' => $data['address']['value'] ?? ''],
@@ -2220,7 +2105,7 @@ class SettingController extends Controller
             'time'            => ['label' => $data['time']['label'] ?? '',    'value' => $data['time']['value'] ?? ''],
             'stats_text'      => $data['stats_text'] ?? '',
             'rating'          => ['score' => $data['rating']['score'] ?? '', 'text' => $data['rating']['text'] ?? ''],
-            'appointment_btn' => ['text' => $data['appointment_btn']['text'] ?? '', 'link' => $data['appointment_btn']['link'] ?? ''],
+            'contact_btn' => ['text' => $data['contact_btn']['text'] ?? '', 'link' => $data['contact_btn']['link'] ?? ''],
             'form_title'      => $data['form_title'] ?? '',
             'form_subtitle'   => $data['form_subtitle'] ?? '',
         ];
@@ -2276,11 +2161,11 @@ class SettingController extends Controller
     {
         $settingType  = $this->resolveHomeSettingType();
         $sectionsList = [
-            ['key' => 'hero',           'label' => 'Phần Đầu'],
-            ['key' => 'gallery',        'label' => 'Thư Viện Ảnh'],
-            ['key' => 'vision_mission', 'label' => 'Tầm Nhìn & Sứ Mệnh'],
-            ['key' => 'consultation',   'label' => 'Đặt Lịch Tư Vấn'],
-            ['key' => 'insurance',      'label' => 'Thông Tin Bảo Hiểm'],
+            ['key' => 'hero',         'label' => 'Phần Đầu'],
+            ['key' => 'gallery',      'label' => 'Thư Viện Ảnh'],
+            ['key' => 'intro',        'label' => 'Nội Dung Giới Thiệu'],
+            ['key' => 'values',       'label' => 'Giá Trị Nổi Bật'],
+            ['key' => 'consultation', 'label' => 'CTA Booking'],
         ];
         $allowed = array_column($sectionsList, 'key');
         $section = request('section', 'hero');
@@ -2290,10 +2175,29 @@ class SettingController extends Controller
             ? (function_exists('normalize_image_url') ? normalize_image_url($path, 'setting') : $path)
             : null;
 
+        $legacyVisionMission = $this->firstHomeSetting('about_page_vision_mission', $settingType)?->value ?? [];
+        $legacyBySection = [
+            'intro' => array_intersect_key($legacyVisionMission, array_flip([
+                'subtitle', 'title', 'description', 'button_text', 'button_link',
+            ])),
+            'values' => array_intersect_key($legacyVisionMission, array_flip([
+                'choose_subtitle', 'choose_title', 'choose_description', 'items',
+            ])),
+        ];
+
         $sectionsData = [];
         foreach ($sectionsList as $listItem) {
             $key         = $listItem['key'];
-            $settingItem = $this->firstOrCreateHomeSetting('about_page_' . $key, $settingType);
+            $settingItem = $this->firstHomeSetting('about_page_' . $key, $settingType);
+
+            if (!$settingItem) {
+                $settingItem = $this->updateOrCreateHomeSetting(
+                    'about_page_' . $key,
+                    $legacyBySection[$key] ?? [],
+                    $settingType
+                );
+            }
+
             $v           = $settingItem->value ?? [];
 
             if ($key === 'hero') {
@@ -2309,25 +2213,22 @@ class SettingController extends Controller
                     'images' => array_map(fn($p) => ['path' => $p, 'url' => $normalize($p)], $images),
                     'v'      => $v,
                 ];
-            } elseif ($key === 'vision_mission') {
+            } elseif ($key === 'intro') {
+                $sectionsData[$key] = [
+                    'item' => $settingItem,
+                    'v'    => $v,
+                ];
+            } elseif ($key === 'values') {
                 if (!isset($v['items']) || !is_array($v['items'])) $v['items'] = [];
                 $sectionsData[$key] = [
-                    'item'            => $settingItem,
-                    'currentImageUrl' => $normalize($v['image'] ?? null),
-                    'v'               => $v,
+                    'item' => $settingItem,
+                    'v'    => $v,
                 ];
             } elseif ($key === 'consultation') {
                 $sectionsData[$key] = [
                     'item'            => $settingItem,
                     'currentImageUrl' => $normalize($v['image'] ?? null),
                     'v'               => $v,
-                ];
-            } elseif ($key === 'insurance') {
-                $logos = $v['logos'] ?? [];
-                $sectionsData[$key] = [
-                    'item'  => $settingItem,
-                    'logos' => array_map(fn($p) => ['path' => $p, 'url' => $normalize($p)], $logos),
-                    'v'     => $v,
                 ];
             }
         }
@@ -2344,19 +2245,29 @@ class SettingController extends Controller
     public function updateAboutHero(Request $request)
     {
         $settingType = $this->resolveHomeSettingType($request->input('type'));
-        $request->validate(['banner_hero_file' => ['nullable', 'image', 'max:5120']]);
+        $data = $request->validate([
+            'title' => ['nullable', 'string', 'max:255'],
+            'sub_title' => ['nullable', 'string', 'max:255'],
+            'banner_hero_file' => ['nullable', 'image', 'max:5120'],
+            'remove_banner_hero_file' => ['nullable', 'boolean'],
+        ]);
         $item = $this->firstOrCreateHomeSetting('about_page_hero', $settingType);
         $v = $item->value ?? [];
-        $payload = ['banner_hero' => $v['banner_hero'] ?? ''];
-        if ($request->hasFile('banner_hero_file')) {
-            if (!empty($v['banner_hero']) && file_exists(public_path($v['banner_hero']))) @unlink(public_path($v['banner_hero']));
-            $file = $request->file('banner_hero_file');
-            $filename = 'about_hero_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/settings'), $filename);
-            $payload['banner_hero'] = 'uploads/settings/' . $filename;
-        }
+        $payload = [
+            'title' => trim((string) ($data['title'] ?? '')),
+            'sub_title' => trim((string) ($data['sub_title'] ?? '')),
+            'banner_hero' => $v['banner_hero'] ?? '',
+        ];
+        $payload['banner_hero'] = $this->updatePublicSettingImage(
+            $request,
+            'banner_hero_file',
+            'remove_banner_hero_file',
+            $v['banner_hero'] ?? '',
+            'about_hero'
+        );
         $saved = $this->updateOrCreateHomeSetting('about_page_hero', $payload, $settingType);
-        return response()->json(['message' => 'Đã lưu phần đầu.', 'key' => $saved->key, 'value' => $payload]);
+
+        return $this->aboutUpdateResponse('Đã lưu phần đầu.', $saved, 'hero', $settingType);
     }
 
     public function updateAboutGallery(Request $request)
@@ -2410,117 +2321,149 @@ class SettingController extends Controller
         return response()->json(['message' => 'Đã xoá ảnh khỏi thư viện.', 'key' => $saved->key, 'value' => $payload]);
     }
 
-    public function updateAboutVisionMission(Request $request)
+    public function updateAboutIntro(Request $request)
     {
         $settingType = $this->resolveHomeSettingType($request->input('type'));
-        $request->validate([
-            'subtitle'            => ['nullable', 'string'],
-            'title'               => ['nullable', 'string'],
-            'description'         => ['nullable', 'string'],
-            'vm_image'            => ['nullable', 'image', 'max:5120'],
+        $data = $request->validate([
+            'subtitle'          => ['nullable', 'string'],
+            'title'             => ['nullable', 'string'],
+            'description'       => ['nullable', 'string'],
+            'button_text'       => ['nullable', 'string', 'max:100'],
+            'button_link'       => ['nullable', 'string', 'max:500'],
+        ]);
+        $payload = [
+            'subtitle'    => trim((string) ($data['subtitle'] ?? '')),
+            'title'       => trim((string) ($data['title'] ?? '')),
+            'description' => trim((string) ($data['description'] ?? '')),
+            'button_text' => trim((string) ($data['button_text'] ?? '')),
+            'button_link' => trim((string) ($data['button_link'] ?? '')),
+        ];
+        $saved = $this->updateOrCreateHomeSetting('about_page_intro', $payload, $settingType);
+
+        return $this->aboutUpdateResponse('Đã lưu nội dung giới thiệu.', $saved, 'intro', $settingType);
+    }
+
+    public function updateAboutValues(Request $request)
+    {
+        $settingType = $this->resolveHomeSettingType($request->input('type'));
+        $data = $request->validate([
+            'choose_subtitle'     => ['nullable', 'string'],
+            'choose_title'        => ['nullable', 'string'],
+            'choose_description'  => ['nullable', 'string'],
+            'items'               => ['nullable', 'array'],
             'items.*.icon'        => ['nullable', 'string'],
             'items.*.title'       => ['nullable', 'string'],
             'items.*.description' => ['nullable', 'string'],
         ]);
-        $item = $this->firstOrCreateHomeSetting('about_page_vision_mission', $settingType);
-        $v = $item->value ?? [];
+
         $payload = [
-            'subtitle'    => $request->input('subtitle', $v['subtitle'] ?? ''),
-            'title'       => $request->input('title', $v['title'] ?? ''),
-            'description' => $request->input('description', $v['description'] ?? ''),
-            'image'       => $v['image'] ?? '',
-            'items'       => [],
+            'choose_subtitle'    => trim((string) ($data['choose_subtitle'] ?? '')),
+            'choose_title'       => trim((string) ($data['choose_title'] ?? '')),
+            'choose_description' => trim((string) ($data['choose_description'] ?? '')),
+            'items'              => [],
         ];
-        if ($request->hasFile('vm_image')) {
-            if (!empty($v['image']) && file_exists(public_path($v['image']))) @unlink(public_path($v['image']));
-            $file = $request->file('vm_image');
-            $filename = 'about_vision_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/settings'), $filename);
-            $payload['image'] = 'uploads/settings/' . $filename;
+
+        foreach ($data['items'] ?? [] as $it) {
+            $payload['items'][] = [
+                'icon' => trim((string) ($it['icon'] ?? '')),
+                'title' => trim((string) ($it['title'] ?? '')),
+                'description' => trim((string) ($it['description'] ?? '')),
+            ];
         }
-        foreach ($request->input('items', []) as $it) {
-            $payload['items'][] = ['icon' => $it['icon'] ?? '', 'title' => $it['title'] ?? '', 'description' => $it['description'] ?? ''];
-        }
-        $saved = $this->updateOrCreateHomeSetting('about_page_vision_mission', $payload, $settingType);
-        return response()->json(['message' => 'Đã lưu tầm nhìn & sứ mệnh.', 'key' => $saved->key, 'value' => $payload]);
+
+        $saved = $this->updateOrCreateHomeSetting('about_page_values', $payload, $settingType);
+
+        return $this->aboutUpdateResponse('Đã lưu giá trị nổi bật.', $saved, 'values', $settingType);
     }
 
     public function updateAboutConsultation(Request $request)
     {
         $settingType = $this->resolveHomeSettingType($request->input('type'));
-        $request->validate([
+        $data = $request->validate([
+            'subtitle'   => ['nullable', 'string'],
             'title'      => ['nullable', 'string'],
             'btn_text'   => ['nullable', 'string'],
             'btn_link'   => ['nullable', 'string'],
+            'decorative_text' => ['nullable', 'string'],
             'consultation_image' => ['nullable', 'image', 'max:5120'],
+            'remove_consultation_image' => ['nullable', 'boolean'],
         ]);
         $item = $this->firstOrCreateHomeSetting('about_page_consultation', $settingType);
         $v = $item->value ?? [];
         $payload = [
-            'title'    => $request->input('title', $v['title'] ?? ''),
-            'btn_text' => $request->input('btn_text', $v['btn_text'] ?? ''),
-            'btn_link' => $request->input('btn_link', $v['btn_link'] ?? ''),
+            'subtitle' => trim((string) ($data['subtitle'] ?? '')),
+            'title'    => trim((string) ($data['title'] ?? '')),
+            'btn_text' => trim((string) ($data['btn_text'] ?? '')),
+            'btn_link' => trim((string) ($data['btn_link'] ?? '')),
+            'decorative_text' => trim((string) ($data['decorative_text'] ?? '')),
             'image'    => $v['image'] ?? '',
         ];
-        if ($request->hasFile('consultation_image')) {
-            if (!empty($v['image']) && file_exists(public_path($v['image']))) @unlink(public_path($v['image']));
-            $file = $request->file('consultation_image');
-            $filename = 'about_consultation_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/settings'), $filename);
-            $payload['image'] = 'uploads/settings/' . $filename;
-        }
+        $payload['image'] = $this->updatePublicSettingImage(
+            $request,
+            'consultation_image',
+            'remove_consultation_image',
+            $v['image'] ?? '',
+            'about_consultation'
+        );
         $saved = $this->updateOrCreateHomeSetting('about_page_consultation', $payload, $settingType);
-        return response()->json(['message' => 'Đã lưu đặt lịch tư vấn.', 'key' => $saved->key, 'value' => $payload]);
+
+        return $this->aboutUpdateResponse('Đã lưu CTA Booking.', $saved, 'consultation', $settingType);
     }
 
-    public function updateAboutInsurance(Request $request)
+    private function aboutUpdateResponse(string $message, Setting $saved, string $section, string $settingType)
     {
-        $settingType = $this->resolveHomeSettingType($request->input('type'));
-        $request->validate([
-            'title'        => ['nullable', 'string'],
-            'logo_files.*' => ['nullable', 'image', 'max:5120'],
-        ]);
-        $item = $this->firstOrCreateHomeSetting('about_page_insurance', $settingType);
-        $v = $item->value ?? [];
-        $existingLogos = $v['logos'] ?? [];
+        $saved->refresh();
 
-        // 1) Filter existing logos first (keep only what user wants)
-        $keepPaths = $request->input('keep_logos', []);
-        if (!empty($keepPaths)) {
-            $existingLogos = array_values(array_filter($existingLogos, fn($p) => in_array($p, $keepPaths)));
+        return response()->json([
+            'message' => $message,
+            'key' => $saved->key,
+            'value' => $saved->value ?? [],
+            'redirect_url' => panel_route('setting.aboutPage') . '?' . http_build_query([
+                'type' => $settingType,
+                'section' => $section,
+                'saved' => 1,
+            ]),
+        ]);
+    }
+
+    private function updatePublicSettingImage(
+        Request $request,
+        string $fileKey,
+        string $removeKey,
+        ?string $currentPath,
+        string $filenamePrefix
+    ): string {
+        $currentPath = trim((string) $currentPath);
+        $shouldRemove = $request->boolean($removeKey);
+        $hasNewFile = $request->hasFile($fileKey);
+
+        if (!$shouldRemove && !$hasNewFile) {
+            return $currentPath;
         }
 
-        // 2) Append newly uploaded logos
-        if ($request->hasFile('logo_files')) {
-            foreach ($request->file('logo_files') as $file) {
-                $filename = 'about_insurance_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/settings'), $filename);
-                $existingLogos[] = 'uploads/settings/' . $filename;
+        if ($currentPath !== '' && str_starts_with($currentPath, 'uploads/')) {
+            $absolutePath = public_path($currentPath);
+
+            if (is_file($absolutePath)) {
+                unlink($absolutePath);
             }
         }
 
-        $payload = ['title' => $request->input('title', $v['title'] ?? ''), 'logos' => $existingLogos];
-        $saved = $this->updateOrCreateHomeSetting('about_page_insurance', $payload, $settingType);
-        return response()->json(['message' => 'Đã lưu thông tin bảo hiểm.', 'key' => $saved->key, 'value' => $payload]);
-    }
-
-    public function removeAboutInsuranceLogo(Request $request)
-    {
-        $settingType = $this->resolveHomeSettingType($request->input('type'));
-        $request->validate(['path' => ['required', 'string']]);
-        $pathToRemove = $request->input('path');
-
-        $item = $this->firstOrCreateHomeSetting('about_page_insurance', $settingType);
-        $v = $item->value ?? [];
-        $logos = $v['logos'] ?? [];
-        $logos = array_values(array_filter($logos, fn($p) => $p !== $pathToRemove));
-
-        if (str_starts_with($pathToRemove, 'uploads/') && file_exists(public_path($pathToRemove))) {
-            @unlink(public_path($pathToRemove));
+        if (!$hasNewFile) {
+            return '';
         }
 
-        $payload = ['title' => $v['title'] ?? '', 'logos' => $logos];
-        $saved = $this->updateOrCreateHomeSetting('about_page_insurance', $payload, $settingType);
-        return response()->json(['message' => 'Đã xoá logo.', 'key' => $saved->key, 'value' => $payload]);
+        $file = $request->file($fileKey);
+        $filename = $filenamePrefix
+            . '_'
+            . now()->format('YmdHis')
+            . '_'
+            . Str::random(8)
+            . '.'
+            . strtolower($file->getClientOriginalExtension());
+
+        $file->move(public_path('uploads/settings'), $filename);
+
+        return 'uploads/settings/' . $filename;
     }
 }

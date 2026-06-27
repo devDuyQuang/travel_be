@@ -1,79 +1,111 @@
-<form action="{{ panel_route('setting.updateHero', $item->id ?? 1) }}" method="POST" enctype="multipart/form-data" class="ajax-form">
-  @csrf
-  @method('PUT')
-  <div class="row g-3">
-    <div class="col-md-12">
-      <div class="card shadow-none border bg-transparent">
-        <div class="card-header border-bottom">
-          <ul class="nav nav-tabs card-header-tabs" id="heroTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="hero-main-tab" data-bs-toggle="tab" data-bs-target="#hero-main" type="button" role="tab" aria-controls="hero-main" aria-selected="true">
-                Nội dung chính & Banner
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="hero-question-tab" data-bs-toggle="tab" data-bs-target="#hero-question" type="button" role="tab" aria-controls="hero-question" aria-selected="false">
-                Thông tin câu hỏi
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="hero-percent-tab" data-bs-toggle="tab" data-bs-target="#hero-percent" type="button" role="tab" aria-controls="hero-percent" aria-selected="false">
-                Tỷ lệ hài lòng
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="hero-patient-tab" data-bs-toggle="tab" data-bs-target="#hero-patient" type="button" role="tab" aria-controls="hero-patient" aria-selected="false">
-                Thông tin bệnh nhân
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="card-body p-3">
-          <div class="tab-content">
-            {{-- Tab: Nội dung chính & banner --}}
-            <div class="tab-pane fade show active" id="hero-main" role="tabpanel" aria-labelledby="hero-main-tab">
-              <div class="row g-3">
-                <div class="col-md-6"><x-input-field name="title" label="Tiêu đề chính" :value="old('title', data_get($item->value, 'title'))" /></div>
-                <div class="col-md-6"><x-input-field name="description" label="Mô tả" :value="old('description', data_get($item->value, 'description'))" /></div>
-                <div class="col-md-6"><x-input-field name="button_one_text" label="Text Button 1" :value="old('button_one_text', data_get($item->value, 'button_one_text'))" /></div>
-                <div class="col-md-6"><x-input-field name="button_one_link" label="Link Button 1" :value="old('button_one_link', data_get($item->value, 'button_one_link'))" /></div>
-                <div class="col-md-6"><x-input-field name="button_two_text" label="Text Button 2" :value="old('button_two_text', data_get($item->value, 'button_two_text'))" /></div>
-                <div class="col-md-6"><x-input-field name="button_two_link" label="Link Button 2" :value="old('button_two_link', data_get($item->value, 'button_two_link'))" /></div>
-                <div class="col-md-12"><x-file-input label="Banner Hero" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" /></div>
-              </div>
-            </div>
-
-            {{-- Tab: Thông tin câu hỏi --}}
-            <div class="tab-pane fade" id="hero-question" role="tabpanel" aria-labelledby="hero-question-tab">
-              <div class="row g-3">
-                <div class="col-md-12"><x-input-field name="question_title" label="Tiêu đề câu hỏi" :value="old('question_title', data_get($item->value, 'question_title'))" /></div>
-                <div class="col-md-12"><x-input-field name="question_email" label="Email nhận câu hỏi" :value="old('question_email', data_get($item->value, 'question_email'))" /></div>
-              </div>
-            </div>
-
-            {{-- Tab: Tỷ lệ hài lòng --}}
-            <div class="tab-pane fade" id="hero-percent" role="tabpanel" aria-labelledby="hero-percent-tab">
-              <div class="row g-3">
-                <div class="col-md-12"><x-input-field name="percent" label="Phần trăm (%)" :value="old('percent', data_get($item->value, 'percent'))" /></div>
-                <div class="col-md-12"><x-input-field name="percent_text" label="Text phần trăm" :value="old('percent_text', data_get($item->value, 'percent_text'))" /></div>
-                <div class="col-md-12"><x-input-field name="percent_link" label="Link phần trăm" :value="old('percent_link', data_get($item->value, 'percent_link'))" /></div>
-              </div>
-            </div>
-
-            {{-- Tab: Thông tin bệnh nhân --}}
-            <div class="tab-pane fade" id="hero-patient" role="tabpanel" aria-labelledby="hero-patient-tab">
-              <div class="row g-3">
-                <div class="col-md-6"><x-input-field name="patient_title" label="Tiêu đề bệnh nhân" :value="old('patient_title', data_get($item->value, 'patient_title'))" /></div>
-                <div class="col-md-6"><x-input-field name="patient_des" label="Mô tả bệnh nhân" :value="old('patient_des', data_get($item->value, 'patient_des'))" /></div>
-              </div>
-            </div>
+@php
+  $slides = collect($slides ?? [])->values();
+  if ($slides->isEmpty()) $slides = collect([[]]);
+@endphp
+<form action="{{ panel_route('setting.home.update', ['section' => 'hero']) }}" method="POST" enctype="multipart/form-data" class="ajax-form">
+  @csrf @method('PUT')
+  <div id="hero-slides" class="d-grid gap-3">
+    @foreach($slides as $index => $slide)
+      <div class="card shadow-none border hero-slide-item">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>
+            Slide <span class="slide-number">{{ $loop->iteration }}</span>
+            <span class="slide-title-summary text-muted fw-normal ms-2">
+              {{ !empty($slide['title']) ? '— ' . $slide['title'] : '— Chưa có tiêu đề' }}
+            </span>
+          </strong>
+          <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-secondary move-up">↑</button>
+            <button type="button" class="btn btn-outline-secondary move-down">↓</button>
+            <button type="button" class="btn btn-outline-danger remove-slide">Xoá</button>
           </div>
         </div>
+        <div class="card-body row g-3">
+          <input type="hidden" data-field="id" name="slides[{{ $index }}][id]" value="{{ $slide['id'] ?? '' }}">
+          <input type="hidden" data-field="sort" name="slides[{{ $index }}][sort]" value="{{ $slide['sort'] ?? $index }}">
+          <div class="col-md-3">
+            <input type="hidden" data-field="enabled" name="slides[{{ $index }}][enabled]" value="0">
+            <label class="form-check form-switch mt-4">
+              <input class="form-check-input" type="checkbox" data-field="enabled" name="slides[{{ $index }}][enabled]" value="1" @checked(($slide['enabled'] ?? true))>
+              <span class="form-check-label">Hiển thị slide</span>
+            </label>
+          </div>
+          <div class="col-md-9">
+            @include('setting.home.partials.image-field', [
+              'label' => 'Ảnh nền',
+              'current' => $slide['image'] ?? '',
+              'currentName' => "slides[$index][image]",
+              'fileName' => "slides[$index][image_file]",
+              'removeName' => "slides[$index][remove_image]",
+              'currentField' => 'image',
+              'fileField' => 'image_file',
+              'removeField' => 'remove_image',
+            ])
+            <div class="form-text">Khuyên dùng ảnh ngang 1920 × 1000 px, dung lượng dưới 2 MB; giữ vùng giữa đủ tối/thoáng để đọc chữ.</div>
+          </div>
+          <div class="col-md-4"><label class="form-label">Dòng giới thiệu</label><input class="form-control" data-field="subtitle" name="slides[{{ $index }}][subtitle]" value="{{ $slide['subtitle'] ?? '' }}"></div>
+          <div class="col-md-8"><label class="form-label">Tiêu đề chính</label><input class="form-control" data-field="title" name="slides[{{ $index }}][title]" value="{{ $slide['title'] ?? '' }}"></div>
+          <div class="col-12"><label class="form-label">Mô tả</label><textarea class="form-control" rows="2" data-field="description" name="slides[{{ $index }}][description]">{{ $slide['description'] ?? '' }}</textarea></div>
+          <div class="col-md-3"><label class="form-label">Dòng giá</label><input class="form-control" data-field="price_prefix" name="slides[{{ $index }}][price_prefix]" value="{{ $slide['price_prefix'] ?? '' }}"></div>
+          <div class="col-md-2"><label class="form-label">Đơn vị</label><input class="form-control" data-field="price_currency" name="slides[{{ $index }}][price_currency]" value="{{ $slide['price_currency'] ?? '' }}"></div>
+          <div class="col-md-2"><label class="form-label">Giá</label><input class="form-control" data-field="price" name="slides[{{ $index }}][price]" value="{{ $slide['price'] ?? '' }}"></div>
+          <div class="col-md-2"><label class="form-label">Hậu tố giá</label><input class="form-control" data-field="price_suffix" name="slides[{{ $index }}][price_suffix]" value="{{ $slide['price_suffix'] ?? '' }}"></div>
+          <div class="col-md-3"></div>
+          <div class="col-md-6"><label class="form-label">Nhãn nút</label><input class="form-control" data-field="button_text" name="slides[{{ $index }}][button_text]" value="{{ $slide['button_text'] ?? '' }}"></div>
+          <div class="col-md-6"><label class="form-label">Liên kết nút</label><input class="form-control" data-field="button_link" name="slides[{{ $index }}][button_link]" value="{{ $slide['button_link'] ?? '' }}"></div>
+        </div>
       </div>
-    </div>
-    <div class="col-12 mt-3 text-end">
-      <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
-      <button type="reset" class="btn btn-label-secondary">Hủy</button>
-    </div>
+    @endforeach
+  </div>
+  <div class="d-flex justify-content-between mt-3">
+    <button type="button" id="add-hero-slide" class="btn btn-outline-primary">Thêm slide</button>
+    <button class="btn btn-primary" type="submit">Lưu Banner chính</button>
   </div>
 </form>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const list = document.getElementById('hero-slides');
+  const add = document.getElementById('add-hero-slide');
+  if (!list || !add) return;
+  function reindex() {
+    list.querySelectorAll('.hero-slide-item').forEach((item, index) => {
+      item.querySelector('.slide-number').textContent = index + 1;
+      const title = item.querySelector('[data-field="title"]')?.value?.trim();
+      const summary = item.querySelector('.slide-title-summary');
+      if (summary) summary.textContent = title ? `— ${title}` : '— Chưa có tiêu đề';
+      item.querySelectorAll('[data-field]').forEach(input => {
+        input.name = `slides[${index}][${input.dataset.field}]`;
+        if (input.dataset.field === 'sort') input.value = index;
+      });
+    });
+  }
+  list.addEventListener('click', function (event) {
+    const button = event.target.closest('button');
+    const item = event.target.closest('.hero-slide-item');
+    if (!button || !item) return;
+    if (button.classList.contains('remove-slide')) item.remove();
+    if (button.classList.contains('move-up') && item.previousElementSibling) list.insertBefore(item, item.previousElementSibling);
+    if (button.classList.contains('move-down') && item.nextElementSibling) list.insertBefore(item.nextElementSibling, item);
+    reindex();
+  });
+  list.addEventListener('input', function (event) {
+    if (event.target.matches('[data-field="title"]')) reindex();
+  });
+  add.addEventListener('click', function () {
+    const template = list.querySelector('.hero-slide-item').cloneNode(true);
+    template.querySelectorAll('input, textarea').forEach(input => {
+      if (input.type === 'checkbox') input.checked = true;
+      else if (input.dataset.field === 'remove_image') input.value = '0';
+      else if (input.type !== 'hidden' || input.dataset.field !== 'enabled') input.value = '';
+    });
+    template.querySelectorAll('.homepage-image-preview').forEach(image => image.removeAttribute('src'));
+    template.querySelectorAll('.homepage-image-preview-wrap').forEach(wrap => wrap.classList.add('d-none'));
+    template.querySelectorAll('.form-text').forEach(el => el.remove());
+    list.appendChild(template);
+    reindex();
+  });
+  reindex();
+});
+</script>
+@endpush

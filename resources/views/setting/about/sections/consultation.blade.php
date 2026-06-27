@@ -1,4 +1,4 @@
-<form action="{{ panel_route('setting.updateAboutConsultation') }}" method="POST" enctype="multipart/form-data" class="ajax-form">
+<form action="{{ panel_route('setting.updateAboutConsultation') }}" method="POST" enctype="multipart/form-data" class="ajax-form" data-require-persist="true">
   @csrf
   @method('PUT')
   @php $vc = $v ?? []; @endphp
@@ -19,17 +19,23 @@
           <div class="tab-content">
             <div class="tab-pane fade show active" id="consult-main" role="tabpanel">
               <div class="row g-3">
-                <div class="col-md-12">
-                  <x-input-field label="Tiêu đề" name="title" :value="$vc['title'] ?? ''" placeholder="Schedule Your Consultation Today!" />
+                <div class="col-md-6">
+                  <x-input-field label="Tiêu đề phụ" name="subtitle" :value="$vc['subtitle'] ?? ''" placeholder="Next Adventure Destination" />
                 </div>
                 <div class="col-md-6">
-                  <x-input-field label="Text nút (Button Text)" name="btn_text" :value="$vc['btn_text'] ?? ''" placeholder="Appointment" />
+                  <x-input-field label="Chữ trang trí lớn" name="decorative_text" :value="$vc['decorative_text'] ?? ''" placeholder="Explore The World" />
+                </div>
+                <div class="col-md-12">
+                  <x-input-field label="Tiêu đề" name="title" :value="$vc['title'] ?? ''" placeholder="Popular Travel Destinations Available Worldwide" />
+                </div>
+                <div class="col-md-6">
+                  <x-input-field label="Text nút (Button Text)" name="btn_text" :value="$vc['btn_text'] ?? ''" placeholder="Book Your Trip Now" />
                 </div>
                 <div class="col-md-6">
                   <x-input-field label="Link nút (Button Link)" name="btn_link" :value="$vc['btn_link'] ?? ''" placeholder="#" />
                 </div>
                 <div class="col-md-12">
-                <x-file-input label="Hình ảnh nền (1400×1020)" name="consultation_image" :multiple="false" :current-url="$currentImageUrl ?? null" />
+                <x-file-input label="Hình ảnh nền (1400×1020)" name="consultation_image" :multiple="false" :current-url="$currentImageUrl ?? null" remove-name="remove_consultation_image" />
                 </div>
               </div>
             </div>

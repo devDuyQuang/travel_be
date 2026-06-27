@@ -1338,53 +1338,6 @@
     }
   }
 
-  .doctor-action-icons {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .doctor-action-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, .08);
-    background: rgba(255, 255, 255, .03);
-    transition: transform .18s ease, background-color .18s ease, opacity .18s ease;
-  }
-
-  .doctor-action-icon .material-icons-outlined {
-    font-size: 20px;
-    line-height: 1;
-  }
-
-  .doctor-action-edit {
-    color: #22d3ee;
-  }
-
-  .doctor-action-delete {
-    color: #f87171;
-  }
-
-  .doctor-action-icon:hover {
-    opacity: .9;
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, .075);
-  }
-
-  .doctor-avatar {
-    width: 44px;
-    height: 44px;
-    object-fit: cover;
-    border-radius: 8px;
-    display: inline-block;
-  }
 </style>
 
 <style>

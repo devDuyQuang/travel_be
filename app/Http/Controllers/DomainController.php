@@ -193,7 +193,7 @@ class DomainController extends Controller
                     }
                 },
             ],
-            'type' => ['required', Rule::in(['clinic', 'RAC'])],
+            'type' => ['required', Rule::in(['travel'])],
         ];
     }
 

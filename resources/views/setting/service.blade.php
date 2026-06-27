@@ -7,8 +7,8 @@
 <main class="main-wrapper setting-page">
   <div class="main-content">
 @php
-  $settingType = $settingType ?? 'clinic';
-  $settingTypes = $settingTypes ?? ['clinic' => 'clinic', 'rac' => 'RAC'];
+  $settingType = 'travel';
+  $settingTypes = ['travel' => 'Travel'];
   $baseServiceUrl = panel_route('setting.service');
 @endphp
 
@@ -94,97 +94,13 @@
 @push('scripts')
 
 
-<!-- <style>
-  #v-pills-tab.nav-pills,
-  #v-pills-tab.nav-pills .nav-link {
-    text-align: left !important;
-  }
-  #v-pills-tab.nav-pills .nav-link {
-    display: block !important;
-    justify-content: flex-start !important;
-    font-size: 0.9rem;
-  }
-
-  /* Nav-tabs con: text có thể xuống hàng, nhưng dãy tab vẫn một hàng, cuộn ngang nếu thiếu chỗ */
-  .card-header .nav-tabs.card-header-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-  .card-header .nav-tabs.card-header-tabs .nav-link {
-    white-space: normal;
-    text-align: center;
-  }
-
-  /* Hero tabs: 4 mục chia 2 cột x 2 dòng, không cần thanh kéo ngang */
-  #heroTabs {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  #heroTabs .nav-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-    text-align: center;
-  }
-  #heroTabs .nav-link {
-    width: 100%;
-  }
-
-  /* Tiện ích: 4 tab chia 2 cột x 2 hàng */
-  #utilitiesTabs {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  #utilitiesTabs .nav-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-    text-align: center;
-  }
-  #utilitiesTabs .nav-link {
-    width: 100%;
-  }
-
-  /* Ý kiến khách hàng: 4 tab chia 2 cột x 2 hàng */
-  #testimonialsTabs {
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-  #testimonialsTabs .nav-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-    text-align: center;
-  }
-  #testimonialsTabs .nav-link {
-    width: 100%;
-  }
-
-  /* Doctor section: chỉ giữ border, bỏ hết màu nền bên trong */
-  .doctor-card,
-  .doctor-card .card-header,
-  .doctor-card .card-body,
-  .doctor-card .tab-pane {
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-
-  div.tab-content#home-sections-tabContent,
-  #home-sections-tabContent.tab-content,
-  #home-sections-tabContent {
-    padding: 0 !important;
-  }
-
-  /* Bỏ padding 1.5rem ở tab-content trong tất cả tab con (card-body .tab-content) */
-  #home-sections-tabContent .card-body .tab-content,
-  #home-sections-tabContent .card .tab-content {
-    padding: 0 !important;
-  }
-</style> -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const pre = document.getElementById('home-json-preview');
     const btn = document.getElementById('btn-clear-json');
     const wrapper = document.getElementById('home-json-wrapper');
     const section = wrapper ? wrapper.getAttribute('data-section') : null;
-    const type = wrapper ? (wrapper.getAttribute('data-type') || 'clinic') : 'clinic';
+    const type = wrapper ? (wrapper.getAttribute('data-type') || 'travel') : 'travel';
     let storageKey = section ? `home_json_${type}_${section}` : `home_json_${type}_preview`;
     const forms = document.querySelectorAll('#home-sections-tabContent form.ajax-form');
     const typeLinks = document.querySelectorAll('.setting-type-switch[data-type]');
@@ -202,7 +118,7 @@
 
     function updateTypeLinks(sectionKey) {
       typeLinks.forEach(link => {
-        const linkType = link.getAttribute('data-type') || 'clinic';
+        const linkType = link.getAttribute('data-type') || 'travel';
         link.setAttribute('href', `{{ $baseServiceUrl }}?type=${linkType}&section=${sectionKey || 'hero'}`);
       });
     }

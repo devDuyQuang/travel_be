@@ -58,6 +58,12 @@ class AppServiceProvider extends ServiceProvider
                         'icon'  => 'tabler-table',
                         'label' => 'Bảng Dữ Liệu',
                     ],
+                    [
+                        'route' => 'tag.index',
+                        'url'   => '/tag',
+                        'icon'  => 'tabler-category',
+                        'label' => 'Thẻ bài viết',
+                    ],
                 ],
             ],
             [
@@ -71,6 +77,30 @@ class AppServiceProvider extends ServiceProvider
                 'url'   => '/product',
                 'icon'  => 'tabler-package',
                 'label' => 'Quản Lý Sản Phẩm',
+            ],
+            [
+                'route' => 'booking.index',
+                'url'   => '/booking',
+                'icon'  => 'tabler-calendar-time',
+                'label' => 'Quản lý Booking',
+            ],
+            [
+                'route' => 'order.index',
+                'url'   => '/order',
+                'icon'  => 'tabler-package',
+                'label' => 'Quản lý Đơn hàng',
+            ],
+            [
+                'route' => 'team-member.index',
+                'url'   => '/team-member',
+                'icon'  => 'tabler-users',
+                'label' => 'Quản Lý Nhân Viên',
+            ],
+            [
+                'route' => 'faq.index',
+                'url'   => '/faq',
+                'icon'  => 'tabler-message',
+                'label' => 'Quản Lý FAQ',
             ],
               [
                 'route' => 'user.index',
@@ -143,145 +173,26 @@ class AppServiceProvider extends ServiceProvider
                         'icon'  => 'tabler-user-screen',
                         'label' => 'Giới Thiệu',
                     ],
+                    [
+                        'route' => null,
+                        'url'   => '/setting/page/blog',
+                        'icon'  => 'tabler-news',
+                        'label' => 'Tin tức',
+                    ],
+                    [
+                        'route' => null,
+                        'url'   => '/setting/page/shop',
+                        'icon'  => 'tabler-package',
+                        'label' => 'Cửa hàng',
+                    ],
+                    [
+                        'route' => null,
+                        'url'   => '/setting/page/faq',
+                        'icon'  => 'tabler-message',
+                        'label' => 'Câu hỏi thường gặp',
+                    ],
                 ],
             ],
         ];
     }
 }
-
-// 1 baảng role phân quyền in account
-
-
-
-
-
-
-
-// namespace App\Providers;
-
-// use Illuminate\Support\ServiceProvider;
-// use Illuminate\Support\Facades\View;
-// use Illuminate\Support\Facades\URL;
-// use Illuminate\Support\Str;
-
-// class AppServiceProvider extends ServiceProvider
-// {
-//     public function boot(): void
-//     {
-//         if (app()->environment('production')) {
-//             URL::forceScheme('https');
-//         }
-
-//         $host = request()->getHost();
-
-//         if (Str::startsWith($host, 'admin.')) {
-//             $base = Str::after($host, 'admin.');
-//             URL::defaults(['domain' => $base]);
-//         }
-
-//         if (Str::startsWith($host, 'api.')) {
-//             $base = Str::after($host, 'api.');
-//             URL::defaults(['domain' => $base]);
-//         }
-
-//         View::share('menus', $this->menus());
-//     }
-
-//     private function menus(): array
-//     {
-//         return [
-//             [
-//                 'route' => 'dashboard.index',
-//                 'url'   => '/dashboard',
-//                 'icon'  => 'tabler-smart-home',
-//                 'label' => 'Bảng Điều Khiển',
-//             ],
-//             [
-//                 'route' => 'post.index',
-//                 'url'   => '/post',
-//                 'icon'  => 'tabler-news',
-//                 'label' => 'Bài Viết',
-//             ],
-//             [
-//                 'route' => 'category.index',
-//                 'url'   => '/category',
-//                 'icon'  => 'tabler-layout-grid',
-//                 'label' => 'Danh Mục',
-//             ],
-//             [
-//                 'route' => 'doctor.index',
-//                 'url'   => '/doctor',
-//                 'icon'  => 'tabler-stethoscope',
-//                 'label' => 'Bác Sĩ',
-//             ],
-//             [
-//                 'route' => 'degree.index',
-//                 'url'   => '/degree',
-//                 'icon'  => 'tabler-medal',
-//                 'label' => 'Bằng Cấp',
-//             ],
-//             [
-//                 'route' => 'menu.index',
-//                 'url'   => '/menu',
-//                 'icon'  => 'tabler-menu-2',
-//                 'label' => 'Menu',
-//             ],
-//             [
-//                 'route' => 'comment.index',
-//                 'url'   => '/comment',
-//                 'icon'  => 'tabler-brand-hipchat',
-//                 'label' => 'Bình Luận',
-//             ],
-//             [
-//                 'route' => 'domain.index',
-//                 'url'   => '/domain',
-//                 'icon'  => 'tabler-world-www',
-//                 'label' => 'Domain',
-//             ],
-//             [
-//                 'route' => 'user.index',
-//                 'url'   => '/user',
-//                 'icon'  => 'tabler-users',
-//                 'label' => 'Thành Viên',
-//             ],
-//             [
-//                 'route' => 'setting.index',
-//                 'url'   => '/setting',
-//                 'icon'  => 'tabler-settings',
-//                 'label' => 'Cấu Hình Site',
-//                 'childrens' => [
-//                     [
-//                         'route' => 'setting.index',
-//                         'url'   => '/setting',
-//                         'icon'  => '',
-//                         'label' => 'Cấu Hình Chung',
-//                     ],
-//                     [
-//                         'route' => 'setting.home',
-//                         'url'   => '/setting/home',
-//                         'icon'  => '',
-//                         'label' => 'Cấu Hình Trang Chủ',
-//                     ],
-//                     [
-//                         'route' => 'setting.service',
-//                         'url'   => '/setting/service',
-//                         'icon'  => '',
-//                         'label' => 'Cấu Hình Dịch Vụ',
-//                     ],
-//                     [
-//                         'route' => 'setting.contactPage',
-//                         'url'   => '/setting/contact-page',
-//                         'icon'  => '',
-//                         'label' => 'Cấu Hình Liên Hệ',
-//                     ],
-//                     [
-//                         'route' => 'setting.aboutPage',
-//                         'url'   => '/setting/about-page',
-//                         'icon'  => '',
-//                         'label' => 'Cấu Hình Giới Thiệu',
-//                     ],
-//                 ]
-//             ],
-//         ];
-//     }
-// }

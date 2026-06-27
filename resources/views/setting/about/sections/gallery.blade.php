@@ -1,6 +1,6 @@
 <form method="POST" enctype="multipart/form-data" id="gallery-upload-form"
       data-action="{{ panel_route('setting.updateAboutGallery') }}"
-      data-type="{{ $settingType ?? 'clinic' }}">
+      data-type="travel">
   @csrf
   @method('PUT')
 
@@ -20,7 +20,7 @@
       </label>
       <div class="gallery-admin-strip" id="gallery-existing">
         @foreach($images ?? [] as $idx => $img)
-        <div class="gallery-admin-card gallery-item" data-path="{{ $img['path'] }}" data-type="{{ $settingType ?? 'clinic' }}">
+        <div class="gallery-admin-card gallery-item" data-path="{{ $img['path'] }}" data-type="travel">
           <div class="gallery-admin-thumb">
             <img src="{{ $img['url'] }}" alt="Gallery {{ $idx + 1 }}">
             <div class="gallery-admin-overlay">
@@ -28,7 +28,7 @@
             </div>
           </div>
           <button type="button" class="gallery-admin-remove js-gallery-remove"
-                  data-path="{{ $img['path'] }}" data-type="{{ $settingType ?? 'clinic' }}">
+                  data-path="{{ $img['path'] }}" data-type="travel">
             <i class="ti tabler-x"></i>
           </button>
           <div class="gallery-admin-label">
@@ -130,7 +130,7 @@
       jsonBox.textContent = pretty;
       if (wrapper) wrapper.style.display = 'block';
       const prefix = wrapper ? wrapper.id.replace('-json-wrapper', '') : 'about';
-      const type   = wrapper?.dataset?.type || 'clinic';
+      const type   = wrapper?.dataset?.type || 'travel';
       const sec    = wrapper?.dataset?.section || 'gallery';
       try { window.localStorage?.setItem(`${prefix}_json_${type}_${sec}`, pretty); } catch (_) {}
     } catch (_) {}
@@ -138,7 +138,7 @@
 
   async function reloadGallerySection(typeVal) {
     try {
-      const url  = '{{ panel_route("setting.aboutPage") }}?section=gallery&type=' + (typeVal || 'clinic');
+      const url  = '{{ panel_route("setting.aboutPage") }}?section=gallery&type=' + (typeVal || 'travel');
       const res  = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
       const html = await res.text();
       const tmp  = document.createElement('div');
@@ -166,7 +166,7 @@
     try {
       const fd     = new FormData(form);
       const action = form.dataset.action || '{{ panel_route("setting.updateAboutGallery") }}';
-      const type   = form.dataset.type || 'clinic';
+      const type   = form.dataset.type || 'travel';
       fd.set('_method', 'PUT');
       fd.set('type', type);
       // keep_images: collect from existing cards
@@ -206,7 +206,7 @@
     if (!btn) return;
     e.preventDefault();
     const path    = btn.dataset.path;
-    const typeVal = btn.dataset.type || 'clinic';
+    const typeVal = btn.dataset.type || 'travel';
     if (!path) return;
     pendingDelete = { path, typeVal };
     const m = getDeleteModal();

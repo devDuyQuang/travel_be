@@ -17,8 +17,14 @@
           <div class="tab-content">
             <div class="tab-pane fade show active" id="contact-hero-main" role="tabpanel" aria-labelledby="contact-hero-main-tab">
               <div class="row g-3">
+                <div class="col-md-6">
+                  <x-input-field label="Tiêu đề trang" name="title" :value="$v['title'] ?? ''" placeholder="Contact With Us" />
+                </div>
+                <div class="col-md-6">
+                  <x-input-field label="Nhãn breadcrumb" name="sub_title" :value="$v['sub_title'] ?? ''" placeholder="Contact" />
+                </div>
                 <div class="col-md-12">
-                  <x-file-input label="Banner Header" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" />
+                  <x-file-input label="Banner Header" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" remove-name="remove_banner_hero_file" />
                 </div>
               </div>
             </div>

@@ -97,7 +97,7 @@
         @endphp
 
         <li class="{{ $isOpen || $isParentActive || $isChildActive ? 'mm-active' : '' }}">
-          <a href="{{ $hasChildren ? 'javascript:;' : (!empty($menu['route']) ? panel_route($menu['route']) : 'javascript:;') }}" class="{{ $hasChildren ? 'has-arrow' : '' }}">
+          <a href="{{ $hasChildren ? 'javascript:;' : (!empty($menu['route']) ? panel_route($menu['route']) : (!empty($menu['url']) ? url($menu['url']) : 'javascript:;')) }}" class="{{ $hasChildren ? 'has-arrow' : '' }}">
             <div class="parent-icon"><i class="material-icons-outlined">{{ $matIcon }}</i>
             </div>
             <div class="menu-title">{{ $menu['label'] ?? '' }}</div>
@@ -121,7 +121,7 @@
             }
             @endphp
             <li class="{{ $childActive ? 'mm-active' : '' }}">
-                <a href="{{ !empty($child['route']) ? panel_route($child['route']) : 'javascript:;' }}" class="{{ $childActive ? 'active' : '' }}">
+                <a href="{{ !empty($child['route']) ? panel_route($child['route']) : (!empty($child['url']) ? url($child['url']) : 'javascript:;') }}" class="{{ $childActive ? 'active' : '' }}">
                     <i class="material-icons-outlined">arrow_right</i>{{ $child['label'] ?? '' }}
                 </a>
             </li>

@@ -15,7 +15,7 @@ class CheckboxField extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(string $name, string $label = '', $checked = null, string $id = null, $value = '1')
+    public function __construct(string $name, string $label = '', $checked = null, ?string $id = null, $value = '1')
     {
         $this->name = $name;
         $this->label = $label;

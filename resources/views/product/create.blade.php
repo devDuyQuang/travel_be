@@ -108,12 +108,48 @@
                                         />
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                        <label
+                                            for="product_type"
+                                            class="form-label"
+                                        >
+                                            Loại sản phẩm
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <select
+                                            name="product_type"
+                                            id="product_type"
+                                            class="form-select"
+                                            required
+                                        >
+                                            <option
+                                                value="service"
+                                                @selected(old('product_type', 'service') === 'service')
+                                            >
+                                                Dịch vụ
+                                            </option>
+                                            <option
+                                                value="physical"
+                                                @selected(old('product_type') === 'physical')
+                                            >
+                                                Sản phẩm vật lý
+                                            </option>
+                                        </select>
+
+                                        @error('product_type')
+                                            <div class="text-danger small mt-1">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-4">
                                         <label
                                             for="category_id"
                                             class="form-label"
                                         >
-                                            Danh mục dịch vụ
+                                            Danh mục
                                             <span class="text-danger">*</span>
                                         </label>
 
@@ -124,7 +160,7 @@
                                             required
                                         >
                                             <option value="">
-                                                Chọn danh mục dịch vụ
+                                                Chọn danh mục
                                             </option>
 
                                             @foreach($categories as $categoryId => $categoryName)
@@ -147,12 +183,20 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <x-input-field
                                             name="badge_text"
                                             label="Nhãn hiển thị"
                                             :value="old('badge_text')"
                                             placeholder="VD: New"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="sku"
+                                            label="SKU"
+                                            :value="old('sku')"
                                         />
                                     </div>
 
@@ -278,7 +322,7 @@
                                     <div class="col-md-4">
                                         <x-input-field
                                             name="price"
-                                            label="Giá"
+                                            label="Giá dịch vụ"
                                             type="number"
                                             :value="old('price')"
                                         />
@@ -287,10 +331,99 @@
                                     <div class="col-md-4">
                                         <x-input-field
                                             name="price_discount"
-                                            label="Giá khuyến mãi"
+                                            label="Giá dịch vụ khuyến mãi"
                                             type="number"
                                             :value="old('price_discount')"
                                         />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="regular_price"
+                                            label="Giá gốc sản phẩm"
+                                            type="number"
+                                            :value="old('regular_price')"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="sale_price"
+                                            label="Giá bán sản phẩm"
+                                            type="number"
+                                            :value="old('sale_price')"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <input
+                                            type="hidden"
+                                            name="manage_stock"
+                                            value="0"
+                                        >
+
+                                        <div class="product-switch-field">
+                                            <label
+                                                class="form-label mb-0"
+                                                for="manage_stock"
+                                            >
+                                                Quản lý tồn kho
+                                            </label>
+
+                                            <div class="form-check form-switch mb-0">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="manage_stock"
+                                                    id="manage_stock"
+                                                    value="1"
+                                                    @checked(old('manage_stock', 0))
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="stock_quantity"
+                                            label="Số lượng tồn"
+                                            type="number"
+                                            :value="old('stock_quantity', 0)"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label
+                                            for="stock_status"
+                                            class="form-label"
+                                        >
+                                            Trạng thái tồn kho
+                                        </label>
+
+                                        <select
+                                            name="stock_status"
+                                            id="stock_status"
+                                            class="form-select"
+                                        >
+                                            <option
+                                                value="in_stock"
+                                                @selected(old('stock_status', 'in_stock') === 'in_stock')
+                                            >
+                                                Còn hàng
+                                            </option>
+                                            <option
+                                                value="out_of_stock"
+                                                @selected(old('stock_status') === 'out_of_stock')
+                                            >
+                                                Tạm hết hàng
+                                            </option>
+                                        </select>
+
+                                        @error('stock_status')
+                                            <div class="text-danger small mt-1">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
 
                                     <div class="col-md-4">

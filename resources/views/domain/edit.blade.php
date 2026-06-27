@@ -19,8 +19,7 @@
       <div class="mb-6">
         <label class="form-label" for="type">Type <span class="text-danger">*</span></label>
         <select name="type" id="type" class="form-select @error('type') is-invalid @enderror" required>
-          <option value="clinic" @selected(old('type', $item->type) === 'clinic')>clinic</option>
-          <option value="RAC" @selected(old('type', $item->type) === 'RAC')>RAC</option>
+          <option value="travel" selected>Travel</option>
         </select>
         <div class="invalid-feedback" id="error-type">
           @error('type') {{ $message }} @enderror

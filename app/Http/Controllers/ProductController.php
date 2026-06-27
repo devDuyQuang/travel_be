@@ -307,7 +307,7 @@ class ProductController extends Controller
 
     private function validateProductData(Request $request, ?int $id = null): array
     {
-        foreach (['price', 'price_discount', 'review_rating'] as $numberField) {
+        foreach (['price', 'price_discount', 'regular_price', 'sale_price', 'review_rating'] as $numberField) {
             if ($request->filled($numberField)) {
                 $request->merge([
                     $numberField => str_replace(',', '.', $request->input($numberField)),
@@ -325,8 +325,14 @@ class ProductController extends Controller
                 : null,
             'is_featured' => $request->boolean('is_featured'),
             'status' => $request->boolean('status'),
+            'product_type' => $request->input('product_type') === 'physical' ? 'physical' : 'service',
+            'manage_stock' => $request->boolean('manage_stock'),
+            'stock_quantity' => max(0, (int) $request->input('stock_quantity', 0)),
+            'stock_status' => $request->input('stock_status') === 'out_of_stock' ? 'out_of_stock' : 'in_stock',
             'attributes' => $this->normalizeAttributes($request->input('attributes', [])),
         ]);
+
+        $productType = $request->input('product_type', 'service');
 
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -339,11 +345,18 @@ class ProductController extends Controller
             'category_id' => [
                 'required',
                 'integer',
-                Rule::exists('categories', 'id')->where(function ($query) {
+                Rule::exists('categories', 'id')->where(function ($query) use ($productType) {
                     $query
                         ->where('status', 1)
-                        ->whereRaw('LOWER(type) = ?', ['service']);
+                        ->whereRaw('LOWER(type) = ?', [$productType === 'physical' ? 'product' : 'service']);
                 }),
+            ],
+            'product_type' => ['required', 'string', Rule::in(['service', 'physical'])],
+            'sku' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('products', 'sku')->ignore($id),
             ],
 
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:5120'],
@@ -378,12 +391,31 @@ class ProductController extends Controller
             'duration' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'price_discount' => ['nullable', 'numeric', 'min:0'],
+            'regular_price' => ['nullable', 'numeric', 'min:0'],
+            'sale_price' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                    if (
+                        $value !== null &&
+                        $value !== '' &&
+                        $request->filled('regular_price') &&
+                        (float) $value > (float) $request->input('regular_price')
+                    ) {
+                        $fail('Giá bán không được lớn hơn giá gốc.');
+                    }
+                },
+            ],
+            'stock_quantity' => ['nullable', 'integer', 'min:0'],
+            'manage_stock' => ['nullable', 'boolean'],
+            'stock_status' => ['nullable', Rule::in(['in_stock', 'out_of_stock'])],
             'status' => ['nullable', 'integer', 'in:0,1'],
             'is_featured' => ['nullable', 'boolean'],
             'order_position' => ['nullable', 'integer', 'min:0'],
             'badge_text' => ['nullable', 'string', 'max:50'],
             'attributes' => ['nullable', 'array'],
-            ...ServiceProductAttributes::validationRules(),
+            ...($productType === 'service' ? ServiceProductAttributes::validationRules() : []),
         ], [
             'name.required' => 'Vui lòng nhập tên sản phẩm.',
             'name.string' => 'Tên sản phẩm không hợp lệ.',
@@ -393,9 +425,12 @@ class ProductController extends Controller
             'slug.unique' => 'Slug này đã tồn tại.',
             'slug.max' => 'Slug không được vượt quá 255 ký tự.',
 
-            'category_id.required' => 'Vui lòng chọn danh mục dịch vụ.',
+            'category_id.required' => 'Vui lòng chọn danh mục.',
             'category_id.integer' => 'Danh mục không hợp lệ.',
-            'category_id.exists' => 'Danh mục dịch vụ không tồn tại hoặc đã bị ẩn.',
+            'category_id.exists' => 'Danh mục không tồn tại hoặc đã bị ẩn.',
+            'product_type.required' => 'Vui lòng chọn loại sản phẩm.',
+            'product_type.in' => 'Loại sản phẩm không hợp lệ.',
+            'sku.unique' => 'SKU này đã tồn tại.',
 
             'image.image' => 'File tải lên phải là hình ảnh.',
             'image.mimes' => 'Ảnh phải thuộc định dạng jpeg, png, jpg, gif, svg hoặc webp.',
@@ -416,6 +451,12 @@ class ProductController extends Controller
             'price.min' => 'Giá không được nhỏ hơn 0.',
             'price_discount.numeric' => 'Giá khuyến mãi phải là số.',
             'price_discount.min' => 'Giá khuyến mãi không được nhỏ hơn 0.',
+            'regular_price.numeric' => 'Giá gốc phải là số.',
+            'regular_price.min' => 'Giá gốc không được nhỏ hơn 0.',
+            'sale_price.numeric' => 'Giá bán phải là số.',
+            'sale_price.min' => 'Giá bán không được nhỏ hơn 0.',
+            'stock_quantity.integer' => 'Số lượng tồn phải là số nguyên.',
+            'stock_quantity.min' => 'Số lượng tồn không được nhỏ hơn 0.',
 
             'status.integer' => 'Trạng thái không hợp lệ.',
             'status.in' => 'Trạng thái không hợp lệ.',
@@ -561,10 +602,12 @@ class ProductController extends Controller
     {
         return Category::query()
             ->where('status', 1)
-            ->whereRaw('LOWER(type) = ?', ['service'])
             ->orderBy('order_position')
             ->orderBy('name')
-            ->pluck('name', 'id')
+            ->get(['id', 'name', 'type'])
+            ->mapWithKeys(fn (Category $category) => [
+                $category->id => $category->name . ' (' . (strtolower((string) $category->type) === 'product' ? 'Sản phẩm' : 'Dịch vụ') . ')',
+            ])
             ->toArray();
     }
 
@@ -572,7 +615,6 @@ class ProductController extends Controller
     {
         return Category::query()
             ->where('status', 1)
-            ->whereRaw('LOWER(type) = ?', ['service'])
             ->pluck('layout_key', 'id')
             ->toArray();
     }

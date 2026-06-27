@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Post;
 use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -152,8 +153,7 @@ class PostController extends Controller
                 'updater_name' => $p->updater_name ?: '—',
                 'categories'   => $categoriesByPost->get($p->id, []),
 
-                // Theo yêu cầu thầy: bài viết thật mở thẳng /slug
-                'public_url'   => $slug !== '' ? '/' . $slug : '',
+                'public_url'   => $slug !== '' ? '/tin-tuc/' . $slug : '',
 
                 '__details'    => '',
             ];
@@ -170,14 +170,15 @@ class PostController extends Controller
     public function create()
     {
         $categories = $this->getPostCategoryOptions();
+        $tags = $this->getTagOptions();
 
-        return view(module() . '.create', compact('categories'));
+        return view(module() . '.create', compact('categories', 'tags'));
     }
 
     public function edit(Request $request, $domain, $id)
     {
         $item = $this->model->findOrFail($id);
-        $item->load('categories:id,name');
+        $item->load(['categories:id,name', 'tags:id,name']);
 
         $currentImageUrl = function_exists('normalize_image_url')
             ? normalize_image_url($item->image, module())
@@ -189,12 +190,16 @@ class PostController extends Controller
             'category_ids',
             $item->categories->pluck('id')->toArray()
         );
+        $tags = $this->getTagOptions();
+        $selectedTagIds = old('tag_ids', $item->tags->pluck('id')->toArray());
 
         return view(module() . '.edit', [
             'item'                => $item,
             'currentImageUrl'     => $currentImageUrl,
             'categories'          => $categories,
             'selectedCategoryIds' => $selectedCategoryIds,
+            'tags'                => $tags,
+            'selectedTagIds'      => $selectedTagIds,
         ]);
     }
 
@@ -221,6 +226,8 @@ class PostController extends Controller
                         ->whereRaw('LOWER(type) = ?', ['post'])
                 ),
             ],
+            'tag_ids'          => ['nullable', 'array'],
+            'tag_ids.*'        => ['integer', Rule::exists('tags', 'id')->where(fn ($query) => $query->where('is_active', 1))],
         ]);
 
         DB::beginTransaction();
@@ -254,6 +261,7 @@ class PostController extends Controller
             $post->save();
 
             $post->categories()->sync($request->input('category_ids', []));
+            $post->tags()->sync($request->input('tag_ids', []));
 
             DB::commit();
 
@@ -303,6 +311,8 @@ class PostController extends Controller
                         ->whereRaw('LOWER(type) = ?', ['post'])
                 ),
             ],
+            'tag_ids'          => ['nullable', 'array'],
+            'tag_ids.*'        => ['integer', Rule::exists('tags', 'id')->where(fn ($query) => $query->where('is_active', 1))],
         ]);
 
         $data['status'] = $request->boolean('status', true) ? 1 : 0;
@@ -339,6 +349,7 @@ class PostController extends Controller
             $post->fill($data)->save();
 
             $post->categories()->sync($request->input('category_ids', []));
+            $post->tags()->sync($request->input('tag_ids', []));
 
             if ($oldPath && ($newPath || $wantRemove)) {
                 $expectedPrefix = "uploads/{$domainSlug}/";
@@ -385,6 +396,16 @@ class PostController extends Controller
             ->toArray();
     }
 
+    private function getTagOptions(): array
+    {
+        return Tag::query()
+            ->where('is_active', 1)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
     public function toggleStatus(Request $request, $domain, $id)
     {
         $post = $this->model->findOrFail($id);
@@ -415,6 +436,10 @@ class PostController extends Controller
             // Xoá liên kết danh mục trước, tránh lỗi khóa ngoại category_post
             if (method_exists($post, 'categories')) {
                 $post->categories()->detach();
+            }
+
+            if (method_exists($post, 'tags')) {
+                $post->tags()->detach();
             }
 
             // Xoá ảnh nếu có

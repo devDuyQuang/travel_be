@@ -126,17 +126,16 @@ class ServiceRegistrationController extends Controller
 
         public function destroy($domain, $id)
     {
-        // Tìm theo ID thực sự (tham số thứ 2)
-        $appointment = ServiceRegistration::find($id);
+        $registration = ServiceRegistration::find($id);
 
-        if (!$appointment) {
+        if (!$registration) {
             return response()->json([
                 'status' => 'error',
                 'message' => "Không tìm thấy ServiceRegistration với ID: $id (Domain: $domain)"
             ], 404);
         }
 
-        $appointment->delete();
+        $registration->delete();
 
         return response()->json([
             'status' => 'success',

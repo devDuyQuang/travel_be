@@ -109,12 +109,48 @@
                                         />
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                        <label
+                                            for="product_type"
+                                            class="form-label"
+                                        >
+                                            Loại sản phẩm
+                                            <span class="text-danger">*</span>
+                                        </label>
+
+                                        <select
+                                            name="product_type"
+                                            id="product_type"
+                                            class="form-select"
+                                            required
+                                        >
+                                            <option
+                                                value="service"
+                                                @selected(old('product_type', $item->product_type ?? 'service') === 'service')
+                                            >
+                                                Dịch vụ
+                                            </option>
+                                            <option
+                                                value="physical"
+                                                @selected(old('product_type', $item->product_type) === 'physical')
+                                            >
+                                                Sản phẩm vật lý
+                                            </option>
+                                        </select>
+
+                                        @error('product_type')
+                                            <div class="text-danger small mt-1">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-4">
                                         <label
                                             for="category_id"
                                             class="form-label"
                                         >
-                                            Danh mục dịch vụ
+                                            Danh mục
                                             <span class="text-danger">*</span>
                                         </label>
 
@@ -125,7 +161,7 @@
                                             required
                                         >
                                             <option value="">
-                                                Chọn danh mục dịch vụ
+                                                Chọn danh mục
                                             </option>
 
                                             @foreach($categories as $categoryId => $categoryName)
@@ -151,7 +187,7 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <x-input-field
                                             name="badge_text"
                                             label="Nhãn hiển thị"
@@ -160,6 +196,14 @@
                                                 $item->badge_text
                                             )"
                                             placeholder="VD: New"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="sku"
+                                            label="SKU"
+                                            :value="old('sku', $item->sku)"
                                         />
                                     </div>
 
@@ -307,7 +351,7 @@
                                     <div class="col-md-4">
                                         <x-input-field
                                             name="price"
-                                            label="Giá"
+                                            label="Giá dịch vụ"
                                             type="number"
                                             :value="old(
                                                 'price',
@@ -319,13 +363,111 @@
                                     <div class="col-md-4">
                                         <x-input-field
                                             name="price_discount"
-                                            label="Giá khuyến mãi"
+                                            label="Giá dịch vụ khuyến mãi"
                                             type="number"
                                             :value="old(
                                                 'price_discount',
                                                 $item->price_discount
                                             )"
                                         />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="regular_price"
+                                            label="Giá gốc sản phẩm"
+                                            type="number"
+                                            :value="old(
+                                                'regular_price',
+                                                $item->regular_price
+                                            )"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="sale_price"
+                                            label="Giá bán sản phẩm"
+                                            type="number"
+                                            :value="old(
+                                                'sale_price',
+                                                $item->sale_price
+                                            )"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <input
+                                            type="hidden"
+                                            name="manage_stock"
+                                            value="0"
+                                        >
+
+                                        <div class="product-switch-field">
+                                            <label
+                                                class="form-label mb-0"
+                                                for="manage_stock"
+                                            >
+                                                Quản lý tồn kho
+                                            </label>
+
+                                            <div class="form-check form-switch mb-0">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="manage_stock"
+                                                    id="manage_stock"
+                                                    value="1"
+                                                    @checked(old('manage_stock', $item->manage_stock))
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <x-input-field
+                                            name="stock_quantity"
+                                            label="Số lượng tồn"
+                                            type="number"
+                                            :value="old(
+                                                'stock_quantity',
+                                                $item->stock_quantity ?? 0
+                                            )"
+                                        />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label
+                                            for="stock_status"
+                                            class="form-label"
+                                        >
+                                            Trạng thái tồn kho
+                                        </label>
+
+                                        <select
+                                            name="stock_status"
+                                            id="stock_status"
+                                            class="form-select"
+                                        >
+                                            <option
+                                                value="in_stock"
+                                                @selected(old('stock_status', $item->stock_status ?? 'in_stock') === 'in_stock')
+                                            >
+                                                Còn hàng
+                                            </option>
+                                            <option
+                                                value="out_of_stock"
+                                                @selected(old('stock_status', $item->stock_status) === 'out_of_stock')
+                                            >
+                                                Tạm hết hàng
+                                            </option>
+                                        </select>
+
+                                        @error('stock_status')
+                                            <div class="text-danger small mt-1">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
                                     </div>
 
                                     <div class="col-md-4">
@@ -406,45 +548,12 @@
 
                                     {{-- Ảnh đại diện --}}
                                     <div class="col-md-6">
-                                        <div class="product-media-card">
-                                            <label class="form-label fw-semibold">
-                                                Ảnh đại diện
-                                            </label>
-
-                                            @if(!empty($item->image))
-                                                <div class="mb-3">
-                                                    <img
-                                                        src="{{ Storage::url($item->image) }}"
-                                                        alt="Ảnh đại diện"
-                                                        class="product-media-preview"
-                                                    >
-                                                </div>
-                                            @endif
-
-                                            <div class="custom-file-row">
-                                                <label class="custom-file-btn">
-                                                    Chọn tệp
-
-                                                    <input
-                                                        type="file"
-                                                        name="image"
-                                                        class="custom-file-input"
-                                                        accept="image/*"
-                                                        hidden
-                                                    >
-                                                </label>
-
-                                                <span class="custom-file-name">
-                                                    Không có tệp nào được chọn
-                                                </span>
-                                            </div>
-
-                                            @error('image')
-                                                <div class="text-danger small mt-2">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
+                                        <x-file-input
+                                            label="Ảnh đại diện"
+                                            name="image"
+                                            :current-url="!empty($item->image) ? Storage::url($item->image) : null"
+                                            remove-name="remove_image"
+                                        />
                                     </div>
 
                                     {{-- Video URL --}}
@@ -475,92 +584,22 @@
 
                                     {{-- Ảnh phụ 1 --}}
                                     <div class="col-md-6">
-                                        <div class="product-media-card">
-                                            <label class="form-label fw-semibold">
-                                                Ảnh phụ 1
-                                            </label>
-
-                                            @if(!empty($item->gallery_image_1))
-                                                <div class="mb-3">
-                                                    <img
-                                                        src="{{ Storage::url(
-                                                            $item->gallery_image_1
-                                                        ) }}"
-                                                        alt="Ảnh phụ 1"
-                                                        class="product-media-preview"
-                                                    >
-                                                </div>
-                                            @endif
-
-                                            <div class="custom-file-row">
-                                                <label class="custom-file-btn">
-                                                    Chọn tệp
-
-                                                    <input
-                                                        type="file"
-                                                        name="gallery_image_1"
-                                                        class="custom-file-input"
-                                                        accept="image/*"
-                                                        hidden
-                                                    >
-                                                </label>
-
-                                                <span class="custom-file-name">
-                                                    Không có tệp nào được chọn
-                                                </span>
-                                            </div>
-
-                                            @error('gallery_image_1')
-                                                <div class="text-danger small mt-2">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
+                                        <x-file-input
+                                            label="Ảnh phụ 1"
+                                            name="gallery_image_1"
+                                            :current-url="!empty($item->gallery_image_1) ? Storage::url($item->gallery_image_1) : null"
+                                            remove-name="remove_gallery_image_1"
+                                        />
                                     </div>
 
                                     {{-- Ảnh phụ 2 --}}
                                     <div class="col-md-6">
-                                        <div class="product-media-card">
-                                            <label class="form-label fw-semibold">
-                                                Ảnh phụ 2
-                                            </label>
-
-                                            @if(!empty($item->gallery_image_2))
-                                                <div class="mb-3">
-                                                    <img
-                                                        src="{{ Storage::url(
-                                                            $item->gallery_image_2
-                                                        ) }}"
-                                                        alt="Ảnh phụ 2"
-                                                        class="product-media-preview"
-                                                    >
-                                                </div>
-                                            @endif
-
-                                            <div class="custom-file-row">
-                                                <label class="custom-file-btn">
-                                                    Chọn tệp
-
-                                                    <input
-                                                        type="file"
-                                                        name="gallery_image_2"
-                                                        class="custom-file-input"
-                                                        accept="image/*"
-                                                        hidden
-                                                    >
-                                                </label>
-
-                                                <span class="custom-file-name">
-                                                    Không có tệp nào được chọn
-                                                </span>
-                                            </div>
-
-                                            @error('gallery_image_2')
-                                                <div class="text-danger small mt-2">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
+                                        <x-file-input
+                                            label="Ảnh phụ 2"
+                                            name="gallery_image_2"
+                                            :current-url="!empty($item->gallery_image_2) ? Storage::url($item->gallery_image_2) : null"
+                                            remove-name="remove_gallery_image_2"
+                                        />
                                     </div>
 
                                     {{-- Ảnh thư viện --}}

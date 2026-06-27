@@ -7,25 +7,14 @@
 <main class="main-wrapper setting-page">
   <div class="main-content">
 @php
-  $settingType = $settingType ?? 'clinic';
-  $settingTypes = $settingTypes ?? ['clinic' => 'clinic', 'rac' => 'RAC'];
   $baseHomeUrl = panel_route('setting.home');
 @endphp
 
 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-   <h5 class="mb-0 d-flex align-items-center gap-2 flex-wrap"> <i class="icon-base ti tabler-home"></i>Cấu hình trang chủ</h5>
-  <div class="d-flex align-items-center gap-2">
-    <span class="small text-muted">Loại domain:</span>
-    <div class="btn-group" role="group" aria-label="Chọn loại domain">
-      @foreach($settingTypes as $typeKey => $typeLabel)
-        <a href="{{ $baseHomeUrl . '?type=' . $typeKey . '&section=' . $currentSection }}"
-           class="btn btn-sm setting-type-switch {{ $settingType === $typeKey ? 'btn-primary' : 'btn-outline-primary' }}"
-           data-type="{{ $typeKey }}">
-          {{ $typeLabel }}
-        </a>
-      @endforeach
-    </div>
-  </div>
+   <h5 class="mb-0 d-flex align-items-center gap-2 flex-wrap">
+     <i class="icon-base ti tabler-home"></i>Quản lý Trang chủ
+   </h5>
+   <span class="small text-muted">Nội dung được sắp theo đúng thứ tự hiển thị ngoài website.</span>
 </div>
 
 <div class="card-body text-start">
@@ -65,12 +54,15 @@
                role="tabpanel"
                aria-labelledby="home-tab-{{ $key }}">
             <h5 class="fw-bold text-uppercase mb-3 pb-2 border-bottom" style="letter-spacing:.05em">{{ $loop->iteration }}. {{ $item['label'] }}</h5>
-            @includeIf('setting.home.sections.' . $key, $data)
+            @include('setting.home.sections.' . $key, array_merge($data, [
+              'sectionKey' => $key,
+              'serviceCategories' => $serviceCategories,
+            ]))
           </div>
         @endforeach
       </div>
 
-      <div id="home-json-wrapper" class="border rounded mt-3 p-2 bg-dark-subtle" data-section="{{ $currentSection }}" data-type="{{ $settingType }}">
+      <div id="home-json-wrapper" class="border rounded mt-3 p-2 bg-dark-subtle" data-section="{{ $currentSection }}">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <h6 class="mb-0 small text-muted">JSON response</h6>
           <button type="button" class="btn btn-sm btn-link text-decoration-none text-muted" id="btn-clear-json">Xoá</button>
@@ -85,35 +77,45 @@
 @push('scripts')
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const pre = document.getElementById('home-json-preview');
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('change', function (event) {
+    const input = event.target.closest('.homepage-image-input');
+    if (!input) return;
+    const field = input.closest('.homepage-image-field');
+    const file = input.files && input.files[0];
+    if (!field || !file) return;
+
+    const previewWrap = field.querySelector('.homepage-image-preview-wrap');
+    const preview = field.querySelector('.homepage-image-preview');
+    const removeFlag = field.querySelector('.homepage-image-remove-flag');
+    if (preview) preview.src = URL.createObjectURL(file);
+    previewWrap?.classList.remove('d-none');
+    if (removeFlag) removeFlag.value = '0';
+  });
+
+  document.addEventListener('click', function (event) {
+    const button = event.target.closest('.homepage-image-remove');
+    if (!button) return;
+    const field = button.closest('.homepage-image-field');
+    if (!field) return;
+
+    const input = field.querySelector('.homepage-image-input');
+    const current = field.querySelector('input[type="hidden"]:not(.homepage-image-remove-flag)');
+    const removeFlag = field.querySelector('.homepage-image-remove-flag');
+    const preview = field.querySelector('.homepage-image-preview');
+    if (input) input.value = '';
+    if (current) current.value = '';
+    if (removeFlag) removeFlag.value = '1';
+    if (preview) preview.removeAttribute('src');
+    field.querySelector('.homepage-image-preview-wrap')?.classList.add('d-none');
+  });
+
+  const pre = document.getElementById('home-json-preview');
     const btn = document.getElementById('btn-clear-json');
     const wrapper = document.getElementById('home-json-wrapper');
     const section = wrapper ? wrapper.getAttribute('data-section') : null;
-    const type = wrapper ? (wrapper.getAttribute('data-type') || 'clinic') : 'clinic';
-    let storageKey = section ? `home_json_${type}_${section}` : `home_json_${type}_preview`;
+    let storageKey = section ? `home_json_${section}` : `home_json_preview`;
     const forms = document.querySelectorAll('#home-sections-tabContent form.ajax-form');
-    const typeLinks = document.querySelectorAll('.setting-type-switch[data-type]');
-
-    forms.forEach(form => {
-      let typeInput = form.querySelector('input[name="type"]');
-      if (!typeInput) {
-        typeInput = document.createElement('input');
-        typeInput.type = 'hidden';
-        typeInput.name = 'type';
-        form.appendChild(typeInput);
-      }
-      typeInput.value = type;
-    });
-
-    function updateTypeLinks(sectionKey) {
-      typeLinks.forEach(link => {
-        const linkType = link.getAttribute('data-type') || 'clinic';
-        link.setAttribute('href', `{{ $baseHomeUrl }}?type=${linkType}&section=${sectionKey || 'hero'}`);
-      });
-    }
-
-    updateTypeLinks(section || 'hero');
 
     // Khởi tạo: nếu có JSON đã lưu trong localStorage thì hiển thị luôn
     try {
@@ -144,7 +146,7 @@
       link.addEventListener('shown.bs.tab', function () {
         const sec = this.getAttribute('data-section');
         if (!pre || !wrapper) return;
-        const key = sec ? `home_json_${type}_${sec}` : `home_json_${type}_preview`;
+        const key = sec ? `home_json_${sec}` : `home_json_preview`;
         storageKey = key;
         try {
           const savedJson = window.localStorage ? window.localStorage.getItem(key) : null;
@@ -156,7 +158,6 @@
             wrapper.style.display = 'none';
           }
           wrapper.setAttribute('data-section', sec || '');
-          updateTypeLinks(sec || 'hero');
         } catch (e) {
           console.warn('Không thể load JSON cho section', sec, e);
         }

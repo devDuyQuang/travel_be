@@ -1,7 +1,7 @@
 <form action="{{ panel_route('setting.updateServiceFeatures') }}" method="POST" class="ajax-form">
   @csrf
   @method('PUT')
-  <input type="hidden" name="type" value="{{ $settingType ?? 'clinic' }}">
+  <input type="hidden" name="type" value="travel">
   <input type="hidden" name="tab" value="features">
 
   <div class="card mb-4 shadow-none border">

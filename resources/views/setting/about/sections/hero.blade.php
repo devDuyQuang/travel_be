@@ -1,4 +1,4 @@
-<form action="{{ panel_route('setting.updateAboutHero') }}" method="POST" enctype="multipart/form-data" class="ajax-form">
+<form action="{{ panel_route('setting.updateAboutHero') }}" method="POST" enctype="multipart/form-data" class="ajax-form" data-require-persist="true">
   @csrf
   @method('PUT')
   <div class="row g-3 p-2">
@@ -18,8 +18,14 @@
           <div class="tab-content">
             <div class="tab-pane fade show active" id="about-hero-main" role="tabpanel">
               <div class="row g-3">
+                <div class="col-md-6">
+                  <x-input-field label="Tiêu đề trang" name="title" :value="$v['title'] ?? ''" placeholder="About Us" />
+                </div>
+                <div class="col-md-6">
+                  <x-input-field label="Nhãn breadcrumb" name="sub_title" :value="$v['sub_title'] ?? ''" placeholder="About Us" />
+                </div>
                 <div class="col-md-12">
-                  <x-file-input label="Banner Header" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" />
+                  <x-file-input label="Banner Header" name="banner_hero_file" :multiple="false" :current-url="$currentBannerHeroUrl ?? null" remove-name="remove_banner_hero_file" />
                 </div>
               </div>
             </div>

@@ -203,7 +203,9 @@ $(document).ready(function() {
     }
 
     const action = form.getAttribute('action') || window.location.href;
-    const method = (form.getAttribute('method') || 'POST').toUpperCase();
+    // Luôn gửi multipart bằng POST; Laravel xử lý PUT/PATCH/DELETE qua
+    // hidden field `_method`. PHP không parse multipart PUT ổn định.
+    const method = 'POST';
     if (typeof CKEDITOR !== 'undefined') {
   for (const instance in CKEDITOR.instances) {
     CKEDITOR.instances[instance].updateElement();
@@ -248,7 +250,7 @@ $(document).ready(function() {
         const jsonBox = document.querySelector('[id$="-json-preview"]');
         const wrapper = document.querySelector('[id$="-json-wrapper"]');
         if (jsonBox) {
-          const settingType = wrapper?.dataset?.type || 'clinic';
+          const settingType = wrapper?.dataset?.type || 'travel';
           // Lấy prefix từ ID: "home-json-wrapper" → "home", "about-json-wrapper" → "about"
           const prefix = wrapper ? wrapper.id.replace('-json-wrapper', '') : 'home';
           let storageKey = `${prefix}_json_${settingType}_preview`;
@@ -269,6 +271,43 @@ $(document).ready(function() {
       }
 
       if (response.ok) {
+        if (
+          form.dataset.requirePersist === 'true' &&
+          (!data || typeof data !== 'object' || !Object.prototype.hasOwnProperty.call(data, 'value'))
+        ) {
+          showToast({
+            message: 'Máy chủ chưa xác nhận dữ liệu đã lưu. Vui lòng thử lại.',
+            type: 'error',
+            delay: 4000
+          });
+          return;
+        }
+
+        if (form.dataset.requirePersist === 'true') {
+          const persistedValue = data.value || {};
+          const mismatchedField = Array.from(form.elements).find((element) => {
+            if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)) return false;
+            if (!element.name || element.disabled || element.type === 'file') return false;
+            if (element.name.startsWith('_') || element.name === 'type' || element.name.startsWith('remove_')) return false;
+            if (element.name.includes('[')) return false;
+
+            const expected = (element.value || '').trim();
+            const actual = String(persistedValue[element.name] ?? '').trim();
+
+            return expected !== actual;
+          });
+
+          if (mismatchedField) {
+            showToast({
+              message: `Trường "${mismatchedField.name}" chưa được lưu đúng. Hệ thống đã dừng chuyển trang để tránh mất dữ liệu.`,
+              type: 'error',
+              delay: 5000
+            });
+            mismatchedField.classList.add('is-invalid');
+            return;
+          }
+        }
+
         const msg = data?.message || 'Thực hiện thành công.';
         const redirectUrl = data?.redirect_url || null;
         showToast({
@@ -292,7 +331,9 @@ $(document).ready(function() {
         for (const key in errors) {
           const msgs = errors[key];
           if (!firstMsg) firstMsg = msgs?.[0] || 'Dữ liệu không hợp lệ.';
-          const nameSelector = key.includes('.') ? key.replace(/\.(\d+)/g, '[$1]') : key;
+          const nameSelector = key
+            .replace(/\.(\d+)/g, '[$1]')
+            .replace(/\.([^.[]+)/g, '[$1]');
           const input = form.querySelector(`[name="${CSS.escape(nameSelector)}"]`);
           if (input) {
             input.classList.add('is-invalid');
@@ -303,7 +344,7 @@ $(document).ready(function() {
 
         // ❌ Toast lỗi validate
         showToast({
-          message: firstMsg || 'Vui lòng kiểm tra lại các trường.',
+          message: firstMsg || data?.message || 'Vui lòng kiểm tra lại các trường.',
           type: 'error',
           delay: 3500
         });
@@ -1005,4 +1046,3 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   })();
 </script>
-

@@ -13,6 +13,10 @@ class ProductController extends Controller
     {
         $limit = min(100, max(1, (int) $request->input('limit', 12)));
         $categorySlug = $request->string('category_slug')->trim()->value();
+        $productType = $request->string('product_type')->trim()->value();
+        $categoryType = $request->string('type')->trim()->value();
+        $isShop = $productType === 'physical' || $categoryType === 'product';
+        $categoryType = $isShop ? 'product' : 'service';
 
         $query = Product::query()
             ->select($this->productFields())
@@ -21,23 +25,38 @@ class ProductController extends Controller
                 'images',
             ])
             ->where('status', 1)
-            ->whereHas('category', function ($categoryQuery) {
+            ->when($productType !== '', fn ($q) => $q->where('product_type', $productType))
+            ->whereHas('category', function ($categoryQuery) use ($categoryType) {
                 $categoryQuery
                     ->where('status', 1)
-                    ->whereRaw('LOWER(type) = ?', ['service']);
+                    ->whereRaw('LOWER(type) = ?', [$categoryType]);
             })
             ->when($categorySlug !== '', function ($query) use ($categorySlug) {
                 $query->whereHas('category', function ($categoryQuery) use ($categorySlug) {
                     $categoryQuery
                         ->where('slug', $categorySlug)
-                        ->where('status', 1)
-                        ->whereRaw('LOWER(type) = ?', ['service']);
+                        ->where('status', 1);
+                });
+            })
+            ->when($search = $request->string('search')->trim()->value(), function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%");
                 });
             });
 
+        match ($request->input('sort')) {
+            'price_asc' => $query->orderByRaw('COALESCE(sale_price, regular_price, price_discount, price) ASC'),
+            'price_desc' => $query->orderByRaw('COALESCE(sale_price, regular_price, price_discount, price) DESC'),
+            'name_asc' => $query->orderBy('name'),
+            'name_desc' => $query->orderByDesc('name'),
+            'featured' => $query->orderByDesc('is_featured'),
+            default => $query->orderByDesc('id'),
+        };
+
         $products = $query
+            ->when($request->boolean('featured_first'), fn($productQuery) => $productQuery->orderByDesc('is_featured'))
             ->orderBy('order_position')
-            ->orderByDesc('id')
             ->paginate($limit);
 
         return ProductResource::collection($products)->additional([
@@ -58,8 +77,7 @@ class ProductController extends Controller
             ->where('slug', $slug)
             ->whereHas('category', function ($categoryQuery) {
                 $categoryQuery
-                    ->where('status', 1)
-                    ->whereRaw('LOWER(type) = ?', ['service']);
+                    ->where('status', 1);
             })
             ->firstOrFail();
 
@@ -77,6 +95,8 @@ class ProductController extends Controller
             'name',
             'slug',
             'category_id',
+            'product_type',
+            'sku',
             'golf_information',
             'image',
             'image_original_name',
@@ -98,6 +118,11 @@ class ProductController extends Controller
             'content',
             'price',
             'price_discount',
+            'regular_price',
+            'sale_price',
+            'stock_quantity',
+            'manage_stock',
+            'stock_status',
             'badge_text',
             'title_seo',
             'canonical_url',

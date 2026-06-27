@@ -7,8 +7,8 @@
 <main class="main-wrapper setting-page">
   <div class="main-content">
     @php
-      $settingType  = $settingType  ?? 'clinic';
-      $settingTypes = $settingTypes ?? ['clinic' => 'clinic', 'rac' => 'RAC'];
+      $settingType  = 'travel';
+      $settingTypes = ['travel' => 'Travel'];
       $baseAboutUrl = panel_route('setting.aboutPage');
     @endphp
 
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const wrapper = document.getElementById('about-json-wrapper');
 
   const section = wrapper ? wrapper.getAttribute('data-section') : null;
-  const type = wrapper ? (wrapper.getAttribute('data-type') || 'clinic') : 'clinic';
+  const type = wrapper ? (wrapper.getAttribute('data-type') || 'travel') : 'travel';
 
   let storageKey = section ? `about_json_${type}_${section}` : `about_json_${type}_preview`;
 
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateTypeLinks(sectionKey) {
     typeLinks.forEach(function (link) {
-      const linkType = link.getAttribute('data-type') || 'clinic';
+      const linkType = link.getAttribute('data-type') || 'travel';
       link.setAttribute('href', `{{ $baseAboutUrl }}?type=${linkType}&section=${sectionKey || 'hero'}`);
     });
   }
@@ -220,6 +220,14 @@ document.addEventListener('DOMContentLoaded', function () {
     link.addEventListener('shown.bs.tab', function () {
       const sec = this.getAttribute('data-section');
       showJsonBySection(sec);
+
+      if (sec && window.history && window.history.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('type', type);
+        url.searchParams.set('section', sec);
+        url.searchParams.delete('saved');
+        window.history.replaceState({}, '', url.toString());
+      }
     });
   });
 });

@@ -16,8 +16,7 @@ $deleteTextJson = json_encode('Xóa', JSON_UNESCAPED_UNICODE);
 $typeRender = <<<'JS'
 if (type !== 'display') return data;
 const map = {
-  clinic: '<span class="badge bg-label-primary">clinic</span>',
-  RAC: '<span class="badge bg-label-info">RAC</span>'
+  travel: '<span class="badge bg-label-primary">Travel</span>'
 };
 return map[data] || `<span class="badge bg-label-secondary">${String(data || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
 JS;
@@ -184,7 +183,7 @@ $options = [
   'responsiveHeaderField' => 'name',
   'modalFields' => ['name', 'type', 'status', 'creator', 'created_at'],
   'modalRenders' => [
-    'type' => "const map = { clinic: '<span class=\"badge bg-label-primary\">clinic</span>', RAC: '<span class=\"badge bg-label-info\">RAC</span>' }; return map[data] || `<span class=\"badge bg-label-secondary\">\${String(data || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;",
+    'type' => "const map = { travel: '<span class=\"badge bg-label-primary\">Travel</span>' }; return map[data] || `<span class=\"badge bg-label-secondary\">\${String(data || '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;",
     'created_at' => $createdAtRender,
   ],
   'searchPlaceholder' => 'Tìm domain...',
