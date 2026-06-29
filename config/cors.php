@@ -2,7 +2,10 @@
 
 $frontendUrls = array_filter(array_map(
     'trim',
-    explode(',', (string) env('FRONTEND_URLS', env('FRONTEND_URL', 'http://localhost:3000')))
+    explode(',', (string) env(
+        'FRONTEND_URLS',
+        env('FRONTEND_URL', 'http://localhost:3000')
+    ))
 ));
 
 $allowedOrigins = array_values(array_unique(array_map(
@@ -11,7 +14,6 @@ $allowedOrigins = array_values(array_unique(array_map(
 )));
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
@@ -25,7 +27,10 @@ return [
     |
     */
 
-    'paths' => ['*'],
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+    ],
 
     'allowed_methods' => ['*'],
 
@@ -42,3 +47,4 @@ return [
     'supports_credentials' => true,
 
 ];
+
