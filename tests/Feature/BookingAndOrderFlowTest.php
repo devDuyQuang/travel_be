@@ -6,10 +6,9 @@ use App\Enums\BookingStatus;
 use App\Enums\BookingType;
 use App\Enums\OrderStatus;
 use App\Enums\PricingMode;
-use App\Models\Booking;
 use App\Models\Category;
-use App\Models\Order;
 use App\Models\Product;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\BookingService;
 use App\Services\OrderService;
@@ -198,7 +197,7 @@ class BookingAndOrderFlowTest extends TestCase
             'start_date' => now()->addDay()->toDateString(),
         ]);
 
-        $admin = User::factory()->create();
+        $admin = $this->adminUser();
         $this->actingAs($admin)
             ->patch('http://cms.example.test/booking/'.$booking->id.'/status', [
                 'status' => BookingStatus::Cancelled->value,
@@ -366,7 +365,7 @@ class BookingAndOrderFlowTest extends TestCase
             ]);
         }
 
-        $admin = User::factory()->create();
+        $admin = $this->adminUser();
 
         $this->actingAs($admin)
             ->get('http://cms.example.test/booking')
@@ -422,6 +421,18 @@ class BookingAndOrderFlowTest extends TestCase
             'stock_quantity' => $stock,
             'stock_status' => 'in_stock',
             'status' => 1,
+        ]);
+    }
+
+    private function adminUser(): User
+    {
+        $role = Role::query()->firstOrCreate(
+            ['code' => 'admin'],
+            ['name' => 'Admin', 'status' => 1]
+        );
+
+        return User::factory()->create([
+            'role_id' => $role->id,
         ]);
     }
 }

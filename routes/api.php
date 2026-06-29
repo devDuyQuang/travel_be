@@ -1,21 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Api\MenuController;
+use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\PostController;
-use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\CustomerPasswordController;
+use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\MailController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\Api\ServiceRegistrationApiController;
+use App\Http\Controllers\Api\MenuController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ServiceRegistrationApiController;
+use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\TeamMemberController;
-use App\Http\Controllers\Api\FaqController;
-use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\ContactController;
+use Illuminate\Support\Facades\Route;
 
 Route::apiResource('menu', MenuController::class)->only(['index', 'show']);
 Route::apiResource('category', CategoryController::class)->only(['index', 'show']);
@@ -36,6 +37,17 @@ Route::apiResource('setting', SettingController::class)->only(['index']);
 Route::post('/register-service', [ServiceRegistrationApiController::class, 'store']);
 Route::post('/bookings', [BookingController::class, 'store'])->middleware('throttle:transaction-create');
 Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:transaction-create');
+Route::post('/customer/password/reset', [CustomerPasswordController::class, 'reset'])
+    ->middleware('throttle:6,1');
+
+Route::middleware('web')->prefix('customer')->group(function () {
+    Route::post('/login', [CustomerAuthController::class, 'login'])
+        ->middleware('throttle:5,1');
+    Route::get('/me', [CustomerAuthController::class, 'me'])
+        ->middleware('auth:customer');
+    Route::post('/logout', [CustomerAuthController::class, 'logout'])
+        ->middleware('auth:customer');
+});
 
 Route::get('/comments', [CommentController::class, 'index']);
 Route::post('/comments', [CommentController::class, 'store']);

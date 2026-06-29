@@ -26,7 +26,19 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api')
                 ->domain('api.{domain}')
                 ->where(['domain' => '.+'])
+                ->prefix('api')
                 ->as('api.')
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('api')
+                ->prefix('api')
+                ->as('proxy.api.')
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('api')
+                ->domain('api.{domain}')
+                ->where(['domain' => '.+'])
+                ->as('legacy.api.')
                 ->group(base_path('routes/api.php'));
 
             Route::middleware('web')

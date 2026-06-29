@@ -22,6 +22,11 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'frontend' => [
+        'url' => env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
+        'urls' => env('FRONTEND_URLS', env('FRONTEND_URL', 'http://localhost:3000')),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

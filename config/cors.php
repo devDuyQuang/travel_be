@@ -1,5 +1,15 @@
 <?php
 
+$frontendUrls = array_filter(array_map(
+    'trim',
+    explode(',', (string) env('FRONTEND_URLS', env('FRONTEND_URL', 'http://localhost:3000')))
+));
+
+$allowedOrigins = array_values(array_unique(array_map(
+    static fn (string $url): string => rtrim($url, '/'),
+    $frontendUrls
+)));
+
 return [
 
     /*
@@ -19,7 +29,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => $allowedOrigins,
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +39,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

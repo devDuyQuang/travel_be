@@ -618,6 +618,45 @@
         width: 100%;
     }
 
+    .commerce-pagination .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .commerce-pagination .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-color: #dfe5ee;
+        border-radius: 8px;
+        color: #667284;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+        box-shadow: none;
+    }
+
+    .commerce-pagination .page-link svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .commerce-pagination .page-item.active .page-link {
+        border-color: #198778;
+        background: #198778;
+        color: #ffffff;
+    }
+
+    .commerce-pagination .page-item.disabled .page-link {
+        opacity: 0.5;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Responsive
