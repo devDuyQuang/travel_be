@@ -1,4 +1,9 @@
 <?php
+//Đây là core booking flow. 
+//Service này xử lý trong DB transaction, 
+//resolve hoặc tạo customer account, 
+//kiểm tra idempotency key, tạo booking, 
+//tạo payment ban đầu, ghi history và gửi email xác nhận.
 
 namespace App\Services;
 

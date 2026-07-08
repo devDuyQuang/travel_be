@@ -1,5 +1,9 @@
 <?php
-
+//Đây là validation backend.
+// validate field chung như name, email, phone, start date, service product;
+// sau đó validate thêm theo từng loại dịch vụ, ví dụ hotel cần end date và room type, 
+//transport cần pickup/dropoff, tee time cần start time.
+// dùng transaction để tránh trường hợp tạo booking thành công nhưng payment/history bị lỗi giữa chừng.
 namespace App\Http\Requests\Api;
 
 use App\Enums\PaymentMethod;
@@ -33,12 +37,16 @@ class StoreBookingRequest extends FormRequest
             'payment_method' => ['nullable', Rule::in(PaymentMethod::values())],
             'idempotency_key' => ['nullable', 'string', 'max:100'],
             'booking_details' => ['nullable', 'array'],
+            'booking_details.service_option_id' => ['nullable', 'integer'],
             'booking_details.pickup_location' => ['nullable', 'string', 'max:255'],
             'booking_details.dropoff_location' => ['nullable', 'string', 'max:255'],
             'booking_details.vehicle_type' => ['nullable', 'string', 'max:255'],
             'booking_details.passengers' => ['nullable', 'integer', 'min:1', 'max:200'],
             'booking_details.room_type' => ['nullable', 'string', 'max:255'],
+            'booking_details.room_number' => ['nullable', 'string', 'max:255'],
             'booking_details.rooms' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'booking_details.nights' => ['nullable', 'integer', 'min:1', 'max:365'],
+            'booking_details.check_in_time' => ['nullable', 'string', 'max:50'],
             'booking_details.golfers' => ['nullable', 'integer', 'min:1', 'max:200'],
             'extras' => ['nullable', 'array'],
         ];
@@ -86,8 +94,22 @@ class StoreBookingRequest extends FormRequest
                 }
             }
 
-            if ($type === BookingType::Hotel->value && blank($this->input('end_date'))) {
-                $validator->errors()->add('end_date', 'Vui lòng chọn ngày trả phòng.');
+            if ($type === BookingType::Hotel->value) {
+                if (blank($this->input('end_date'))) {
+                    $validator->errors()->add('end_date', 'Vui lòng chọn ngày trả phòng.');
+                }
+
+                if (
+                    filled($this->input('start_date')) &&
+                    filled($this->input('end_date')) &&
+                    strtotime((string) $this->input('end_date')) <= strtotime((string) $this->input('start_date'))
+                ) {
+                    $validator->errors()->add('end_date', 'Ngày trả phòng phải sau ngày nhận phòng.');
+                }
+
+                if (blank($details['room_type'] ?? null)) {
+                    $validator->errors()->add('booking_details.room_type', 'Vui lòng chọn hoặc nhập loại phòng.');
+                }
             }
 
             if ($type === BookingType::TeeTime->value && blank($this->input('start_time'))) {
@@ -107,10 +129,10 @@ class StoreBookingRequest extends FormRequest
             'customer_email.email' => 'Email không đúng định dạng.',
             'customer_phone.required' => 'Vui lòng nhập số điện thoại.',
             'customer_phone.regex' => 'Số điện thoại Việt Nam không hợp lệ.',
-            'start_date.required' => 'Vui lòng chọn ngày sử dụng.',
-            'start_date.after_or_equal' => 'Ngày sử dụng không được nằm trong quá khứ.',
+            'start_date.required' => 'Vui lòng chọn ngày booking.',
+            'start_date.after_or_equal' => 'Ngày booking không được nằm trong quá khứ.',
             'end_date.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
-            'start_time.date_format' => 'Giờ sử dụng không hợp lệ.',
+            'start_time.date_format' => 'Giờ không hợp lệ.',
         ];
     }
 }

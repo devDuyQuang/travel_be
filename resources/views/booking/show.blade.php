@@ -17,7 +17,12 @@
   $details = is_array($booking->booking_details) ? $booking->booking_details : [];
   $snapshot = is_array($booking->pricing_snapshot) ? $booking->pricing_snapshot : [];
 @endphp
-
+<!-- Sau khi khách gửi booking,
+ // admin có màn hình detail để xem thông tin, 
+ //cập nhật quote, booking status, 
+ //payment status và internal note. 
+ //Vì mô hình hiện tại là request/quote nên chưa tích hợp payment gateway online, 
+ //admin sẽ xử lý payment thủ công. -->
 <main class="main-wrapper">
   <div class="main-content">
     <div class="d-flex align-items-center justify-content-between mb-4">
@@ -50,9 +55,9 @@
             <div class="col-md-6"><small class="text-muted">Dịch vụ</small><div>{{ $booking->service_name_snapshot }}</div></div>
             <div class="col-md-6"><small class="text-muted">Danh mục</small><div>{{ $booking->serviceCategory?->name ?: '—' }}</div></div>
             <div class="col-md-3"><small class="text-muted">Loại booking</small><div>{{ $bookingType?->label() ?? '—' }}</div></div>
-            <div class="col-md-3"><small class="text-muted">Ngày bắt đầu</small><div>{{ $booking->start_date?->format('d/m/Y') }}</div></div>
-            <div class="col-md-3"><small class="text-muted">Ngày kết thúc</small><div>{{ $booking->end_date?->format('d/m/Y') ?: '—' }}</div></div>
-            <div class="col-md-3"><small class="text-muted">Giờ</small><div>{{ $booking->start_time ?: '—' }}</div></div>
+            <div class="col-md-3"><small class="text-muted">{{ $bookingType?->value === 'hotel' ? 'Ngày nhận phòng' : 'Ngày bắt đầu' }}</small><div>{{ $booking->start_date?->format('d/m/Y') }}</div></div>
+            <div class="col-md-3"><small class="text-muted">{{ $bookingType?->value === 'hotel' ? 'Ngày trả phòng' : 'Ngày kết thúc' }}</small><div>{{ $booking->end_date?->format('d/m/Y') ?: '—' }}</div></div>
+            <div class="col-md-3"><small class="text-muted">{{ $bookingType?->value === 'hotel' ? 'Giờ nhận phòng' : 'Giờ' }}</small><div>{{ $booking->start_time ?: ($details['check_in_time'] ?? '—') }}</div></div>
             @if(in_array($bookingType?->value, ['tour', 'attraction'], true))
               <div class="col-md-3"><small class="text-muted">Số khách</small><div>{{ $booking->adults }} người lớn, {{ $booking->children }} trẻ em</div></div>
             @elseif($bookingType?->value === 'transport')
@@ -62,10 +67,17 @@
               <div class="col-md-6"><small class="text-muted">Loại xe</small><div>{{ $details['vehicle_type'] ?? '—' }}</div></div>
             @elseif($bookingType?->value === 'hotel')
               <div class="col-md-3"><small class="text-muted">Số phòng</small><div>{{ $details['rooms'] ?? '—' }}</div></div>
-              <div class="col-md-6"><small class="text-muted">Loại phòng</small><div>{{ $details['room_type'] ?? '—' }}</div></div>
+              <div class="col-md-3"><small class="text-muted">Số đêm</small><div>{{ $details['nights'] ?? '—' }}</div></div>
+              <div class="col-md-3"><small class="text-muted">Loại phòng</small><div>{{ $details['room_type'] ?? '—' }}</div></div>
+              <div class="col-md-3"><small class="text-muted">Phòng</small><div>{{ $details['room_number'] ?? 'Theo tư vấn' }}</div></div>
               <div class="col-md-3"><small class="text-muted">Số khách</small><div>{{ $booking->adults }} người lớn, {{ $booking->children }} trẻ em</div></div>
             @else
               <div class="col-md-3"><small class="text-muted">Số lượng</small><div>{{ $booking->quantity }}</div></div>
+            @endif
+            @if(!empty($details['option_name']))
+              <div class="col-md-6"><small class="text-muted">Tùy chọn dịch vụ</small><div>{{ $details['option_name'] }}</div></div>
+              <div class="col-md-3"><small class="text-muted">Đơn giá</small><div>{{ isset($details['unit_price']) ? number_format((float) $details['unit_price'], 0, ',', '.') . ' ₫' : 'Sẽ được tư vấn' }}{{ !empty($details['unit']) ? ' / '.$details['unit'] : '' }}</div></div>
+              <div class="col-md-3"><small class="text-muted">Thành tiền</small><div>{{ isset($details['calculated_total']) && (float) $details['calculated_total'] > 0 ? number_format((float) $details['calculated_total'], 0, ',', '.') . ' ₫' : 'Sẽ được tư vấn' }}</div></div>
             @endif
           </div>
         </div>
@@ -77,7 +89,7 @@
               <tbody>
                 <tr><td>Cách tính giá</td><td class="text-end">{{ $pricingMode?->label() ?? '—' }}</td></tr>
                 @if($pricingMode === PricingMode::Quote)
-                  <tr><th>Tổng tiền</th><th class="text-end">Cần báo giá</th></tr>
+                  <tr><th>Giá dự kiến</th><th class="text-end">Sẽ được tư vấn</th></tr>
                 @else
                   @if(isset($snapshot['adult_price']))
                     <tr><td>Giá người lớn</td><td class="text-end">{{ number_format((float) $snapshot['adult_price'], 0, ',', '.') }} ₫</td></tr>
@@ -160,7 +172,7 @@
         </div>
 
         <div class="card mb-4">
-          <div class="card-header"><strong>Thanh toán</strong></div>
+          <div class="card-header"><strong>Thông tin thanh toán dự kiến</strong></div>
           <div class="card-body">
             <form method="POST" action="{{ panel_route('booking.payment', ['booking' => $booking->id]) }}" class="vstack gap-3">
               @csrf

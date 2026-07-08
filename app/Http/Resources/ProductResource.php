@@ -74,6 +74,24 @@ class ProductResource extends JsonResource
             'highlights' => $this->highlight,
             'facilities' => $this->facility,
             'attributes' => (object) $attributes,
+            'service_options' => $this->whenLoaded('activeServiceOptions', fn () => $this->activeServiceOptions
+                ->sortBy([
+                    ['sort_order', 'asc'],
+                    ['id', 'asc'],
+                ])
+                ->values()
+                ->map(fn ($option) => [
+                    'id' => $option->id,
+                    'type' => $option->type,
+                    'name' => $option->name,
+                    'label' => $option->name,
+                    'description' => $option->description,
+                    'price' => $option->price,
+                    'currency' => $option->currency,
+                    'unit' => $option->unit,
+                    'capacity' => $option->capacity,
+                    'sort_order' => $option->sort_order,
+                ])),
             'seo' => [
                 'title' => $this->title_seo,
                 'description' => $this->description_seo,

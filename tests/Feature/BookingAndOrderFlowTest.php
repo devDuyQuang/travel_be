@@ -142,6 +142,244 @@ class BookingAndOrderFlowTest extends TestCase
         ]);
     }
 
+    public function test_hotel_booking_requires_checkout_and_room_type(): void
+    {
+        $product = $this->serviceProduct(price: '0.00', layoutKey: 'accommodation');
+
+        $this->postJson('http://api.example.test/bookings', [
+            'service_product_id' => $product->id,
+            'booking_type' => BookingType::Hotel->value,
+            'customer_name' => 'Nguyen Van A',
+            'customer_email' => 'a@example.test',
+            'customer_phone' => '0901234567',
+            'start_date' => now()->addDay()->toDateString(),
+            'booking_details' => [
+                'rooms' => 1,
+            ],
+            'idempotency_key' => 'hotel-missing-fields',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'end_date',
+                'booking_details.room_type',
+            ]);
+    }
+
+    public function test_hotel_booking_rejects_checkout_not_after_checkin(): void
+    {
+        $product = $this->serviceProduct(price: '0.00', layoutKey: 'accommodation');
+        $date = now()->addDay()->toDateString();
+
+        $this->postJson('http://api.example.test/bookings', [
+            'service_product_id' => $product->id,
+            'booking_type' => BookingType::Hotel->value,
+            'customer_name' => 'Nguyen Van A',
+            'customer_email' => 'a@example.test',
+            'customer_phone' => '0901234567',
+            'start_date' => $date,
+            'end_date' => $date,
+            'booking_details' => [
+                'room_type' => 'Deluxe Ocean View',
+                'rooms' => 1,
+            ],
+            'idempotency_key' => 'hotel-bad-checkout',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['end_date']);
+    }
+
+    public function test_hotel_booking_calculates_room_price_by_nights(): void
+    {
+        $product = $this->serviceProduct(
+            price: '0.00',
+            layoutKey: 'accommodation',
+            attributes: ['room_price' => '1500000.00'],
+        );
+        $checkIn = now()->addDay();
+
+        $response = $this->postJson('http://api.example.test/bookings', [
+            'service_product_id' => $product->id,
+            'booking_type' => BookingType::Hotel->value,
+            'customer_name' => 'Nguyen Van A',
+            'customer_email' => 'a@example.test',
+            'customer_phone' => '0901234567',
+            'start_date' => $checkIn->toDateString(),
+            'end_date' => $checkIn->copy()->addDays(2)->toDateString(),
+            'start_time' => '14:00',
+            'adults' => 2,
+            'children' => 1,
+            'quantity' => 1,
+            'booking_details' => [
+                'room_type' => 'Deluxe Ocean View',
+                'rooms' => 1,
+            ],
+            'idempotency_key' => 'hotel-priced-booking',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.amounts.pricing_mode.value', PricingMode::PerRoom->value)
+            ->assertJsonPath('data.amounts.total_amount', '3000000.00')
+            ->assertJsonPath('data.booking_details.nights', 2)
+            ->assertJsonPath('data.booking_details.room_type', 'Deluxe Ocean View');
+    }
+
+    public function test_product_options_can_be_saved_from_cms(): void
+    {
+        $admin = $this->adminUser();
+        $category = Category::create([
+            'name' => 'Khách sạn',
+            'slug' => 'khach-san-'.uniqid(),
+            'type' => 'service',
+            'layout_key' => 'accommodation',
+            'status' => 1,
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson('http://cms.example.test/product', [
+                'name' => 'Fusion Resort',
+                'slug' => 'fusion-resort',
+                'category_id' => $category->id,
+                'product_type' => 'service',
+                'status' => 1,
+                'service_options' => [
+                    [
+                        'type' => 'room_type',
+                        'name' => 'Deluxe Ocean View',
+                        'price' => '1500000',
+                        'unit' => 'đêm',
+                        'capacity' => 3,
+                        'sort_order' => 1,
+                        'is_active' => 1,
+                    ],
+                ],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('service_product_options', [
+            'type' => 'room_type',
+            'name' => 'Deluxe Ocean View',
+            'price' => '1500000.00',
+            'unit' => 'đêm',
+            'capacity' => 3,
+            'is_active' => 1,
+        ]);
+    }
+
+    public function test_product_api_returns_only_active_service_options(): void
+    {
+        $product = $this->serviceProduct(layoutKey: 'accommodation');
+        $active = $product->serviceOptions()->create([
+            'type' => 'room_type',
+            'name' => 'Deluxe Ocean View',
+            'price' => '1500000.00',
+            'currency' => 'VND',
+            'unit' => 'đêm',
+            'is_active' => true,
+        ]);
+        $product->serviceOptions()->create([
+            'type' => 'room_type',
+            'name' => 'Inactive Room',
+            'price' => '900000.00',
+            'currency' => 'VND',
+            'unit' => 'đêm',
+            'is_active' => false,
+        ]);
+
+        $response = $this->getJson('http://api.example.test/product/'.$product->slug);
+
+        $response->assertOk()
+            ->assertJsonPath('data.service_options.0.id', $active->id)
+            ->assertJsonPath('data.service_options.0.name', 'Deluxe Ocean View');
+
+        $this->assertCount(1, $response->json('data.service_options'));
+    }
+
+    public function test_hotel_booking_with_room_option_calculates_price_by_nights_and_rooms(): void
+    {
+        $product = $this->serviceProduct(price: '0.00', layoutKey: 'accommodation');
+        $option = $product->serviceOptions()->create([
+            'type' => 'room_type',
+            'name' => 'Suite Ocean View',
+            'price' => '2000000.00',
+            'currency' => 'VND',
+            'unit' => 'đêm',
+            'is_active' => true,
+        ]);
+        $checkIn = now()->addDay();
+
+        $response = $this->postJson('http://api.example.test/bookings', [
+            'service_product_id' => $product->id,
+            'booking_type' => BookingType::Hotel->value,
+            'customer_name' => 'Nguyen Van A',
+            'customer_email' => 'a@example.test',
+            'customer_phone' => '0901234567',
+            'start_date' => $checkIn->toDateString(),
+            'end_date' => $checkIn->copy()->addDays(3)->toDateString(),
+            'adults' => 2,
+            'children' => 0,
+            'quantity' => 2,
+            'booking_details' => [
+                'service_option_id' => $option->id,
+                'room_type' => 'Client sent fake name',
+                'rooms' => 2,
+            ],
+            'idempotency_key' => 'hotel-option-priced-booking',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.amounts.total_amount', '12000000.00')
+            ->assertJsonPath('data.booking_details.option_id', $option->id)
+            ->assertJsonPath('data.booking_details.option_name', 'Suite Ocean View')
+            ->assertJsonPath('data.booking_details.quantity_basis', 6);
+    }
+
+    public function test_booking_rejects_option_from_another_product_or_inactive_option(): void
+    {
+        $product = $this->serviceProduct(price: '0.00', layoutKey: 'accommodation');
+        $otherProduct = $this->serviceProduct(price: '0.00', layoutKey: 'accommodation');
+        $otherOption = $otherProduct->serviceOptions()->create([
+            'type' => 'room_type',
+            'name' => 'Other Room',
+            'price' => '1000000.00',
+            'currency' => 'VND',
+            'unit' => 'đêm',
+            'is_active' => true,
+        ]);
+        $inactiveOption = $product->serviceOptions()->create([
+            'type' => 'room_type',
+            'name' => 'Inactive Room',
+            'price' => '1000000.00',
+            'currency' => 'VND',
+            'unit' => 'đêm',
+            'is_active' => false,
+        ]);
+        $checkIn = now()->addDay();
+        $payload = [
+            'service_product_id' => $product->id,
+            'booking_type' => BookingType::Hotel->value,
+            'customer_name' => 'Nguyen Van A',
+            'customer_email' => 'a@example.test',
+            'customer_phone' => '0901234567',
+            'start_date' => $checkIn->toDateString(),
+            'end_date' => $checkIn->copy()->addDay()->toDateString(),
+            'booking_details' => [
+                'service_option_id' => $otherOption->id,
+                'room_type' => 'Other Room',
+                'rooms' => 1,
+            ],
+            'idempotency_key' => 'hotel-wrong-option',
+        ];
+
+        $this->postJson('http://api.example.test/bookings', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['booking_details.service_option_id']);
+
+        $payload['booking_details']['service_option_id'] = $inactiveOption->id;
+        $payload['idempotency_key'] = 'hotel-inactive-option';
+
+        $this->postJson('http://api.example.test/bookings', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['booking_details.service_option_id']);
+    }
+
     public function test_booking_idempotency_returns_existing_and_rejects_different_payload(): void
     {
         $product = $this->serviceProduct();

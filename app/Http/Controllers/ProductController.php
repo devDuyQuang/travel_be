@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ServiceProductOption;
 use App\Support\ServiceProductAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -131,8 +132,10 @@ class ProductController extends Controller
         $categories = $this->getCategoryOptions();
         $categoryLayouts = $this->getCategoryLayouts();
         $attributeGroups = ServiceProductAttributes::groups();
+        $serviceOptionTypes = ServiceProductOption::TYPES;
+        $serviceOptionUnits = ServiceProductOption::UNITS;
 
-        return view('product.create', compact('categories', 'categoryLayouts', 'attributeGroups'));
+        return view('product.create', compact('categories', 'categoryLayouts', 'attributeGroups', 'serviceOptionTypes', 'serviceOptionUnits'));
     }
 
     public function store(Request $request)
@@ -155,6 +158,7 @@ class ProductController extends Controller
             }
 
             $product = Product::create($data);
+            $this->syncServiceOptions($product, $request->input('service_options', []));
 
             $this->uploadProductGalleryImages($request, $product);
 
@@ -181,10 +185,12 @@ class ProductController extends Controller
 
     public function edit(Request $request, $domain, $id)
     {
-        $item = Product::with('images')->findOrFail($id);
+        $item = Product::with(['images', 'serviceOptions'])->findOrFail($id);
         $categories = $this->getCategoryOptions();
         $categoryLayouts = $this->getCategoryLayouts();
         $attributeGroups = ServiceProductAttributes::groups();
+        $serviceOptionTypes = ServiceProductOption::TYPES;
+        $serviceOptionUnits = ServiceProductOption::UNITS;
 
         $currentImageUrl = $item->image ? Storage::url($item->image) : null;
         $currentGalleryImage1Url = $item->gallery_image_1 ? Storage::url($item->gallery_image_1) : null;
@@ -195,6 +201,8 @@ class ProductController extends Controller
             'categories',
             'categoryLayouts',
             'attributeGroups',
+            'serviceOptionTypes',
+            'serviceOptionUnits',
             'currentImageUrl',
             'currentGalleryImage1Url',
             'currentGalleryImage2Url',
@@ -226,6 +234,7 @@ class ProductController extends Controller
             $data['updated_by'] = Auth::id();
 
             $item->update($data);
+            $this->syncServiceOptions($item, $request->input('service_options', []));
 
             $this->uploadProductGalleryImages($request, $item->fresh());
 
@@ -313,6 +322,21 @@ class ProductController extends Controller
                     $numberField => str_replace(',', '.', $request->input($numberField)),
                 ]);
             }
+        }
+
+        $serviceOptions = $request->input('service_options', []);
+        if (is_array($serviceOptions)) {
+            foreach ($serviceOptions as $index => $option) {
+                if (! is_array($option)) {
+                    continue;
+                }
+
+                if (array_key_exists('price', $option) && is_string($option['price'])) {
+                    $serviceOptions[$index]['price'] = str_replace(',', '.', $option['price']);
+                }
+            }
+
+            $request->merge(['service_options' => $serviceOptions]);
         }
 
         $request->merge([
@@ -415,6 +439,18 @@ class ProductController extends Controller
             'order_position' => ['nullable', 'integer', 'min:0'],
             'badge_text' => ['nullable', 'string', 'max:50'],
             'attributes' => ['nullable', 'array'],
+            'service_options' => ['nullable', 'array'],
+            'service_options.*.id' => ['nullable', 'integer'],
+            'service_options.*._delete' => ['nullable', 'boolean'],
+            'service_options.*.type' => ['nullable', Rule::in(ServiceProductOption::TYPES)],
+            'service_options.*.name' => ['nullable', 'string', 'max:255'],
+            'service_options.*.description' => ['nullable', 'string'],
+            'service_options.*.price' => ['nullable', 'numeric', 'min:0'],
+            'service_options.*.currency' => ['nullable', 'string', 'max:10'],
+            'service_options.*.unit' => ['nullable', Rule::in(ServiceProductOption::UNITS)],
+            'service_options.*.capacity' => ['nullable', 'integer', 'min:0'],
+            'service_options.*.sort_order' => ['nullable', 'integer', 'min:0'],
+            'service_options.*.is_active' => ['nullable', 'boolean'],
             ...($productType === 'service' ? ServiceProductAttributes::validationRules() : []),
         ], [
             'name.required' => 'Vui lòng nhập tên sản phẩm.',
@@ -484,6 +520,71 @@ class ProductController extends Controller
             'badge_text.string' => 'Nhãn hiển thị không hợp lệ.',
             'badge_text.max' => 'Nhãn hiển thị không được vượt quá 50 ký tự.',
         ]);
+    }
+
+    private function syncServiceOptions(Product $product, mixed $options): void
+    {
+        if (! is_array($options)) {
+            return;
+        }
+
+        foreach ($options as $option) {
+            if (! is_array($option)) {
+                continue;
+            }
+
+            $id = isset($option['id']) && is_numeric($option['id'])
+                ? (int) $option['id']
+                : null;
+            $markedForDelete = filter_var($option['_delete'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $name = trim((string) ($option['name'] ?? ''));
+
+            if ($id && ($markedForDelete || $name === '')) {
+                $product->serviceOptions()->whereKey($id)->delete();
+                continue;
+            }
+
+            if ($name === '') {
+                continue;
+            }
+
+            $payload = [
+                'type' => in_array(($option['type'] ?? ''), ServiceProductOption::TYPES, true)
+                    ? $option['type']
+                    : 'room_type',
+                'name' => $name,
+                'description' => filled($option['description'] ?? null)
+                    ? trim((string) $option['description'])
+                    : null,
+                'price' => filled($option['price'] ?? null)
+                    ? (string) $option['price']
+                    : null,
+                'currency' => filled($option['currency'] ?? null)
+                    ? strtoupper(trim((string) $option['currency']))
+                    : 'VND',
+                'unit' => in_array(($option['unit'] ?? ''), ServiceProductOption::UNITS, true)
+                    ? $option['unit']
+                    : null,
+                'capacity' => filled($option['capacity'] ?? null)
+                    ? max(0, (int) $option['capacity'])
+                    : null,
+                'sort_order' => max(0, (int) ($option['sort_order'] ?? 0)),
+                'is_active' => filter_var($option['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'metadata' => null,
+            ];
+
+            if ($id) {
+                $existing = $product->serviceOptions()->whereKey($id)->first();
+
+                if ($existing) {
+                    $existing->update($payload);
+                }
+
+                continue;
+            }
+
+            $product->serviceOptions()->create($payload);
+        }
     }
 
     private function handleProductFixedImages(

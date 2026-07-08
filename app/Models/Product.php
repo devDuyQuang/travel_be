@@ -98,6 +98,16 @@ class Product extends Model
         return $this->hasMany(Booking::class, 'service_product_id');
     }
 
+    public function serviceOptions(): HasMany
+    {
+        return $this->hasMany(ServiceProductOption::class, 'service_product_id')->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function activeServiceOptions(): HasMany
+    {
+        return $this->serviceOptions()->where('is_active', true);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

@@ -203,6 +203,13 @@ class CustomerBookingEmailTest extends TestCase
             'total_amount' => '200000.00',
             'pricing_mode' => PricingMode::Fixed->value,
             'end_date' => now()->addDays(3)->toDateString(),
+            'booking_details' => [
+                'option_name' => 'Deluxe Ocean View',
+                'unit_price' => '100000.00',
+                'unit' => 'đêm',
+                'quantity_basis' => 2,
+                'calculated_total' => '200000.00',
+            ],
         ]);
         $quoteBooking = $this->bookingForMail($this->serviceProduct(price: '0.00'), [
             'total_amount' => '0.00',
@@ -214,9 +221,11 @@ class CustomerBookingEmailTest extends TestCase
         $quoteHtml = (new BookingReceivedMail($quoteBooking))->render();
 
         $this->assertStringContainsString('200.000 VND', $pricedHtml);
+        $this->assertStringContainsString('Deluxe Ocean View', $pricedHtml);
+        $this->assertStringContainsString('100.000 VND / đêm', $pricedHtml);
         $this->assertStringContainsString('Ngày kết thúc', $pricedHtml);
         $this->assertStringContainsString('Thiết lập mật khẩu', $pricedHtml);
-        $this->assertStringContainsString('Cần báo giá', $quoteHtml);
+        $this->assertStringContainsString('Sẽ được tư vấn', $quoteHtml);
         $this->assertStringNotContainsString('Ngày kết thúc', $quoteHtml);
     }
 

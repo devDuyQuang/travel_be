@@ -548,6 +548,158 @@
 
     /*
     |--------------------------------------------------------------------------
+    | Service options
+    |--------------------------------------------------------------------------
+    */
+
+    function refreshServiceOptionsEmptyState() {
+        var list = document.querySelector(
+            '[data-service-options-list]'
+        );
+        var empty = document.querySelector(
+            '[data-service-options-empty]'
+        );
+
+        if (!list || !empty) {
+            return;
+        }
+
+        var visibleRows = list.querySelectorAll(
+            '[data-service-option-row]:not(.d-none)'
+        );
+
+        empty.classList.toggle(
+            'd-none',
+            visibleRows.length > 0
+        );
+    }
+
+    function nextServiceOptionIndex() {
+        var list = document.querySelector(
+            '[data-service-options-list]'
+        );
+
+        if (!list) {
+            return Date.now();
+        }
+
+        return list.querySelectorAll(
+            '[data-service-option-row]'
+        ).length;
+    }
+
+    function addServiceOptionRow() {
+        var list = document.querySelector(
+            '[data-service-options-list]'
+        );
+        var template = document.querySelector(
+            '[data-service-option-template]'
+        );
+
+        if (!list || !template) {
+            return;
+        }
+
+        var index = nextServiceOptionIndex();
+        var html = template.innerHTML.replace(
+            /__INDEX__/g,
+            String(index)
+        );
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = html.trim();
+
+        if (wrapper.firstElementChild) {
+            list.appendChild(wrapper.firstElementChild);
+        }
+
+        refreshServiceOptionsEmptyState();
+    }
+
+    function removeServiceOptionRow(button) {
+        var row = button.closest(
+            '[data-service-option-row]'
+        );
+
+        if (!row) {
+            return;
+        }
+
+        var idInput = row.querySelector(
+            'input[name$="[id]"]'
+        );
+        var deleteInput = row.querySelector(
+            '[data-service-option-delete]'
+        );
+
+        if (idInput && idInput.value) {
+            if (deleteInput) {
+                deleteInput.value = '1';
+            }
+
+            row.classList.add('d-none');
+        } else {
+            row.remove();
+        }
+
+        refreshServiceOptionsEmptyState();
+    }
+
+    function initServiceOptions() {
+        document
+            .querySelectorAll(
+                '.js-add-service-option'
+            )
+            .forEach(function (button) {
+                if (
+                    button.dataset.serviceOptionsReady ===
+                    '1'
+                ) {
+                    return;
+                }
+
+                button.dataset.serviceOptionsReady = '1';
+
+                button.addEventListener(
+                    'click',
+                    addServiceOptionRow
+                );
+            });
+
+        document
+            .querySelectorAll(
+                '[data-service-options-list]'
+            )
+            .forEach(function (list) {
+                if (
+                    list.dataset.serviceOptionsReady ===
+                    '1'
+                ) {
+                    return;
+                }
+
+                list.dataset.serviceOptionsReady = '1';
+
+                list.addEventListener(
+                    'click',
+                    function (event) {
+                        var button = event.target.closest(
+                            '.js-remove-service-option'
+                        );
+
+                        if (!button) {
+                            return;
+                        }
+
+                        removeServiceOptionRow(button);
+                    }
+                );
+            });
+
+        refreshServiceOptionsEmptyState();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | DataTable lifecycle
     |--------------------------------------------------------------------------
     */
@@ -592,6 +744,7 @@
 
     $(function () {
         initProductAttributes();
+        initServiceOptions();
         initProductFileInputs();
         waitForProductTable();
     });

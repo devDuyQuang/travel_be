@@ -17,7 +17,7 @@ class BookingController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Booking đã được gửi thành công. Golfnity sẽ liên hệ xác nhận sớm nhất.',
+            'message' => 'Yêu cầu booking đã được tiếp nhận. Golfnity sẽ kiểm tra tình trạng dịch vụ và phản hồi trong thời gian sớm nhất.',
             'data' => BookingResource::make($booking)->resolve($request),
             'meta' => [
                 'account_created' => $result['account_created'],

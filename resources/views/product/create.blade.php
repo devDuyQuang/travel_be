@@ -477,6 +477,8 @@
                             {{-- THÔNG TIN CHUYÊN BIỆT --}}
                             @include('product.partials.category-attributes')
 
+                            @include('product.partials.service-options')
+
                             {{-- HÌNH ẢNH VÀ VIDEO --}}
                             <div class="product-section mb-4">
                                 <div class="product-section-heading">

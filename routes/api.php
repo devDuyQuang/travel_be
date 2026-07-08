@@ -1,5 +1,9 @@
 <?php
-
+//Controller này em giữ mỏng.
+// Nó nhận request đã validate,
+// gọi BookingService xử lý nghiệp vụ,
+// sau đó trả JSON response cho frontend gồm booking data và meta 
+//như account created hoặc mail dispatched.
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;

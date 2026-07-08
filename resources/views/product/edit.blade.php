@@ -536,6 +536,11 @@
                                 ['item' => $item]
                             )
 
+                            @include(
+                                'product.partials.service-options',
+                                ['item' => $item]
+                            )
+
                             {{-- HÌNH ẢNH VÀ VIDEO --}}
                             <div class="product-section mb-4">
                                 <div class="product-section-heading">

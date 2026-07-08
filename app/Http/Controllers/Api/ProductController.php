@@ -23,6 +23,7 @@ class ProductController extends Controller
             ->with([
                 'category:id,name,slug,type,layout_key,status',
                 'images',
+                'activeServiceOptions',
             ])
             ->where('status', 1)
             ->when($productType !== '', fn ($q) => $q->where('product_type', $productType))
@@ -72,6 +73,7 @@ class ProductController extends Controller
             ->with([
                 'category:id,name,slug,type,layout_key,status',
                 'images',
+                'activeServiceOptions',
             ])
             ->where('status', 1)
             ->where('slug', $slug)

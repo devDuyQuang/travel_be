@@ -35,7 +35,23 @@ final class ServiceProductAttributes
                     'classification_rating' => ['label' => 'Hạng phân loại', 'type' => 'text'],
                     'full_address' => ['label' => 'Địa chỉ đầy đủ', 'type' => 'text'],
                     'check_in_time' => ['label' => 'Giờ nhận phòng', 'type' => 'text'],
+                    'check_in_time_options' => [
+                        'label' => 'Các giờ nhận phòng cho khách chọn',
+                        'type' => 'textarea',
+                        'description' => 'Mỗi dòng hoặc phân tách bằng dấu phẩy, ví dụ: 14:00, 15:00',
+                    ],
                     'check_out_time' => ['label' => 'Giờ trả phòng', 'type' => 'text'],
+                    'room_price' => ['label' => 'Giá/phòng/đêm', 'type' => 'number'],
+                    'room_types' => [
+                        'label' => 'Danh sách loại phòng',
+                        'type' => 'textarea',
+                        'description' => 'Mỗi dòng một loại phòng, ví dụ: Phòng thường, Phòng VIP, Suite',
+                    ],
+                    'room_numbers' => [
+                        'label' => 'Danh sách phòng đang cho đặt',
+                        'type' => 'textarea',
+                        'description' => 'Mỗi dòng một phòng còn có thể chọn, ví dụ: 101 - hướng biển',
+                    ],
                     'max_guests' => ['label' => 'Số khách tối đa', 'type' => 'number'],
                     'bedroom_count' => ['label' => 'Số phòng ngủ', 'type' => 'number'],
                     'bed_count' => ['label' => 'Số giường', 'type' => 'number'],

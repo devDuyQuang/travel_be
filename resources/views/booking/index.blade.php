@@ -126,7 +126,7 @@
                                 for="booking-payment-status"
                                 class="form-label"
                             >
-                                Thanh toán
+                                Thanh toán dự kiến
                             </label>
 
                             <select
@@ -317,11 +317,11 @@
                             </th>
 
                             <th class="commerce-date-column">
-                                Ngày sử dụng
+                                Ngày booking
                             </th>
 
                             <th class="commerce-amount-column text-end">
-                                Tổng tiền
+                                Giá dự kiến
                             </th>
 
                             <th class="commerce-status-column">
@@ -329,7 +329,7 @@
                             </th>
 
                             <th class="commerce-status-column">
-                                Thanh toán
+                                Thanh toán dự kiến
                             </th>
 
                             <th class="commerce-created-column">
@@ -444,7 +444,7 @@
                                 <td class="text-end">
                                     <strong class="commerce-amount">
                                         @if($pricingMode === PricingMode::Quote)
-                                            Cần báo giá
+                                            Sẽ được tư vấn
                                         @else
                                             {{ number_format(
                                                 (float) $booking->total_amount,
