@@ -17,7 +17,7 @@
   <!--bootstrap css-->
   <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  @include('partials.material-icons')
   <!--main css-->
   <link href="{{ asset('assets/css/bootstrap-extended.css') }}" rel="stylesheet">
   <link href="{{ asset('sass/main.css') }}" rel="stylesheet">
