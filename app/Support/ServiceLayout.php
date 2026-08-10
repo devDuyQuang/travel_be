@@ -29,10 +29,15 @@ final class ServiceLayout
     public static function categoryDefaults(): array
     {
         return [
+            'golf' => self::TEE_TIME,
             'dat-tee-time' => self::TEE_TIME,
+            'tour-trai-nghiem' => self::TOUR,
             'tour-golf-viet-nam' => self::TOUR,
+            'khach-san' => self::ACCOMMODATION,
             'khach-san-nghi-duong' => self::ACCOMMODATION,
+            'thue-xe' => self::TRANSPORT,
             'thue-xe-dua-don' => self::TRANSPORT,
+            've-tham-quan' => self::ATTRACTION,
             'tham-quan-trai-nghiem' => self::ATTRACTION,
         ];
     }

@@ -120,8 +120,17 @@
                                 name="attributes[{{ $key }}]"
                                 id="{{ $inputId }}"
                                 value="{{ $value }}"
+                                @if(isset($field['min']))
+                                    min="{{ $field['min'] }}"
+                                @endif
                                 disabled
                             >
+                        @endif
+
+                        @if(!empty($field['description']))
+                            <p class="product-field-help">
+                                {{ $field['description'] }}
+                            </p>
                         @endif
 
                         @error("attributes.$key")

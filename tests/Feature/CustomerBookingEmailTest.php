@@ -181,6 +181,54 @@ class CustomerBookingEmailTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_tee_time_request_without_start_time_creates_booking_and_sends_mail(): void
+    {
+        Mail::fake();
+        $category = Category::create([
+            'name' => 'Tee time',
+            'slug' => 'tee-time-'.uniqid(),
+            'type' => 'service',
+            'layout_key' => 'tee_time',
+            'status' => 1,
+        ]);
+        $product = Product::create([
+            'name' => 'Tan Son Nhat Golf Course',
+            'slug' => 'tan-son-nhat-'.uniqid(),
+            'category_id' => $category->id,
+            'product_type' => 'service',
+            'price' => '2500000.00',
+            'status' => 1,
+        ]);
+
+        $response = $this->postJson('http://api.example.test/bookings', $this->bookingPayload($product, [
+            'booking_type' => BookingType::TeeTime->value,
+            'customer_email' => 'tee-time@example.test',
+            'quantity' => 3,
+            'booking_details' => [
+                'option_name' => '(Golf + Di chuyển) Nhóm 3 - 4 người',
+                'golfers' => 3,
+            ],
+            'idempotency_key' => 'tee-time-no-start-time-mail',
+        ]));
+
+        $response->assertCreated()
+            ->assertJsonPath('meta.mail_dispatched', true)
+            ->assertJsonPath('data.booking_type.value', BookingType::TeeTime->value)
+            ->assertJsonPath('data.schedule.start_time', null);
+
+        $this->assertDatabaseHas('bookings', [
+            'service_product_id' => $product->id,
+            'booking_type' => BookingType::TeeTime->value,
+            'customer_email' => 'tee-time@example.test',
+            'quantity' => 3,
+            'total_amount' => '7500000.00',
+        ]);
+        Mail::assertSent(BookingReceivedMail::class, function (BookingReceivedMail $mail) {
+            return $mail->hasTo('tee-time@example.test');
+        });
+        Mail::assertSent(BookingReceivedMail::class, 1);
+    }
+
     public function test_customer_cannot_access_admin_panel_but_admin_can(): void
     {
         $customerRole = Role::query()->firstOrCreate(['code' => 'customer'], ['name' => 'Customer', 'status' => 1]);

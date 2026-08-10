@@ -2,7 +2,7 @@
 //Đây là validation backend.
 // validate field chung như name, email, phone, start date, service product;
 // sau đó validate thêm theo từng loại dịch vụ, ví dụ hotel cần end date và room type, 
-//transport cần pickup/dropoff, tee time cần start time.
+//transport cần pickup/dropoff; tee time hiện là request/confirmation workflow nên không bắt buộc giờ chơi ở bước đầu.
 // dùng transaction để tránh trường hợp tạo booking thành công nhưng payment/history bị lỗi giữa chừng.
 namespace App\Http\Requests\Api;
 
@@ -112,9 +112,6 @@ class StoreBookingRequest extends FormRequest
                 }
             }
 
-            if ($type === BookingType::TeeTime->value && blank($this->input('start_time'))) {
-                $validator->errors()->add('start_time', 'Vui lòng chọn giờ chơi.');
-            }
         });
     }
 

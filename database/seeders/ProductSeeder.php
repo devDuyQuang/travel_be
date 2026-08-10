@@ -43,7 +43,7 @@ class ProductSeeder extends Seeder
 
                 'description' => 'Bà Nà Hills Golf Club là sân golf đẳng cấp tại miền Trung Việt Nam, được thiết kế bởi Luke Donald. Sân có địa hình tự nhiên, cảnh quan núi rừng và hệ thống tiện ích phù hợp cho golfer ở nhiều trình độ.',
 
-                'highlight' => "Nằm cạnh khu du lịch sinh thái Suối Mơ nổi tiếng.\nCách thành phố Đà Nẵng khoảng 25 phút lái xe.\nLà điểm đến phù hợp cho golfer khi đến Đà Nẵng.",
+                'highlight' => "Trải nghiệm các tiện nghi và dịch vụ đẳng cấp thế giới của Ba Na Hills Golf Club, chẳng hạn như câu lạc bộ hiện đại và hơn thế nữa!\nTận hưởng chơi gôn bất cứ lúc nào vì cơ sở này tự hào có sân gôn có đèn pha cho những ai muốn chơi vào ban đêm\nDẫn những người thân yêu của bạn vào trải nghiệm đầy thú vị này, nơi họ có thể đánh giá cao một môn thể thao mới\nTận hưởng dịch vụ đưa đón dễ dàng giữa khách sạn của bạn ở Thành phố Đà Nẵng và Ba Na Hills Golf Club",
 
                 'facility' => 'Green fee 18 holes, Caddy fee, Shared golf cart.',
 

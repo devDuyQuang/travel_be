@@ -726,19 +726,38 @@ class ProductController extends Controller
             return [];
         }
 
-        $booleanKeys = ['driver_included'];
+        $booleanKeys = [
+            'driver_included',
+            'is_weekend_recommended',
+            'is_near_center',
+        ];
+        $integerKeys = ['travel_time_to_center'];
+        $numericKeys = ['distance_to_center'];
         $normalized = [];
 
         foreach ($attributes as $key => $value) {
             if (in_array($key, $booleanKeys, true)) {
-                if ($value !== null && $value !== '') {
-                    $normalized[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                }
+                $normalized[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                 continue;
             }
 
             if (is_string($value)) {
                 $value = trim($value);
+            }
+
+            if (in_array($key, $integerKeys, true)) {
+                if ($value !== null && $value !== '' && is_numeric($value)) {
+                    $normalized[$key] = max(0, (int) $value);
+                }
+                continue;
+            }
+
+            if (in_array($key, $numericKeys, true)) {
+                if ($value !== null && $value !== '' && is_numeric($value)) {
+                    $number = max(0, (float) $value);
+                    $normalized[$key] = (int) $number == $number ? (int) $number : $number;
+                }
+                continue;
             }
 
             if ($value !== null && $value !== '') {

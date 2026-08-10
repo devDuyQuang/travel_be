@@ -80,18 +80,34 @@ class ProductResource extends JsonResource
                     ['id', 'asc'],
                 ])
                 ->values()
-                ->map(fn ($option) => [
-                    'id' => $option->id,
-                    'type' => $option->type,
-                    'name' => $option->name,
-                    'label' => $option->name,
-                    'description' => $option->description,
-                    'price' => $option->price,
-                    'currency' => $option->currency,
-                    'unit' => $option->unit,
-                    'capacity' => $option->capacity,
-                    'sort_order' => $option->sort_order,
-                ])),
+                ->map(function ($option) {
+                    $metadata = is_array($option->metadata) ? $option->metadata : [];
+
+                    return [
+                        'id' => $option->id,
+                        'type' => $option->type,
+                        'name' => $option->name,
+                        'label' => $option->name,
+                        'description' => $option->description,
+                        'price' => $option->price,
+                        'currency' => $option->currency,
+                        'unit' => $option->unit,
+                        'capacity' => $option->capacity,
+                        'sort_order' => $option->sort_order,
+                        'is_active' => (bool) $option->is_active,
+                        'metadata' => (object) $metadata,
+                        'min_quantity' => $metadata['min_quantity']
+                            ?? $metadata['min_golfers']
+                            ?? $metadata['min_people']
+                            ?? null,
+                        'max_quantity' => $metadata['max_quantity']
+                            ?? $metadata['max_golfers']
+                            ?? $metadata['max_people']
+                            ?? $option->capacity,
+                        'inclusions' => $metadata['inclusions'] ?? null,
+                        'exclusions' => $metadata['exclusions'] ?? null,
+                    ];
+                })),
             'seo' => [
                 'title' => $this->title_seo,
                 'description' => $this->description_seo,

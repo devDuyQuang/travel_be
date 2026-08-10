@@ -2,22 +2,31 @@
   $statusText = 'Đang chờ xác nhận';
   $bookingType = $booking->booking_type instanceof \App\Enums\BookingType ? $booking->booking_type->value : (string) $booking->booking_type;
   $isHotel = $bookingType === 'hotel';
-  $titleText = $isHotel ? 'Yêu cầu đặt phòng đã được tiếp nhận' : 'Yêu cầu booking đã được tiếp nhận';
-  $startLabel = $isHotel ? 'Ngày nhận phòng' : 'Ngày booking';
+  $isTeeTime = $bookingType === 'tee_time';
+  $titleText = $isHotel ? 'Yêu cầu đặt phòng đã được tiếp nhận' : ($isTeeTime ? 'Yêu cầu đặt tee time đã được tiếp nhận' : 'Yêu cầu booking đã được tiếp nhận');
+  $startLabel = $isHotel ? 'Ngày nhận phòng' : ($isTeeTime ? 'Ngày chơi' : 'Ngày booking');
   $endLabel = $isHotel ? 'Ngày trả phòng' : 'Ngày kết thúc';
   $pricingMode = $booking->pricing_mode instanceof \App\Enums\PricingMode ? $booking->pricing_mode->value : (string) $booking->pricing_mode;
   $isQuote = $pricingMode === 'quote' || (float) $booking->total_amount <= 0;
   $totalText = $isQuote ? 'Sẽ được tư vấn' : number_format((float) $booking->total_amount, 0, ',', '.') . ' ' . $booking->currency;
   $details = is_array($booking->booking_details) ? $booking->booking_details : [];
+  $paymentLabels = [
+      'cash' => 'Thanh toán tại nơi sử dụng dịch vụ',
+      'bank_transfer' => 'Chuyển khoản sau khi xác nhận',
+  ];
+  $paymentText = $paymentLabels[$booking->payment_method] ?? ($booking->payment_method ? $booking->payment_method : 'Chưa chọn');
   $optionRows = '';
   if (! empty($details['option_name'])) {
-      $optionRows .= '<tr><td style="padding:6px 0;color:#6b7280;">Tùy chọn dịch vụ</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($details['option_name']).'</td></tr>';
+      $optionLabel = $isTeeTime ? 'Gói tee time' : 'Tùy chọn dịch vụ';
+      $optionRows .= '<tr><td style="padding:6px 0;color:#6b7280;">'.e($optionLabel).'</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($details['option_name']).'</td></tr>';
       $unitText = ! empty($details['unit']) ? ' / '.e($details['unit']) : '';
       $unitPriceText = isset($details['unit_price']) && (float) $details['unit_price'] > 0
           ? number_format((float) $details['unit_price'], 0, ',', '.') . ' ' . e($booking->currency) . $unitText
           : 'Sẽ được tư vấn';
       $optionRows .= '<tr><td style="padding:6px 0;color:#6b7280;">Đơn giá</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.$unitPriceText.'</td></tr>';
-      if (! empty($details['quantity_basis'])) {
+      if ($isTeeTime && ! empty($details['golfers'])) {
+          $optionRows .= '<tr><td style="padding:6px 0;color:#6b7280;">Số golfer</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($details['golfers']).' golfer</td></tr>';
+      } elseif (! empty($details['quantity_basis'])) {
           $optionRows .= '<tr><td style="padding:6px 0;color:#6b7280;">Số lượng tính</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($details['quantity_basis']).'</td></tr>';
       }
   }
@@ -30,7 +39,8 @@
       <tr><td style="padding:6px 0;color:#6b7280;">'.e($startLabel).'</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e(optional($booking->start_date)->format('d/m/Y')).'</td></tr>'.
       ($booking->end_date ? '<tr><td style="padding:6px 0;color:#6b7280;">'.e($endLabel).'</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e(optional($booking->end_date)->format('d/m/Y')).'</td></tr>' : '').
       $optionRows.
-      '<tr><td style="padding:6px 0;color:#6b7280;">Trạng thái</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($statusText).'</td></tr>
+      '<tr><td style="padding:6px 0;color:#6b7280;">Phương thức thanh toán</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($paymentText).'</td></tr>
+      <tr><td style="padding:6px 0;color:#6b7280;">Trạng thái</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($statusText).'</td></tr>
       <tr><td style="padding:6px 0;color:#6b7280;">Giá dự kiến</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($totalText).'</td></tr>
       <tr><td style="padding:6px 0;color:#6b7280;">Email đăng nhập</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#111827;">'.e($booking->customer_email).'</td></tr>
     </table>

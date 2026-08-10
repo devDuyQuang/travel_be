@@ -11,6 +11,26 @@ final class ServiceProductAttributes
                 'title' => 'Thông tin hiển thị trên chi tiết sân golf',
                 'fields' => [
                     'course_type' => ['label' => 'Loại sân', 'type' => 'text'],
+                    'is_weekend_recommended' => [
+                        'label' => 'Gợi ý tee time cuối tuần',
+                        'type' => 'boolean',
+                    ],
+                    'is_near_center' => [
+                        'label' => 'Sân gần trung tâm',
+                        'type' => 'boolean',
+                    ],
+                    'distance_to_center' => [
+                        'label' => 'Khoảng cách đến trung tâm',
+                        'type' => 'number',
+                        'description' => 'Đơn vị: km',
+                        'min' => 0,
+                    ],
+                    'travel_time_to_center' => [
+                        'label' => 'Thời gian di chuyển từ trung tâm',
+                        'type' => 'number',
+                        'description' => 'Đơn vị: phút',
+                        'min' => 0,
+                    ],
                 ],
             ],
             ServiceLayout::TOUR => [
@@ -112,7 +132,9 @@ final class ServiceProductAttributes
         foreach (self::groups() as $group) {
             foreach ($group['fields'] as $key => $field) {
                 $rules["attributes.$key"] = match ($field['type']) {
-                    'number' => ['nullable', 'numeric', 'min:0'],
+                    'number' => $key === 'travel_time_to_center'
+                        ? ['nullable', 'integer', 'min:0']
+                        : ['nullable', 'numeric', 'min:0'],
                     'boolean' => ['nullable', 'boolean'],
                     'textarea' => ['nullable', 'string'],
                     default => ['nullable', 'string', 'max:1000'],

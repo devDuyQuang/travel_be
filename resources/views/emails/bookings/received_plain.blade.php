@@ -1,27 +1,36 @@
 @php
   $bookingType = $booking->booking_type instanceof \App\Enums\BookingType ? $booking->booking_type->value : (string) $booking->booking_type;
   $isHotel = $bookingType === 'hotel';
+  $isTeeTime = $bookingType === 'tee_time';
   $pricingMode = $booking->pricing_mode instanceof \App\Enums\PricingMode ? $booking->pricing_mode->value : (string) $booking->pricing_mode;
   $details = is_array($booking->booking_details) ? $booking->booking_details : [];
+  $paymentLabels = [
+      'cash' => 'Thanh toán tại nơi sử dụng dịch vụ',
+      'bank_transfer' => 'Chuyển khoản sau khi xác nhận',
+  ];
+  $paymentText = $paymentLabels[$booking->payment_method] ?? ($booking->payment_method ? $booking->payment_method : 'Chưa chọn');
 @endphp
-{{ $isHotel ? 'Yêu cầu đặt phòng đã được tiếp nhận' : 'Yêu cầu booking đã được tiếp nhận' }}
+{{ $isHotel ? 'Yêu cầu đặt phòng đã được tiếp nhận' : ($isTeeTime ? 'Yêu cầu đặt tee time đã được tiếp nhận' : 'Yêu cầu booking đã được tiếp nhận') }}
 
 Cảm ơn {{ $booking->customer_name }} đã gửi yêu cầu tới Golfnity.
 Chúng tôi sẽ kiểm tra tình trạng dịch vụ và phản hồi xác nhận trong thời gian sớm nhất.
 
 Mã booking: {{ $booking->booking_code }}
 Dịch vụ: {{ $booking->service_name_snapshot }}
-{{ $isHotel ? 'Ngày nhận phòng' : 'Ngày booking' }}: {{ optional($booking->start_date)->format('d/m/Y') }}
+{{ $isHotel ? 'Ngày nhận phòng' : ($isTeeTime ? 'Ngày chơi' : 'Ngày booking') }}: {{ optional($booking->start_date)->format('d/m/Y') }}
 @if($booking->end_date)
 {{ $isHotel ? 'Ngày trả phòng' : 'Ngày kết thúc' }}: {{ optional($booking->end_date)->format('d/m/Y') }}
 @endif
 @if(!empty($details['option_name']))
-Tùy chọn dịch vụ: {{ $details['option_name'] }}
+{{ $isTeeTime ? 'Gói tee time' : 'Tùy chọn dịch vụ' }}: {{ $details['option_name'] }}
 Đơn giá: {{ isset($details['unit_price']) && (float) $details['unit_price'] > 0 ? number_format((float) $details['unit_price'], 0, ',', '.') . ' ' . $booking->currency . (!empty($details['unit']) ? ' / '.$details['unit'] : '') : 'Sẽ được tư vấn' }}
-@if(!empty($details['quantity_basis']))
+@if($isTeeTime && !empty($details['golfers']))
+Số golfer: {{ $details['golfers'] }} golfer
+@elseif(!empty($details['quantity_basis']))
 Số lượng tính: {{ $details['quantity_basis'] }}
 @endif
 @endif
+Phương thức thanh toán: {{ $paymentText }}
 Trạng thái: Đang chờ xác nhận
 Giá dự kiến: {{ ($pricingMode === 'quote' || (float) $booking->total_amount <= 0) ? 'Sẽ được tư vấn' : number_format((float) $booking->total_amount, 0, ',', '.') . ' ' . $booking->currency }}
 Email đăng nhập: {{ $booking->customer_email }}
